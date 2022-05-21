@@ -120,8 +120,10 @@ if __name__ == '__main__':
             'a_dim': None,
             'policy_hidden_layers': [64, 64],
             'value_hidden_layers': [128, 128],
-            'disc_hidden_layers': [256, 256],
+            'idm_hidden_layers': [256, 256],
             'action_std': 0.4,
+            'idm_logstd_min': -10,
+            'idm_logstd_max': 0.5
         },
         'env_config': {
             'env_name': 'Walker',
@@ -137,7 +139,7 @@ if __name__ == '__main__':
         'eval_episode': 10,
         
         'num_workers': 10,
-        'rollout_episode': 5,
+        'num_worker_rollout': 5,
         'reward_tradeoff': 0.01,
         'num_epoch': 20,
         'lr': 0.0003,
@@ -146,7 +148,7 @@ if __name__ == '__main__':
         'ratio_clip': 0.25,
         'batch_size': 256,
         'temperature_coef': 0.1,
-        'device': 'cuda',
+        'device': 'cpu',
         'result_path': '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/'
     }
     

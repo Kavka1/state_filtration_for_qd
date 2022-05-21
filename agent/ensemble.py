@@ -121,7 +121,7 @@ class Ensemble(object):
         primitives = []
         primitive_optimizers = []
         for i in range(self.num_primitive):
-            p = Primitive(self.model_config, self.device)
+            p = Primitive(self.model_config, self.device).to(self.device)
             opt = optim.Adam(p.parameters(), self.lr)
 
             primitives.append(p)
@@ -139,7 +139,7 @@ class Ensemble(object):
                     env_config = env_config,
                     reward_tradeoff = self.tradeoff,
                     seed = initial_seed + i * seed_increment, 
-                    rollout_episodes = self.num_worker_rollout,
+                    rollout_episode = self.num_worker_rollout,
                 )
             )
         return workers
@@ -189,8 +189,8 @@ class Ensemble(object):
             log_reward_in += np.mean(r_in_seq)
 
             value_seq = self.value(
-                torch.from_numpy(np.stack(traj_dict['obs_filt'], 0)).to(self.device).float()
-            ).detach().unsqueeze(-1).tolist()
+                torch.from_numpy(np.stack(traj_dict['obs'], 0)).to(self.device).float()
+            ).detach().squeeze(-1).tolist()
             # compute the hybrid rewards
             hybrid_r = [r_ex + self.tradeoff * r_in for r_ex, r_in in zip(traj_dict['r'], r_in_seq)]
             # compute the return and advantage 
