@@ -3,11 +3,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-def init_weight(layer, initializer="he normal"):
+def init_weight(layer, initializer="orthogonal"):
     if initializer == "xavier uniform":
         nn.init.xavier_uniform_(layer.weight)
     elif initializer == "he normal":
         nn.init.kaiming_normal_(layer.weight)
+    elif initializer == 'orthogonal':
+        nn.init.orthogonal_(layer.weight)
 
 
 def call_activation(name: str) -> nn.Module:

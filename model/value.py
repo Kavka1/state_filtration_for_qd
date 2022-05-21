@@ -15,7 +15,7 @@ class VFunction(nn.Module):
             o_dim,
             1,
             hidden_layers,
-            inter_activation='ReLU',
+            inter_activation='Tanh',
             output_activation='Identity'
         )
 

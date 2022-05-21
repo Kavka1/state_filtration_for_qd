@@ -35,15 +35,17 @@ def main(config: Dict, exp_name: str = ''):
     tb = SummaryWriter(config['exp_path'])
 
     total_step, total_episode, total_iteration = 0, 0, 0
-    local_iteration = 0         # iteration count for each primitive
+    local_step_across_primitive = [0] * num_primitive
     best_score_across_primitive = [0] * num_primitive
     for k in range(num_primitive):
         local_iteration = 0
-        while total_step <= config['max_timesteps_per_primitive']:
+
+        while local_step_across_primitive[k] <= config['max_timesteps_per_primitive']:
             logger_dict = ensemble.rollout_update(k)
 
-            total_step = ensemble.total_steps
-            total_episode = ensemble.total_episodes
+            total_step = ensemble.total_step
+            total_episode = ensemble.total_episode
+            local_step_across_primitive[k] = total_step if k == 0 else total_step - np.sum(local_step_across_primitive[:k])
 
             reward_current_primitive = ensemble.evaluate(env, config['eval_episode'])
             if reward_current_primitive > best_score_across_primitive[k]:
@@ -76,15 +78,21 @@ def main(config: Dict, exp_name: str = ''):
                 ensemble.save_policy(k, f'{local_iteration}')
                 ensemble.save_inverse_model(k, f'{local_iteration}')
 
-            total_iteration += 1
             local_iteration += 1
+            total_iteration += 1
+
+        ensemble.save_policy(k, 'final')
+        ensemble.save_inverse_model(k, 'final')
+
 
 def demo(path: str, remark: str) -> None:
     with open(path + 'config.yaml', 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
     
+    num_primitive = 1# config['num_primitive']
     all_policy = []
-    for k in config['num_primitive']:
+
+    for k in range(num_primitive):
         policy = FixStdGaussianPolicy(
             config['model_config']['o_dim'],
             config['model_config']['a_dim'],
@@ -120,40 +128,69 @@ if __name__ == '__main__':
             'a_dim': None,
             'policy_hidden_layers': [64, 64],
             'value_hidden_layers': [128, 128],
-            'idm_hidden_layers': [256, 256],
+            'idm_hidden_layers': [128, 128],
             'action_std': 0.4,
             'idm_logstd_min': -10,
             'idm_logstd_max': 0.5
         },
         'env_config': {
-            'env_name': 'Walker',
+            'env_name': 'HalfCheetah',
             'missing_obs_info': {
-                'missing_joint': ['foot', 'leg', 'thigh'],
-                'missing_coord': []
+                'missing_joint': ['thigh', 'shin', 'foot'],
+                'missing_coord': ['2', '3']
             }
         },
 
-        'num_primitive': 10,
-        'max_timesteps_per_primitive': 2000000,
-        'save_interval': 50,
-        'eval_episode': 10,
+        'num_primitive': 6,
+        'max_timesteps_per_primitive': 2500000,
+        'save_interval': 40,
+        'eval_episode': 5,
         
         'num_workers': 10,
         'num_worker_rollout': 5,
-        'reward_tradeoff': 0.01,
-        'num_epoch': 20,
+        'reward_tradeoff': 0.05,
+        'num_epoch': 30,
         'lr': 0.0003,
         'gamma': 0.99,
         'lamda': 0.95,
         'ratio_clip': 0.25,
         'batch_size': 256,
         'temperature_coef': 0.1,
-        'device': 'cpu',
+        'device': 'cuda',
         'result_path': '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/'
     }
     
-    for seed in [10, 20, 30]:
-        config['seed'] = seed
-        main(config, 'tradeoff_0.01')
+    for env_config in [
+        {   
+            'env_name': 'Walker',
+            'missing_obs_info': {
+                'missing_joint': ['foot', 'leg', 'thigh'],
+                'missing_coord': ['2', '3']
+            }
+        },
+        {
+            'env_name': 'Hopper',
+            'missing_obs_info': {
+                'missing_joint': ['foot', 'leg', 'thigh'],
+                'missing_coord': ['2']
+            }
+        },
+        {
+            'env_name': 'HalfCheetah',
+            'missing_obs_info': {
+                'missing_joint': ['shin', 'foot', 'thigh'],
+                'missing_coord': ['2', '3']
+            }
+        },
+        {   
+            'env_name': 'Ant',
+            'missing_obs_info': {
+                'missing_joint': ['hip', 'ankle'],
+                'missing_coord': ['2', '3', '4', '5']
+            }
+        }
+    ]:
+        config['env_config'] = env_config
+        main(config, '')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results/tradeoff_0.01-Walker-missing_coord_2_3-10/','best')
+    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_joint_thigh_shin_foot-missing_coord_2_3-10/','best')

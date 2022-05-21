@@ -18,7 +18,7 @@ class FixStdGaussianPolicy(nn.Module):
             o_dim,
             a_dim,
             hidden_layers,
-            inter_activation='ReLU',
+            inter_activation='Tanh',
             output_activation='Tanh'
         )
         self.ac_std = nn.Parameter(torch.ones(size=(a_dim,)) * action_std, requires_grad=False)
@@ -33,13 +33,10 @@ class FixStdGaussianPolicy(nn.Module):
                 action = self.model(obs)
         return action
 
-    def __call__(self, obs: torch.tensor) -> Tuple[torch.tensor, torch.tensor, torch.distributions.Distribution]:
+    def __call__(self, obs: torch.tensor) -> torch.distributions.Distribution:
         mean = self.model(obs)
         dist = Normal(mean, self.ac_std)
-
-        action = dist.rsample()
-        logprob = dist.log_prob(action)
-        return action, logprob, dist
+        return dist
 
     def load_model(self, path: str) -> None:
         self.load_state_dict(torch.load(path))

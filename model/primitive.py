@@ -8,7 +8,7 @@ from state_filtration_for_qd.model.dynamics import DiagGaussianIDM
 
 
 
-class Primitive(nn.Module):
+class Primitive(object):
     def __init__(self, model_config: Dict, device: torch.device) -> None:
         super().__init__()
         self.device = device
@@ -18,14 +18,14 @@ class Primitive(nn.Module):
             model_config['a_dim'],
             model_config['policy_hidden_layers'],
             model_config['action_std']
-        )
+        ).to(device)
         self.inverse_model = DiagGaussianIDM(
             model_config['filtrated_o_dim'],
             model_config['a_dim'],
             model_config['idm_hidden_layers'],
             model_config['idm_logstd_min'],
             model_config['idm_logstd_max']
-        )
+        ).to(device)
 
     def inference_action(self, obs_filt: np.array, next_obs_filt: np.array) -> torch.distributions:
         a_dist = self.inverse_model(
@@ -38,4 +38,4 @@ class Primitive(nn.Module):
         return self.policy.act(
             torch.from_numpy(obs).to(self.device).float(),
             with_noise
-        )
+        ).detach().cpu().numpy()

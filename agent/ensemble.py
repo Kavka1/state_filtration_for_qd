@@ -9,7 +9,6 @@ import torch.optim as optim
 
 from state_filtration_for_qd.model.flat_policy import FixStdGaussianPolicy
 from state_filtration_for_qd.model.value import VFunction
-from state_filtration_for_qd.model.dynamics import DiagGaussianIDM
 from state_filtration_for_qd.model.primitive import Primitive
 from state_filtration_for_qd.env.common import call_env
 from state_filtration_for_qd.utils import gae_estimator, confirm_path_exist
@@ -46,7 +45,7 @@ class RayWorker(object):
         self.policy.load_state_dict(policy_state_dict)
 
         info_dict = {'step': 0, 'rewards': 0}
-        trajectories = [{}] * self.rollout_episode
+        trajectories = [dict() for _ in range(self.rollout_episode)]
         for i_episode in range(self.rollout_episode):
             obs_seq, next_obs_seq, a_seq, r_seq, logprob_seq = [], [], [], [], []
             filtrated_obs_seq, filtrated_next_obs_seq = [], []
@@ -54,10 +53,14 @@ class RayWorker(object):
             obs = self.env.reset()
             done = False
             while not done:
-                action, logprob, _ = self.policy(torch.from_numpy(obs).float())
+                with torch.no_grad():
+                    dist = self.policy(torch.from_numpy(obs).float())
+                    action = dist.sample()
+                    logprob = dist.log_prob(action)
                 action, logprob = action.detach().numpy(), logprob.detach().numpy()
 
-                obs_, r, done, info = self.env.step(action)
+                cliped_a = np.clip(action, -self.action_bound, self.action_bound)
+                obs_, r, done, info = self.env.step(cliped_a)
                 obs_filt, next_obs_filt = self.obs_filter(obs), self.obs_filter(obs_)
                 
                 # pack the trajectory
@@ -82,7 +85,7 @@ class RayWorker(object):
                 'obs_filt': filtrated_obs_seq,
                 'next_obs_filt': filtrated_next_obs_seq
             })
-            info_dict['rewards'] /= self.rollout_episode 
+            info_dict['rewards'] /= self.rollout_episode
         
         return (info_dict, trajectories)
 
@@ -111,23 +114,27 @@ class Ensemble(object):
             self.model_config['value_hidden_layers']
         ).to(self.device)
         self.optimizer_value = optim.Adam(self.value.parameters(), self.lr)
-        self.primitives, self.primitive_optimizers = self._init_primitives()
+        self.primitives, self.primitive_policy_optimizers, self.primitive_inverse_model_optimizers = self._init_primitives()
+        
         self.workers = self._init_workers(config['env_config'], config['seed'])
 
-        self.current_trained_primitive = 0
+        self.current_trained_primitive      = 0
         self.total_step, self.total_episode = 0, 0
 
     def _init_primitives(self) -> Tuple:
-        primitives = []
-        primitive_optimizers = []
+        primitives                          = []
+        primitive_policy_optimizers         = []
+        primitive_inverse_model_optimizers  = []
         for i in range(self.num_primitive):
-            p = Primitive(self.model_config, self.device).to(self.device)
-            opt = optim.Adam(p.parameters(), self.lr)
+            p                   = Primitive(self.model_config, self.device)
+            opt_policy          = optim.Adam(p.policy.parameters(), self.lr)
+            opt_inverse_model   = optim.Adam(p.inverse_model.parameters(), self.lr, weight_decay=0.01)
 
             primitives.append(p)
-            primitive_optimizers.append(opt)
+            primitive_policy_optimizers.append(opt_policy)
+            primitive_inverse_model_optimizers.append(opt_inverse_model)
 
-        return primitives, primitive_optimizers
+        return primitives, primitive_policy_optimizers, primitive_inverse_model_optimizers
     
     def _init_workers(self, env_config: str, initial_seed: int, seed_increment: bool = True) -> List[RayWorker]:
         workers = []
@@ -151,26 +158,30 @@ class Ensemble(object):
         else:
             for k in range(self.current_trained_primitive):
                 inference_a_dist = self.primitives[k].inference_action(obs_filt, next_obs_filt)
-                log_likelihood = - inference_a_dist.log_prob(action).sum(-1, keepdim=False).detach().numpy()
+                log_likelihood = - inference_a_dist.log_prob(
+                    torch.from_numpy(action).to(self.device).float()
+                ).sum(-1, keepdim=False).detach().cpu().numpy()
                 intrinsic_reward += log_likelihood
             intrinsic_reward /= self.current_trained_primitive
             return intrinsic_reward.tolist()
 
     def rollout_update(self, current_primitive: int) -> Dict:
-        self.current_trained_primitive = current_primitive
-        
-        primitive = self.primitives[current_primitive]
-        primitive_optimizer = self.primitive_optimizers[current_primitive]
-
-        policy_state_dict_remote = ray.put(deepcopy(primitive.policy).to(torch.device('cpu')).state_dict())
-        rollout_remote = [worker.rollout.remote(policy_state_dict_remote) for worker in self.workers]
-        results = ray.get(rollout_remote)
+        self.current_trained_primitive          = current_primitive
+        primitive                               = self.primitives[current_primitive]
+        primitive_policy_optimizer              = self.primitive_policy_optimizers[current_primitive]
+        primitive_inverse_model_optimizer       = self.primitive_inverse_model_optimizers[current_primitive]
+       
+        # rollout and collect trajectories
+        policy_state_dict_remote    = ray.put(deepcopy(primitive.policy).to(torch.device('cpu')).state_dict())
+        rollout_remote              = [worker.rollout.remote(policy_state_dict_remote) for worker in self.workers]
+        results                     = ray.get(rollout_remote)
 
         # unpack the data
         all_info_dict, all_trajectory, worker_rewards = [], [], []
         for item in results:
             all_info_dict.append(item[0])
             all_trajectory += item[1]                           # link the trajectories
+        
         # unpack the train info
         for info_dict in all_info_dict:
             self.total_step += info_dict['step'] 
@@ -187,21 +198,18 @@ class Ensemble(object):
                 np.stack(traj_dict['action'], 0)
             )
             log_reward_in += np.mean(r_in_seq)
-
-            value_seq = self.value(
-                torch.from_numpy(np.stack(traj_dict['obs'], 0)).to(self.device).float()
-            ).detach().squeeze(-1).tolist()
             # compute the hybrid rewards
             hybrid_r = [r_ex + self.tradeoff * r_in for r_ex, r_in in zip(traj_dict['r'], r_in_seq)]
+            value_seq = self.value(
+                torch.from_numpy(np.stack(traj_dict['obs'], 0)).to(self.device).float()
+            ).squeeze(-1).detach().tolist()
             # compute the return and advantage 
             ret_seq, adv_seq = gae_estimator(hybrid_r, value_seq, self.gamma, self.lamda)
             traj_dict.update({'ret': ret_seq, 'adv': adv_seq})
         log_reward_in /= len(all_trajectory)
 
         # unpack the trajectories
-        data_buffer = {
-            'obs': [], 'action': [], 'ret': [], 'adv': [], 'logprob': [], 'obs_filt': [], 'next_obs_filt': []
-        }
+        data_buffer = {'obs': [], 'action': [], 'ret': [], 'adv': [], 'logprob': [], 'obs_filt': [], 'next_obs_filt': []}
         for traj_dict in all_trajectory:
             data_buffer['obs']              += traj_dict['obs']                         # [num, o_dim]
             data_buffer['action']           += traj_dict['action']                      # [num, a_dim]
@@ -211,7 +219,7 @@ class Ensemble(object):
             data_buffer['ret']              += traj_dict['ret']                         # [num]
             data_buffer['adv']              += traj_dict['adv']                         # [num]
         for key in list(data_buffer.keys()):
-            type_data = np.array(data_buffer[key])
+            type_data = np.array(data_buffer[key], dtype=np.float64)
             if key in ['ret', 'adv']:
                 type_data = type_data.reshape(-1, 1)                    # convert [num] to [num, 1]
             data_buffer[key] = torch.from_numpy(type_data).to(self.device).float()
@@ -225,22 +233,27 @@ class Ensemble(object):
                 obs_filt, next_obs_filt = batch['obs_filt'], batch['next_obs_filt']
                 
                 loss_value = self.compute_value_loss(obs, ret)
-                loss_policy, loss_inverse_model = self.compute_primitive_loss(primitive, obs, a, logprob, adv, obs_filt, next_obs_filt)
-                loss_primitive = loss_policy + loss_inverse_model
-
                 self.optimizer_value.zero_grad()
                 loss_value.backward()
+                nn.utils.clip_grad_norm_(self.value.parameters(), 0.5)
                 self.optimizer_value.step()
 
-                primitive_optimizer.zero_grad()
-                loss_primitive.backward()
-                nn.utils.clip_grad_norm_(primitive.parameters(), 0.5)
-                primitive_optimizer.step()
+                loss_policy = self.compute_policy_loss(primitive, obs, a, logprob, adv)
+                primitive_policy_optimizer.zero_grad()
+                loss_policy.backward()
+                nn.utils.clip_grad_norm_(primitive.policy.parameters(), 0.5)
+                primitive_policy_optimizer.step()
+
+                loss_inverse_model = self.compute_inverse_model_loss(primitive, a, obs_filt, next_obs_filt)
+                primitive_inverse_model_optimizer.zero_grad()
+                loss_inverse_model.backward()
+                nn.utils.clip_grad_norm_(primitive.inverse_model.parameters(), 0.5)
+                primitive_inverse_model_optimizer.step()
 
                 update_count            += 1
                 log_loss_value          += loss_value.detach().item()
                 log_loss_policy         += loss_policy.detach().item()
-                log_loss_inverse_model  += loss_inverse_model.detach().item()
+                log_loss_inverse_model  += loss_inverse_model#.detach().item()
         
         return {
             'loss_policy': log_loss_policy / update_count,
@@ -250,21 +263,18 @@ class Ensemble(object):
             'reward_in': log_reward_in
         }
 
-    def compute_primitive_loss(
+    def compute_policy_loss(
         self, 
         primitive: Primitive, 
         obs: torch.tensor, 
         a: torch.tensor, 
         logprob: torch.tensor, 
         adv: torch.tensor,
-        obs_filt: torch.tensor,
-        next_obs_filt: torch.tensor
     ) -> Tuple[torch.tensor, torch.tensor]:
         if len(adv) != 1:   # length is 1, the std will be nan
             adv = (adv - adv.mean()) / (adv.std() + 1e-5)
-        
         # compute the policy loss
-        _, _, dist = primitive.policy(obs)
+        dist = primitive.policy(obs)
         new_logprob = dist.log_prob(a)
         entropy = dist.entropy()
         ratio = torch.exp(new_logprob.sum(-1, keepdim=True) - logprob.sum(-1, keepdim=True))
@@ -272,12 +282,19 @@ class Ensemble(object):
         surr2 = torch.clip(ratio, 1-self.ratio_clip, 1+self.ratio_clip) * adv
         loss_policy = (- torch.min(surr1, surr2) - self.temperature_coef * entropy).mean()
         
-        # compute the inverse model loss
+        return loss_policy
+    
+    def compute_inverse_model_loss(
+        self, 
+        primitive: Primitive, 
+        a: torch.tensor,
+        obs_filt: torch.tensor,
+        next_obs_filt: torch.tensor
+    ) -> torch.tensor:
         inference_a_dist = primitive.inverse_model(obs_filt, next_obs_filt)
         loss_inverse_model = - inference_a_dist.log_prob(a).mean()
+        return loss_inverse_model
 
-        return loss_policy, loss_inverse_model
-    
     def compute_value_loss(self, obs: torch.tensor, ret: torch.tensor) -> torch.tensor:
         value = self.value(obs)
         loss_value = F.mse_loss(value, ret)
@@ -293,6 +310,7 @@ class Ensemble(object):
             step = 0
             while not done:
                 action = self.primitives[k].decision(obs, False)
+                action = np.clip(action, -env.action_bound, env.action_bound)
                 next_obs, r, done, info = env.step(action)
                 reward += r
                 obs = next_obs
