@@ -34,7 +34,7 @@ class RayWorker(object):
             model_config['a_dim'],
             model_config['z_dim'],
             model_config['policy_hidden_layers'],
-            model_config['policy_ac_std']
+            model_config['action_std']
         )
         self.value = VFunction(
             model_config['o_dim'] + model_config['z_dim'],
@@ -80,7 +80,14 @@ class RayWorker(object):
         total_steps, cumulative_ex_r , cumulative_in_r = 0, 0, 0
 
         for episode in range(self.rollout_episodes):
-            obs_z_seq, filtered_obs_seq, filtered_next_obs_seq, a_seq, z_seq, r_seq, logprob_seq, value_seq = [], [], [], [], [], [], []
+            obs_z_seq = []
+            filtered_obs_seq = [] 
+            filtered_next_obs_seq = [] 
+            a_seq = []
+            z_seq = []
+            r_seq = []
+            logprob_seq = []
+            value_seq = []
             r_ex_seq, r_in_seq = [], []
 
             obs = self.env.reset()
@@ -109,9 +116,9 @@ class RayWorker(object):
                     torch.from_numpy(obs_filtered).float(),
                     torch.from_numpy(n_obs_filtered).float(),
                     torch.from_numpy(a),
-                    torch.from_numpy(z).type(torch.int32)
+                    torch.from_numpy(np.array(z)).type(torch.int32)
                 )
-                r_in = logprob_z.tolist()[0]
+                r_in = float(logprob_z)
                 # combine reward
                 r = r_ex + self.tradeoff * r_in
                 
@@ -156,7 +163,7 @@ class RayWorker(object):
             'filtered_obs': np.stack(all_filtered_obs_seq, 0),
             'filtered_next_obs': np.stack(all_filtered_next_obs_seq, 0),
             'a': np.stack(all_a_seq, 0),
-            'z': np.stack(all_z_seq, 0),
+            'z': np.array(all_z_seq, dtype=np.int64)[:, np.newaxis],
             'logprob': np.stack(all_logprob_seq, 0),
             'ret': np.array(all_ret_seq, dtype=np.float32)[:, np.newaxis],
             'adv': np.array(all_adv_seq, dtype=np.float32)[:, np.newaxis]

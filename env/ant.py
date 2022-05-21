@@ -120,3 +120,7 @@ class Missing_Info_Ant(AntEnv):
         qvel = self._drop_infeasible_jnt_vel(qvel)
         qpos = self._drop_infeasible_coord_pos(qpos)
         return np.concatenate([qpos, qvel, cfrc_ext], axis=-1)
+
+    @property
+    def action_bound(self) -> float:
+        return self.action_space.high[0]

@@ -53,9 +53,9 @@ def make_exp_path(config: Dict, exp_name: str) -> None:
     # concat experiment name
     exp_file = "" if exp_name is '' else f'{exp_name}-'
     # concat env name
-    exp_file += f"{config['env_name']}"
+    exp_file += f"{config['env_config']['env_name']}"
     # concat missing observation info
-    for key, missing_item in config['missing_obs_info'].items():
+    for key, missing_item in config['env_config']['missing_obs_info'].items():
         if len(missing_item) == 0:
             continue
         concat_missing_info = ''

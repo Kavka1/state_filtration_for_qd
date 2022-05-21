@@ -25,12 +25,19 @@ def main(config: Dict, exp_name: str = ''):
     # update config about env and save config
     config['model_config'].update({
         'o_dim': env.observation_space.shape[0],
-        'a_dim': env.action_space.shape[0]
+        'a_dim': env.action_space.shape[0],
+        'filtrated_o_dim': len(env._process_obs(env.reset()))
     })
     with open(config['exp_path'] + 'config.yaml', 'w', encoding='utf-8') as f:
         yaml.safe_dump(config, f, indent=2)
     # build agent
     agent = PPOAgent(config)
+    agent._init_workers(
+        env_config= config['env_config'],
+        initial_seed= config['seed'],
+        rollout_episodes= config['rollout_episode'],
+        seed_increment= True
+    )
     # make loggers
     logger = Logger()
     tb = SummaryWriter(config['exp_path'])
@@ -95,7 +102,7 @@ def demo(path: str, remark: str) -> None:
         config['model_config']['action_std'],
     )
 
-    policy.load_model(path + f'policy_{remark}')
+    policy.load_model(path + f'model/policy_{remark}')
     env = call_env(config['env_config'])
 
     z_dim = config['model_config']['z_dim']
@@ -125,7 +132,7 @@ if __name__ == '__main__':
         'model_config': {
             'o_dim': None,
             'a_dim': None,
-            'z_dim': 40,
+            'z_dim': 20,
             'policy_hidden_layers': [256, 256],
             'value_hidden_layers': [256, 256],
             'disc_hidden_layers': [256, 256],
@@ -134,28 +141,31 @@ if __name__ == '__main__':
         'env_config': {
             'env_name': 'Walker',
             'missing_obs_info': {
-                'missing_joint': ['foot', 'leg'],
-                'missing_coord': []
+                'missing_joint': [],#['foot', 'leg', 'thigh'],
+                'missing_coord': ['2', '3']
             }
         },
 
-        'max_timesteps': 2000000,
-        'save_interval': 10,
+        'max_timesteps': 10000000,
+        'save_interval': 100,
         'eval_episode': 1,
         
         'num_workers': 10,
-        'reward_tradeoff': 1,
-        
+        'rollout_episode': 5,
+        'reward_tradeoff': 0.01,
+        'num_epoch': 20,
         'lr': 0.0003,
         'gamma': 0.99,
         'lamda': 0.95,
         'ratio_clip': 0.25,
         'batch_size': 256,
-        'temperature_coeff': 0.1,
+        'temperature_coef': 0.1,
         'device': 'cpu',
         'result_path': '/home/xukang/Project/state_filtration_for_qd/results/'
     }
     
     for seed in [10, 20, 30]:
         config['seed'] = seed
-        main(config, '')
+        #main(config, 'tradeoff_0.01')
+
+    demo('/home/xukang/Project/state_filtration_for_qd/results/tradeoff_0.01-Walker-missing_coord_2_3-10/','best')

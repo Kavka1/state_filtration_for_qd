@@ -47,7 +47,7 @@ class PPOAgent(object):
             self.model_config['value_hidden_layers']
         ).to(self.device)
         self.discriminator = DeltaSA_Z_Discrete_Discriminator(
-            self.model_config['o_dim'],
+            self.model_config['filtrated_o_dim'],
             self.model_config['a_dim'],
             self.model_config['z_dim'],
             self.model_config['disc_hidden_layers'],
@@ -60,7 +60,7 @@ class PPOAgent(object):
         self.workers = []
         self.total_steps, self.total_episodes = 0, 0
         
-    def _init_workers(self, env_name: str, initial_seed: int, rollout_episodes: int, seed_increment: bool = True) -> None:
+    def _init_workers(self, env_config: str, initial_seed: int, rollout_episodes: int, seed_increment: bool = True) -> None:
         self.num_worker_rollout = rollout_episodes
         for i in range(self.num_workers):
             self.workers.append(
@@ -68,13 +68,19 @@ class PPOAgent(object):
                     worker_id = i, 
                     model_config = self.model_config,
                     reward_tradeoff = self.tradeoff,
-                    env_name = env_name,
+                    env_config = env_config,
                     seed = initial_seed + i * seed_increment, 
                     gamma = self.gamma,
                     lamda = self.lamda,
                     rollout_episodes = rollout_episodes,
                 )
             )
+
+    def choose_action(self, obs: np.array, one_hot_z: np.array, with_noise: bool = True) -> np.array:
+        obs_z = np.concatenate([obs, one_hot_z], -1)
+        obs_z = torch.from_numpy(obs_z).to(self.device).float()
+        action = self.policy.act(obs_z, with_noise).detach().numpy()
+        return action
 
     def roll_update(self) -> Tuple[float, List, float, float]:
         policy_state_dict_remote = ray.put(deepcopy(self.policy).to(torch.device('cpu')).state_dict())
@@ -133,7 +139,7 @@ class PPOAgent(object):
 
                 loss_policy = self.train_policy(obs_z, a, logprob, adv)
                 loss_value = self.train_value(obs_z, ret)
-                loss_disc = self.train_discriminator(filtered_obs, filtered_next_obs, z)
+                loss_disc = self.train_discriminator(filtered_obs, filtered_next_obs, a, z)
 
                 log_loss_pi += loss_policy
                 log_loss_v += loss_value
@@ -171,7 +177,7 @@ class PPOAgent(object):
 
     def train_value(self, obs_z: torch.tensor, ret: torch.tensor) -> float:
         value = self.value(obs_z)
-        loss_value = 0.5 * F.mse_loss(value, ret)
+        loss_value = F.mse_loss(value, ret)
 
         self.optimizer_value.zero_grad()
         loss_value.backward()
@@ -184,7 +190,7 @@ class PPOAgent(object):
         logits_z = self.discriminator(filtered_obs, filtered_next_obs, a)
         prob_z = torch.softmax(logits_z, -1)
         
-        loss_disc = F.cross_entropy(prob_z, z)
+        loss_disc = F.cross_entropy(prob_z, z.squeeze(-1).type(torch.int64))
         self.optimizer_disc.zero_grad()
         loss_disc.backward()
         nn.utils.clip_grad_norm_(self.discriminator.parameters(), 0.5)
@@ -192,7 +198,7 @@ class PPOAgent(object):
 
         return loss_disc.detach().item()
 
-    def evaluation(self, env, num_episodes: int) -> List[float]:
+    def evaluate(self, env, num_episodes: int) -> List[float]:
         rewards_across_skill = []
         for z in range(self.model_config['z_dim']):
             reward = 0
@@ -212,13 +218,15 @@ class PPOAgent(object):
         return rewards_across_skill
     
     def save_policy(self, remark: str) -> None:
-        confirm_path_exist(self.exp_path)
-        model_path = self.exp_path + 'model/' + f'policy_{remark}'
+        model_path = self.exp_path + 'model/'
+        confirm_path_exist(model_path)
+        model_path = model_path + f'policy_{remark}'
         torch.save(self.policy.state_dict(), model_path)
         print(f"------- Policy saved to {model_path} ----------")
     
     def save_discriminator(self, remark: str) -> None:
-        confirm_path_exist(self.exp_path)
-        model_path = self.exp_path + 'model/' + f'disc_{remark}'
+        model_path = self.exp_path + 'model/'
+        confirm_path_exist(model_path)
+        model_path = model_path + f'disc_{remark}'
         torch.save(self.discriminator.state_dict(), model_path)
         print(f"------- Discriminator saved to {model_path} ----------")

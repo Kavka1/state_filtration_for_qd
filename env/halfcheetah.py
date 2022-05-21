@@ -102,3 +102,7 @@ class Missing_Info_HalfCheetah(HalfCheetahEnv):
         qvel = self._drop_infeasible_jnt_vel(qvel)
         qpos = self._drop_infeasible_coord_pos(qpos)
         return np.concatenate([qpos, qvel], axis=-1)
+
+    @property
+    def action_bound(self) -> float:
+        return self.action_space.high[0]

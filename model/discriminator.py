@@ -31,7 +31,7 @@ class DeltaSA_Z_Discrete_Discriminator(nn.Module):
         x = torch.concat([delta_obs, a], dim=-1)
         logits = self.model(x)
         prob = torch.softmax(logits, -1)
-        logprob = torch.log(prob[z]).detach().numpy()
+        logprob = torch.log(prob[z] + 1e-6).detach().numpy()
         return logprob
 
     def __call__(self, obs: torch.tensor, obs_: torch.tensor, a: torch.tensor) -> torch.tensor:
