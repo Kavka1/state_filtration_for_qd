@@ -47,7 +47,7 @@ class RayWorker(object):
         info_dict = {'step': 0, 'rewards': 0}
         trajectories = [dict() for _ in range(self.rollout_episode)]
         for i_episode in range(self.rollout_episode):
-            obs_seq, next_obs_seq, a_seq, r_seq, logprob_seq = [], [], [], [], []
+            obs_seq, a_seq, r_seq, logprob_seq = [], [], [], []
             filtrated_obs_seq, filtrated_next_obs_seq = [], []
 
             obs = self.env.reset()
@@ -65,7 +65,6 @@ class RayWorker(object):
                 
                 # pack the trajectory
                 obs_seq.append(obs)
-                next_obs_seq.append(obs_)
                 a_seq.append(action)
                 r_seq.append(r)
                 logprob_seq.append(logprob)
@@ -79,7 +78,6 @@ class RayWorker(object):
             trajectories[i_episode].update({
                 'obs': obs_seq,
                 'action': a_seq,
-                'next_obs': next_obs_seq,
                 'r': r_seq,
                 'logprob': logprob_seq,
                 'obs_filt': filtrated_obs_seq,
@@ -253,7 +251,7 @@ class Ensemble(object):
                 update_count            += 1
                 log_loss_value          += loss_value.detach().item()
                 log_loss_policy         += loss_policy.detach().item()
-                log_loss_inverse_model  += loss_inverse_model#.detach().item()
+                log_loss_inverse_model  += loss_inverse_model.detach().item()
         
         return {
             'loss_policy': log_loss_policy / update_count,

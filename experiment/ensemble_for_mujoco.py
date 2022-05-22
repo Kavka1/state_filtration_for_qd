@@ -35,8 +35,8 @@ def main(config: Dict, exp_name: str = ''):
     tb = SummaryWriter(config['exp_path'])
 
     total_step, total_episode, total_iteration = 0, 0, 0
-    local_step_across_primitive = [0] * num_primitive
-    best_score_across_primitive = [0] * num_primitive
+    local_step_across_primitive = [0 for _ in range(num_primitive)]
+    best_score_across_primitive = [0 for _ in range(num_primitive)]
     for k in range(num_primitive):
         local_iteration = 0
 
@@ -61,8 +61,6 @@ def main(config: Dict, exp_name: str = ''):
             logger_dict.update({f'primitive_{j}_score': 0 for j in range(num_primitive)})
             logger_dict[f'primitive_{k}_score'] = reward_current_primitive
 
-            logger.store(**logger_dict)
-            logger.save(config['exp_path'] + 'log.pkl')
             # Log the results in terminal
             print("| Iteration {} | Step {} | {}".format(total_iteration, total_step, logger))
             # Log the evaluation results in tb
@@ -73,6 +71,12 @@ def main(config: Dict, exp_name: str = ''):
             # Log the information of the training process in tb
             for name, value_seq in list(logger.data.items()):
                 tb.add_scalar(f'Train/{name}', value_seq[-1], total_step)
+            
+            # save log
+            if total_iteration % config['log_interval'] == 0:
+                logger.store(**logger_dict)
+                logger.save(config['exp_path'] + 'log.pkl')
+
             # save models periodically
             if total_iteration % config['save_interval'] == 0:
                 ensemble.save_policy(k, f'{local_iteration}')
@@ -89,7 +93,7 @@ def demo(path: str, remark: str) -> None:
     with open(path + 'config.yaml', 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
     
-    num_primitive = 1# config['num_primitive']
+    num_primitive = config['num_primitive']
     all_policy = []
 
     for k in range(num_primitive):
@@ -141,9 +145,10 @@ if __name__ == '__main__':
             }
         },
 
-        'num_primitive': 6,
+        'num_primitive': 10,
         'max_timesteps_per_primitive': 2500000,
         'save_interval': 40,
+        'log_interval': 10,
         'eval_episode': 5,
         
         'num_workers': 10,
@@ -164,33 +169,35 @@ if __name__ == '__main__':
         {   
             'env_name': 'Walker',
             'missing_obs_info': {
-                'missing_joint': ['foot', 'leg', 'thigh'],
+                'missing_joint': [],
                 'missing_coord': ['2', '3']
             }
         },
         {
             'env_name': 'Hopper',
             'missing_obs_info': {
-                'missing_joint': ['foot', 'leg', 'thigh'],
+                'missing_joint': [],
                 'missing_coord': ['2']
             }
         },
         {
             'env_name': 'HalfCheetah',
             'missing_obs_info': {
-                'missing_joint': ['shin', 'foot', 'thigh'],
+                'missing_joint': [],
                 'missing_coord': ['2', '3']
             }
         },
         {   
             'env_name': 'Ant',
             'missing_obs_info': {
-                'missing_joint': ['hip', 'ankle'],
+                'missing_joint': [],
                 'missing_coord': ['2', '3', '4', '5']
             }
         }
     ]:
+        if env_config['env_name'] not in ['Ant', 'Walker']:
+            continue
         config['env_config'] = env_config
         main(config, '')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_joint_thigh_shin_foot-missing_coord_2_3-10/','best')
+    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Swimmer-missing_joint_rot_rot1_rot2-missing_coord_2-10/','final')
