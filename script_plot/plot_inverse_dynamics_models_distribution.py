@@ -83,8 +83,8 @@ def main(path: str, remark: str, num_obs: int, title: str) -> None:
 
 if __name__ == '__main__':
     main(
-        '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Hopper-missing_coord_2-10/',
+        '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_coord_2_3-10/',
         'final',
-        300,
-        'IDM prediction - Hopper with missing obs in coord 2 '
+        150,
+        'IDM prediction - HalfCheetah with missing obs in coord 2 and 3 '
     )
