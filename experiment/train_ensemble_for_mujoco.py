@@ -93,7 +93,7 @@ def demo(path: str, remark: str) -> None:
     with open(path + 'config.yaml', 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
     
-    num_primitive = config['num_primitive']
+    num_primitive =  config['num_primitive']
     all_policy = []
 
     for k in range(num_primitive):
@@ -198,6 +198,6 @@ if __name__ == '__main__':
         if env_config['env_name'] not in ['Hopper', 'Walker']:
             continue
         config['env_config'] = env_config
-        main(config, '')
+        #main(config, '')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_coord_2_3-10/','best')
+    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_joint_foot_leg_thigh-10/','best')

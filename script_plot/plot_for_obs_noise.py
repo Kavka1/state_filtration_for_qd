@@ -10,8 +10,10 @@ def plot(csv_path: str, title: str) -> None:
     with open(csv_path, 'r', encoding='utf-8') as f:
         df = pd.read_csv(csv_path)
 
-    chosen_noise_num = 15
+    chosen_noise_num = 10
     all_noise_scale = df.values[:chosen_noise_num,0]
+    max_return = np.max(df.values[:chosen_noise_num, :])
+
     primitive_scores = df.values[:chosen_noise_num,1:]
     max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
     baseline_rewards        =   primitive_scores[:,0]
@@ -19,14 +21,14 @@ def plot(csv_path: str, title: str) -> None:
     # process the data
     new_df = [
         pd.DataFrame({
-            'noise scale'   : all_noise_scale,
-            'return'        : max_primitive_rewards,
-            'alg'           : ['Ensemble Max'] * len(max_primitive_rewards)
+            'noise scale'               : all_noise_scale,
+            'return'                    : max_primitive_rewards,
+            'alg'                       : ['Ensemble Max'] * len(max_primitive_rewards)
         }),
         pd.DataFrame({
-            'noise scale'   : all_noise_scale,
-            'return'        : baseline_rewards,
-            'alg'           : ['Single'] * len(max_primitive_rewards)
+            'noise scale'               : all_noise_scale,
+            'return'                    : baseline_rewards,
+            'alg'                       : ['Single'] * len(max_primitive_rewards)
         })
     ]
     new_df = pd.concat(new_df)
@@ -54,6 +56,6 @@ def plot(csv_path: str, title: str) -> None:
 
 if __name__ == '__main__':
     plot(
-        '/home/xukang/Project/state_filtration_for_qd/statistic/HalfCheetah_coord_2_3-10.csv',
-        'HalfCheetah - noise at the Coordinate 2 and 3'
+        '/home/xukang/Project/state_filtration_for_qd/statistic/Hopper_coord_2-10.csv',
+        'Hopper - noise at the Coordinate 2'
     )
