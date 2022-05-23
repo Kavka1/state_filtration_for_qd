@@ -60,7 +60,8 @@ def main(config: Dict, exp_name: str = ''):
             })
             logger_dict.update({f'primitive_{j}_score': 0 for j in range(num_primitive)})
             logger_dict[f'primitive_{k}_score'] = reward_current_primitive
-
+            
+            logger.store(**logger_dict)    
             # Log the results in terminal
             print("| Iteration {} | Step {} | {}".format(total_iteration, total_step, logger))
             # Log the evaluation results in tb
@@ -74,7 +75,6 @@ def main(config: Dict, exp_name: str = ''):
             
             # save log
             if total_iteration % config['log_interval'] == 0:
-                logger.store(**logger_dict)
                 logger.save(config['exp_path'] + 'log.pkl')
 
             # save models periodically
@@ -198,6 +198,6 @@ if __name__ == '__main__':
         if env_config['env_name'] not in ['Ant', 'Walker']:
             continue
         config['env_config'] = env_config
-        main(config, '')
+        #main(config, '')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Swimmer-missing_joint_rot_rot1_rot2-missing_coord_2-10/','final')
+    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_coord_2_3-10/','best')
