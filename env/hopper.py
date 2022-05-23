@@ -19,6 +19,15 @@ class Missing_Info_Hopper(HopperEnv):
         super().__init__()
 
     def _get_obs(self):
+        """
+        Original Observation Information:
+            qpos - position in three generalized coordinates
+                [0:1]: (x), y, angle for generalized coordinate 1   
+                [2:4]: x, y, angle for generalized coordinate 2
+            qvel - velocity for 6 joints:
+                [5:7]: rootx, rooty, rootz,    
+                [8,9,10]: thigh, leg, foot,       
+        """
         qpos = self.sim.data.qpos.flat[1:]
         qvel = np.clip(self.sim.data.qvel.flat, -10, 10)
 

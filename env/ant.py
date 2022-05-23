@@ -21,6 +21,21 @@ class Missing_Info_Ant(AntEnv):
         super().__init__()
     
     def _get_obs(self):
+        """
+        Original Observation
+            qpos - position in 5 generalized coordinates:
+                [0]: (x), (y), angle for generalized coordinate 1
+                [1:3]: x, y, angle for generalized coordinate 2
+                [4:6]: x, y, angle for generalized coordinate 3
+                [7:9]: x, y, angle for generalized coordinate 4
+                [10:12]: x, y, angle for generalized coordinate 5
+            qvel - velocity for 1 (free) + 8 (hinge) joints: 14 dim
+                [0:5]: linear vel (3) + angular vel (3) for root joint: 
+                [6:7]: hip_1 and ankle_1 of the front left leg 
+                [8:9]: hip_2 and ankle_2 of the front right leg
+                [10:11]: hip_3 and ankle_3 of the back left leg
+                [12:13]: hip_4 and ankle_4 of the back right leg
+        """
         qpos = self.sim.data.qpos.flat[2:]
         qvel = self.sim.data.qvel.flat
         cfrc_ext = np.clip(self.sim.data.cfrc_ext, -1, 1).flat

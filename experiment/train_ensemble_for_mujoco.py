@@ -169,15 +169,15 @@ if __name__ == '__main__':
         {   
             'env_name': 'Walker',
             'missing_obs_info': {
-                'missing_joint': [],
-                'missing_coord': ['2', '3']
+                'missing_joint': ['foot','leg','thigh'],
+                'missing_coord': []#['2', '3']
             }
         },
         {
             'env_name': 'Hopper',
             'missing_obs_info': {
-                'missing_joint': [],
-                'missing_coord': ['2']
+                'missing_joint': ['foot','leg','thigh'],
+                'missing_coord': [],#['2']
             }
         },
         {
@@ -195,9 +195,9 @@ if __name__ == '__main__':
             }
         }
     ]:
-        if env_config['env_name'] not in ['Ant', 'Walker']:
+        if env_config['env_name'] not in ['Hopper', 'Walker']:
             continue
         config['env_config'] = env_config
-        #main(config, '')
+        main(config, '')
 
-    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_coord_2_3-10/','best')
+    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_coord_2_3-10/','best')

@@ -39,7 +39,7 @@ class FixStdGaussianPolicy(nn.Module):
         return dist
 
     def load_model(self, path: str) -> None:
-        self.load_state_dict(torch.load(path))
+        self.load_state_dict(torch.load(path, map_location='cpu'))
         print(f"| - Loaded model from {path} - |")
 
 

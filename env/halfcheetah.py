@@ -21,6 +21,17 @@ class Missing_Info_HalfCheetah(HalfCheetahEnv):
         super().__init__()
 
     def _get_obs(self):
+        """
+        Original Observation:
+            qpos - position in three generalized coordinates
+                [0:1]: (x), y, angle for generalized coordinate 1
+                [2:4]: x, y, angle for generalized coordinate 2
+                [5:7]: x, y, angle for generalized coordinate 3
+            qvel - velocity for 9 joints:
+                [8:10]: rootx, rooty, rootz,
+                [11:13]: bthigh, bshin, bfoot,
+                [14:16]: fthigh, fshin, ffoot,
+        """
         qpos = self.sim.data.qpos.flat[1:]
         qvel = self.sim.data.qvel.flat
 

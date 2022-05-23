@@ -21,6 +21,17 @@ class Missing_Info_Walker(Walker2dEnv):
         super().__init__()
 
     def _get_obs(self):
+        """
+        Original Observation:
+            qpos - position in three generalized coordinates
+                [0:1]: (x), y, angle for generalized coordinate 1
+                [2:4]: x, y, angle for generalized coordinate 2
+                [5:7]: x, y, angle for generalized coordinate 3
+            qvel - velocity for 9 joints:
+                [8:10]: rootx, rooty, rootz,
+                [11:13]: thigh_joint, leg_joint, foot_joint,
+                [14:16]: thigh_left_joint, leg_left_joint, foot_joint
+        """
         qpos = self.sim.data.qpos[1:]                               # drop the x coordinate in same as basic version
         qvel = np.clip(self.sim.data.qvel, -10, 10)
         #feasible_q_vel = self._drop_infeasible_jnt_vel(qvel)
