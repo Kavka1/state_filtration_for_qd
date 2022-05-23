@@ -8,11 +8,12 @@ MISSING_POS_COORD = ['2', '3']
 
 
 class Missing_Info_HalfCheetah(HalfCheetahEnv):
-    def __init__(self, missing_obs_info: Dict):
+    def __init__(self, missing_obs_info: Dict, apply_missing_obs: bool = False):
         self.episode_length = 1000
         self.episode_step = 0
         self.missing_joint = missing_obs_info['missing_joint']
         self.missing_coord = missing_obs_info['missing_coord']
+        self.apply_missing_obs = apply_missing_obs
 
         for joint in self.missing_joint:
             assert joint in MISSING_VEL_JOINT, f"Invalid missing joint {joint}"
@@ -34,9 +35,10 @@ class Missing_Info_HalfCheetah(HalfCheetahEnv):
         """
         qpos = self.sim.data.qpos.flat[1:]
         qvel = self.sim.data.qvel.flat
-
-        #feasible_q_vel = self._drop_infeasible_jnt_vel(qvel)
-        #feasible_q_pos = self._drop_infeasible_coord_pos(qpos)
+        
+        if self.apply_missing_obs:
+            qvel = self._drop_infeasible_jnt_vel(qvel)
+            qpos = self._drop_infeasible_coord_pos(qpos)
         
         return np.concatenate([
             qpos, 

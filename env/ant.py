@@ -8,11 +8,12 @@ MISSING_POS_COORD = ['2', '3', '4', '5']
 
 
 class Missing_Info_Ant(AntEnv):
-    def __init__(self, missing_obs_info: Dict):
+    def __init__(self, missing_obs_info: Dict, apply_missing_obs: bool = False):
         self.episode_length = 1000
         self.episode_step = 0
         self.missing_joint = missing_obs_info['missing_joint']
         self.missing_coord = missing_obs_info['missing_coord']
+        self.apply_missing_obs = apply_missing_obs
 
         for joint in self.missing_joint:
             assert joint in MISSING_VEL_JOINT, f"Invalid missing joint {joint}"
@@ -40,8 +41,9 @@ class Missing_Info_Ant(AntEnv):
         qvel = self.sim.data.qvel.flat
         cfrc_ext = np.clip(self.sim.data.cfrc_ext, -1, 1).flat
 
-        #feasible_qpos = self._drop_infeasible_coord_pos(qpos)
-        #feasible_qvel = self._drop_infeasible_jnt_vel(qvel)
+        if self.apply_missing_obs:
+            qpos = self._drop_infeasible_coord_pos(qpos)
+            qvel = self._drop_infeasible_jnt_vel(qvel)
 
         return np.concatenate([
             qpos,
