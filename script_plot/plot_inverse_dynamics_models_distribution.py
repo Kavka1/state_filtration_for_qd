@@ -83,8 +83,8 @@ def main(path: str, remark: str, num_obs: int, title: str) -> None:
 
 if __name__ == '__main__':
     main(
-        '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_joint_foot_leg_thigh-10/',
+        '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Ant-missing_coord_2_3_4_5-10/',
         'final',
         150,
-        'IDM prediction - Walker with missing obs in joint foot & leg & thigh '
+        'IDM prediction - Ant with missing obs in coord 2 & 3 & 4 & 5 '
     )

@@ -57,6 +57,6 @@ def plot(csv_path: str, title: str) -> None:
 
 if __name__ == '__main__':
     plot(
-        '/home/xukang/Project/state_filtration_for_qd/statistic/HalfCheetah_joint_shin_foot_thigh-10.csv',
-        'HalfCheetah - noise at the Joint shin & foot & thigh'
+        '/home/xukang/Project/state_filtration_for_qd/statistic/Ant_coord_2_3_4_5-10.csv',
+        'Ant - noise at the Coord 2 & 3 & 4 & 5'
     )
