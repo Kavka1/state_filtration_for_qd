@@ -45,6 +45,7 @@ def plot(csv_path: str, title: str) -> None:
         ax      =   ax
     )
     
+    #ax.set_ylim([1000, 4000])
     ax.legend().set_title('')
     ax.set_xlabel('Observation Gaussian Noise Std', fontsize=11)
     ax.set_ylabel('Return', fontsize=11)
@@ -56,6 +57,6 @@ def plot(csv_path: str, title: str) -> None:
 
 if __name__ == '__main__':
     plot(
-        '/home/xukang/Project/state_filtration_for_qd/statistic/Hopper_coord_2-10.csv',
-        'Hopper - noise at the Coordinate 2'
+        '/home/xukang/Project/state_filtration_for_qd/statistic/HalfCheetah_joint_shin_foot_thigh-10.csv',
+        'HalfCheetah - noise at the Joint shin & foot & thigh'
     )

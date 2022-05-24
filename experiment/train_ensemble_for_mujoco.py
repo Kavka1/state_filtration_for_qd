@@ -200,4 +200,4 @@ if __name__ == '__main__':
         config['env_config'] = env_config
         #main(config, '')
 
-    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_joint_foot_leg_thigh-10/','best')
+    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_joint_shin_foot_thigh-10/','best')
