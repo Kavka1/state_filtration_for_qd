@@ -197,7 +197,10 @@ if __name__ == '__main__':
     ]:
         if env_config['env_name'] not in ['Hopper', 'Walker']:
             continue
-        config['env_config'] = env_config
-        #main(config, '')
 
-    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_joint_shin_foot_thigh-10/','best')
+        for seed in [20, 30]:
+            config['env_config'] = env_config
+            config['seed'] = seed
+            #main(config, '')
+
+    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Ant-missing_joint_hip_ankle-10/','best')
