@@ -7,31 +7,68 @@ import seaborn as sns
 
 
 def plot(csv_path: str, title: str) -> None:
-    with open(csv_path, 'r', encoding='utf-8') as f:
-        df = pd.read_csv(csv_path)
+    if isinstance(csv_path, List):
+        new_df = []
 
-    chosen_noise_num = 10
-    all_noise_scale = df.values[:chosen_noise_num,0]
-    max_return = np.max(df.values[:chosen_noise_num, :])
+        for path in csv_path:
+            seed = path.split('.')[0].split('-')[-1]
 
-    primitive_scores = df.values[:chosen_noise_num,1:]
-    max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
-    baseline_rewards        =   primitive_scores[:,0]
+            with open(path, 'r', encoding='utf-8') as f:
+                df = pd.read_csv(path)
 
-    # process the data
-    new_df = [
-        pd.DataFrame({
-            'noise scale'               : all_noise_scale,
-            'return'                    : max_primitive_rewards,
-            'alg'                       : ['Ensemble Max'] * len(max_primitive_rewards)
-        }),
-        pd.DataFrame({
-            'noise scale'               : all_noise_scale,
-            'return'                    : baseline_rewards,
-            'alg'                       : ['Single'] * len(max_primitive_rewards)
-        })
-    ]
-    new_df = pd.concat(new_df)
+            chosen_noise_num = 10
+            all_noise_scale = df.values[:chosen_noise_num,0]
+            max_return = np.max(df.values[:chosen_noise_num, :])
+
+            primitive_scores = df.values[:chosen_noise_num,1:]
+            max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
+            baseline_rewards        =   primitive_scores[:,0]
+
+            # process the data
+            new_df.append(
+                pd.DataFrame({
+                    'noise scale'               : all_noise_scale,
+                    'return'                    : max_primitive_rewards,
+                    'alg'                       : ['Ensemble Max'] * len(max_primitive_rewards),
+                    'seed'                      : [seed] * len(max_primitive_rewards)
+                })
+            ) 
+            new_df.append(
+                pd.DataFrame({
+                    'noise scale'               : all_noise_scale,
+                    'return'                    : baseline_rewards,
+                    'alg'                       : ['Single'] * len(max_primitive_rewards),
+                    'seed'                      : [seed]  * len(max_primitive_rewards)
+                })
+            )
+        new_df = pd.concat(new_df)
+
+    else:
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            df = pd.read_csv(csv_path)
+
+        chosen_noise_num = 10
+        all_noise_scale = df.values[:chosen_noise_num,0]
+        max_return = np.max(df.values[:chosen_noise_num, :])
+
+        primitive_scores = df.values[:chosen_noise_num,1:]
+        max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
+        baseline_rewards        =   primitive_scores[:,0]
+
+        # process the data
+        new_df = [
+            pd.DataFrame({
+                'noise scale'               : all_noise_scale,
+                'return'                    : max_primitive_rewards,
+                'alg'                       : ['Ensemble Max'] * len(max_primitive_rewards)
+            }),
+            pd.DataFrame({
+                'noise scale'               : all_noise_scale,
+                'return'                    : baseline_rewards,
+                'alg'                       : ['Single'] * len(max_primitive_rewards)
+            })
+        ]
+        new_df = pd.concat(new_df)
 
     # plot
     sns.set_style('whitegrid')
@@ -42,6 +79,7 @@ def plot(csv_path: str, title: str) -> None:
         x       =   'noise scale',
         y       =   'return',
         hue     =   'alg',
+        style   =   'alg',
         ax      =   ax
     )
     
@@ -57,6 +95,11 @@ def plot(csv_path: str, title: str) -> None:
 
 if __name__ == '__main__':
     plot(
-        '/home/xukang/Project/state_filtration_for_qd/statistic/Ant_joint_hip_ankle-10.csv',
-        'Ant - noise at the Joint hip & ankle'
+        [
+            '/home/xukang/Project/state_filtration_for_qd/statistic/Walker_joint_foot_leg_thigh-10.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/Walker_joint_foot_leg_thigh-20.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/Walker_joint_foot_leg_thigh-30.csv',
+        ],
+        
+        'Walker - noise at the Joint foot & leg & thigh'
     )
