@@ -70,3 +70,22 @@ class DeltaSZ_A_Discriminator(nn.Module):
         logstd = self.logstd_min + F.softplus(logstd - self.logstd_min)
 
         return Normal(mean, torch.exp(logstd))
+
+
+class S_DiscreteZ_Discriminator(nn.Module):
+    def __init__(self, o_dim: int, z_dim: int, hidden_layers: List[int]) -> None:
+        super().__init__()
+        self.o_dim = o_dim
+        self.z_dim = z_dim
+        
+        self.model = call_mlp(
+            in_dim= self.o_dim,
+            out_dim= self.z_dim,
+            hidden_layers= hidden_layers,
+            inter_activation='ReLU',
+            output_activation='Identity'
+        )
+
+    def __call__(self, o: torch.tensor) -> torch.tensor:
+        logits = self.model(o)
+        return logits
