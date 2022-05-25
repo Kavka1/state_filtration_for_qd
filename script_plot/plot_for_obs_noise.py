@@ -96,10 +96,10 @@ def plot(csv_path: str, title: str) -> None:
 if __name__ == '__main__':
     plot(
         [
-            '/home/xukang/Project/state_filtration_for_qd/statistic/HalfCheetah_coord_2_3-10.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/HalfCheetah_coord_2_3-20.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/HalfCheetah_coord_2_3-30.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/Walker_coord_2_3-10.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/Walker_coord_2_3-20.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/Walker_coord_2_3-30.csv',
         ],
         
-        'HalfCheetah - noise at the coordinate 2 & 3'
+        'Walker - noise at the coordinate 2 & 3'
     )
