@@ -4,6 +4,7 @@ from gym.envs.mujoco.hopper import HopperEnv
 
 MISSING_VEL_JOINT = ['thigh', 'leg', 'foot']
 MISSING_POS_COORD = ['2']
+MISSING_LEG       = ['1']
 
 class Missing_Info_Hopper(HopperEnv):
     def __init__(self, missing_obs_info: Dict, apply_missing_obs: bool = False):
@@ -13,6 +14,15 @@ class Missing_Info_Hopper(HopperEnv):
         self.missing_coord = missing_obs_info['missing_coord']
         self.apply_missing_obs = apply_missing_obs
 
+        if 'missing_leg' in list(missing_obs_info.keys()):
+            self.missing_leg   = missing_obs_info['missing_leg']
+            for leg in self.missing_leg:
+                assert leg in MISSING_LEG,         f"Invalid missing leg {leg}"
+        else:
+            self.missing_leg = []
+        
+        if len(self.missing_leg) != 0:    
+                assert len(self.missing_joint) == len(self.missing_coord) == 0, 'When using missing leg setting, missing joints and coords are abandoned'
         for joint in self.missing_joint:
             assert joint in MISSING_VEL_JOINT, f"Invalid missing joint {joint}"
         for coord in self.missing_coord:
@@ -24,7 +34,7 @@ class Missing_Info_Hopper(HopperEnv):
         Original Observation Information:
             qpos - position in three generalized coordinates
                 [0:1]: (x), y, angle for generalized coordinate 1   
-                [2:4]: x, y, angle for generalized coordinate 2
+                [2:4]: angle, angle, angle for generalized coordinate 2 (thigh,leg,foot)
             qvel - velocity for 6 joints:
                 [5:7]: rootx, rooty, rootz,    
                 [8,9,10]: thigh, leg, foot,       
@@ -33,8 +43,11 @@ class Missing_Info_Hopper(HopperEnv):
         qvel = np.clip(self.sim.data.qvel.flat, -10, 10)
 
         if self.apply_missing_obs:
-            qvel = self._drop_infeasible_jnt_vel(qvel)
-            qpos = self._drop_infeasible_coord_pos(qpos)
+            if len(self.missing_leg) != 0:
+                qpos, qvel = self._drop_unobservable_leg(qpos, qvel)
+            else:
+                qvel = self._drop_infeasible_jnt_vel(qvel)
+                qpos = self._drop_infeasible_coord_pos(qpos)
         
         return np.concatenate([
             qpos, 
@@ -70,7 +83,7 @@ class Missing_Info_Hopper(HopperEnv):
         Original info:
             qpos - position in three generalized coordinates
                 [0:1]: (x), y, angle for generalized coordinate 1
-                [2:4]: x, y, angle for generalized coordinate 2
+                [2:4]: angle, angle, angle for generalized coordinate 2
         """
         feasible_q_pos = np.copy(qpos)
         coord_2_index = [2,3,4]
@@ -78,6 +91,16 @@ class Missing_Info_Hopper(HopperEnv):
             feasible_q_pos = np.delete(feasible_q_pos, coord_2_index)
         
         return feasible_q_pos
+
+    def _drop_unobservable_leg(self, qpos: np.array, qvel: np.array) -> Tuple:
+        feasible_qpos, feasible_qvel = np.copy(qpos), np.copy(qvel)
+        leg_1_qpos_ind, leg_1_qvel_ind = [2,3,4], [3,4,5]
+
+        if '1' in self.missing_leg:
+            feasible_qpos = np.delete(feasible_qpos, leg_1_qpos_ind)
+            feasible_qvel = np.delete(feasible_qvel, leg_1_qvel_ind)
+
+        return feasible_qpos, feasible_qvel
 
     def step(self, a):
         obs, r, done, info = super().step(a)
@@ -104,8 +127,11 @@ class Missing_Info_Hopper(HopperEnv):
         Process the original obs to missing info version
         """
         qpos, qvel = self._decompose_qpos_qvel(obs)
-        qvel = self._drop_infeasible_jnt_vel(qvel)
-        qpos = self._drop_infeasible_coord_pos(qpos)
+        if len(self.missing_leg) != 0:
+            qpos, qvel = self._drop_unobservable_leg(qpos, qvel)
+        else:
+            qvel = self._drop_infeasible_jnt_vel(qvel)
+            qpos = self._drop_infeasible_coord_pos(qpos)
         return np.concatenate([qpos, qvel], axis=-1)
     
     @property

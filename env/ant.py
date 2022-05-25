@@ -3,8 +3,9 @@ import numpy as np
 from gym.envs.mujoco.ant import AntEnv
 
 
-MISSING_VEL_JOINT = ['torso', 'hip', 'ankle']
-MISSING_POS_COORD = ['2', '3', '4', '5']
+MISSING_VEL_JOINT   =   ['torso', 'hip', 'ankle']
+MISSING_POS_COORD   =   ['2', '3', '4', '5']
+MISSING_LEG         =   ['1', '2', '3', '4']
 
 
 class Missing_Info_Ant(AntEnv):
@@ -15,6 +16,15 @@ class Missing_Info_Ant(AntEnv):
         self.missing_coord = missing_obs_info['missing_coord']
         self.apply_missing_obs = apply_missing_obs
 
+        if 'missing_leg' in list(missing_obs_info.keys()):
+            self.missing_leg   = missing_obs_info['missing_leg']
+            for leg in self.missing_leg:
+                assert leg in MISSING_LEG,         f"Invalid missing leg {leg}"
+        else:
+            self.missing_leg = []
+        
+        if len(self.missing_leg) != 0:    
+                assert len(self.missing_joint) == len(self.missing_coord) == 0, 'When using missing leg setting, missing joints and coords are abandoned'
         for joint in self.missing_joint:
             assert joint in MISSING_VEL_JOINT, f"Invalid missing joint {joint}"
         for coord in self.missing_coord:
@@ -42,8 +52,11 @@ class Missing_Info_Ant(AntEnv):
         cfrc_ext = np.clip(self.sim.data.cfrc_ext, -1, 1).flat
 
         if self.apply_missing_obs:
-            qpos = self._drop_infeasible_coord_pos(qpos)
-            qvel = self._drop_infeasible_jnt_vel(qvel)
+            if len(self.missing_leg) != 0:
+                qpos = self._drop_infeasible_coord_pos(qpos)
+                qvel = self._drop_infeasible_jnt_vel(qvel)
+            else:
+                qpos, qvel = self._drop_unobservable_leg(qpos, qvel)
 
         return np.concatenate([
             qpos,
@@ -106,6 +119,28 @@ class Missing_Info_Ant(AntEnv):
         
         return feasible_q_pos
 
+    def _drop_unobservable_leg(self, qpos: np.array, qvel: np.array) -> Tuple:
+        feasible_qpos, feasible_qvel = np.copy(qpos), np.copy(qvel)
+        leg_1_qpos_ind, leg_1_qvel_ind = [1,2,3], [6,7]
+        leg_2_qpos_ind, leg_2_qvel_ind = [4,5,6], [8,9]
+        leg_3_qpos_ind, leg_3_qvel_ind = [7,8,9], [10,11]
+        leg_4_qpos_ind, leg_4_qvel_ind = [10,11,12], [12,13]
+
+        if '4' in self.missing_leg:
+            feasible_qpos = np.delete(feasible_qpos, leg_4_qpos_ind)
+            feasible_qvel = np.delete(feasible_qvel, leg_4_qvel_ind)
+        if '3' in self.missing_leg:
+            feasible_qpos = np.delete(feasible_qpos, leg_3_qpos_ind)
+            feasible_qvel = np.delete(feasible_qvel, leg_3_qvel_ind)
+        if '2' in self.missing_leg:
+            feasible_qpos = np.delete(feasible_qpos, leg_2_qpos_ind)
+            feasible_qvel = np.delete(feasible_qvel, leg_2_qvel_ind)
+        if '1' in self.missing_leg:
+            feasible_qpos = np.delete(feasible_qpos, leg_1_qpos_ind)
+            feasible_qvel = np.delete(feasible_qvel, leg_1_qvel_ind)
+
+        return feasible_qpos, feasible_qvel
+
     def step(self, a):
         obs, r, done, info = super().step(a)
         if self.episode_step >= self.episode_length:
@@ -117,7 +152,6 @@ class Missing_Info_Ant(AntEnv):
         self.episode_step = 0
         return super().reset()
     
-
     def _decompose_qpos_qvel(self, obs: np.array) -> Tuple:
         """
         Factorize the observation to qpos, qvel and cfrc_ext
@@ -134,8 +168,11 @@ class Missing_Info_Ant(AntEnv):
         Process the original obs to missing info version
         """
         qpos, qvel, cfrc_ext = self._decompose_qpos_qvel(obs)
-        qvel = self._drop_infeasible_jnt_vel(qvel)
-        qpos = self._drop_infeasible_coord_pos(qpos)
+        if len(self.missing_leg) != 0:
+            qpos, qvel = self._drop_unobservable_leg(qpos, qvel)
+        else:
+            qpos = self._drop_infeasible_coord_pos(qpos)
+            qvel = self._drop_infeasible_jnt_vel(qvel)
         return np.concatenate([qpos, qvel, cfrc_ext], axis=-1)
 
     @property

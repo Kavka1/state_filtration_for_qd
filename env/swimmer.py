@@ -62,8 +62,8 @@ class Missing_Info_Swimmer(SwimmerEnv):
         Missing observation info of the coordinate position
         Original info:
             qpos - position in three generalized coordinates
-                [0]: (x), (y), angle for generalized coordinate 1
-                [1:2]: ? for generalized coordinate 2
+                [0]: (x), (y), angle for global coordinate 1
+                [1:2]: angle, angle for generalized coordinate 2
         """
         feasible_q_pos = np.copy(qpos)
         coord_2_index = [1,2]

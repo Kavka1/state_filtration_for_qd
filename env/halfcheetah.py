@@ -5,6 +5,7 @@ from gym.envs.mujoco.half_cheetah import HalfCheetahEnv
 
 MISSING_VEL_JOINT = ['thigh', 'shin', 'foot']
 MISSING_POS_COORD = ['2', '3']
+MISSING_LEG       = ['1', '2']
 
 
 class Missing_Info_HalfCheetah(HalfCheetahEnv):
@@ -15,6 +16,15 @@ class Missing_Info_HalfCheetah(HalfCheetahEnv):
         self.missing_coord = missing_obs_info['missing_coord']
         self.apply_missing_obs = apply_missing_obs
 
+        if 'missing_leg' in list(missing_obs_info.keys()):
+            self.missing_leg   = missing_obs_info['missing_leg']
+            for leg in self.missing_leg:
+                assert leg in MISSING_LEG,         f"Invalid missing leg {leg}"
+        else:
+            self.missing_leg = []
+        
+        if len(self.missing_leg) != 0:    
+                assert len(self.missing_joint) == len(self.missing_coord) == 0, 'When using missing leg setting, missing joints and coords are abandoned'
         for joint in self.missing_joint:
             assert joint in MISSING_VEL_JOINT, f"Invalid missing joint {joint}"
         for coord in self.missing_coord:
@@ -26,8 +36,8 @@ class Missing_Info_HalfCheetah(HalfCheetahEnv):
         Original Observation:
             qpos - position in three generalized coordinates
                 [0:1]: (x), y, angle for generalized coordinate 1
-                [2:4]: x, y, angle for generalized coordinate 2
-                [5:7]: x, y, angle for generalized coordinate 3
+                [2:4]: angle, angle, angle for generalized coordinate 2 (bthigh,bshin,bfoot)
+                [5:7]: angle, angle, angle for generalized coordinate 3 (fthigh,fshin,ffoot)
             qvel - velocity for 9 joints:
                 [8:10]: rootx, rooty, rootz,
                 [11:13]: bthigh, bshin, bfoot,
@@ -37,8 +47,11 @@ class Missing_Info_HalfCheetah(HalfCheetahEnv):
         qvel = self.sim.data.qvel.flat
         
         if self.apply_missing_obs:
-            qvel = self._drop_infeasible_jnt_vel(qvel)
-            qpos = self._drop_infeasible_coord_pos(qpos)
+            if len(self.missing_leg) != 0:
+                qpos, qvel = self._drop_unobservable_leg(qpos, qvel)
+            else:
+                qvel = self._drop_infeasible_jnt_vel(qvel)
+                qpos = self._drop_infeasible_coord_pos(qpos)
         
         return np.concatenate([
             qpos, 
@@ -87,6 +100,20 @@ class Missing_Info_HalfCheetah(HalfCheetahEnv):
         
         return feasible_q_pos
 
+    def _drop_unobservable_leg(self, qpos: np.array, qvel: np.array) -> Tuple:
+        feasible_qpos, feasible_qvel = np.copy(qpos), np.copy(qvel)
+        leg_1_qpos_ind, leg_1_qvel_ind = [2,3,4], [11,12,13]
+        leg_2_qpos_ind, leg_2_qvel_ind = [5,6,7], [14,15,16]
+
+        if '2' in self.missing_leg:
+            feasible_qpos = np.delete(feasible_qpos, leg_2_qpos_ind)
+            feasible_qvel = np.delete(feasible_qvel, leg_2_qvel_ind)
+        if '1' in self.missing_leg:
+            feasible_qpos = np.delete(feasible_qpos, leg_1_qpos_ind)
+            feasible_qvel = np.delete(feasible_qvel, leg_1_qvel_ind)
+
+        return feasible_qpos, feasible_qvel
+
     def step(self, a):
         obs, r, done, info = super().step(a)
         if self.episode_step >= self.episode_length:
@@ -112,8 +139,11 @@ class Missing_Info_HalfCheetah(HalfCheetahEnv):
         Process the original obs to missing info version
         """
         qpos, qvel = self._decompose_qpos_qvel(obs)
-        qvel = self._drop_infeasible_jnt_vel(qvel)
-        qpos = self._drop_infeasible_coord_pos(qpos)
+        if len(self.missing_leg) != 0:
+            qpos, qvel = self._drop_unobservable_leg(qpos, qvel)
+        else:
+            qvel = self._drop_infeasible_jnt_vel(qvel)
+            qpos = self._drop_infeasible_coord_pos(qpos)
         return np.concatenate([qpos, qvel], axis=-1)
 
     @property
