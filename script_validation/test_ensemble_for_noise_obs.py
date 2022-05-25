@@ -82,8 +82,8 @@ def main(path: str, remark: str, noise_index: List[int], csv_path: str) -> None:
 
 if __name__ == '__main__':
     main(
-        path='/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_joint_foot_leg_thigh-30/',
+        path='/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_coord_2_3-20/',
         remark='best',
-        noise_index=[11,12,13,14,15,16],
-        csv_path='/home/xukang/Project/state_filtration_for_qd/statistic/Walker_joint_foot_leg_thigh-30.csv'
+        noise_index=[2,3,4,5,6,7],
+        csv_path='/home/xukang/Project/state_filtration_for_qd/statistic/HalfCheetah_coord_2_3-20.csv'
     )
