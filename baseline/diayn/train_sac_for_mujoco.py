@@ -9,8 +9,7 @@ from state_filtration_for_qd.logger import Logger
 from state_filtration_for_qd.env.common import call_env
 from state_filtration_for_qd.baseline.diayn.agent_sac import DIAYN_SAC
 from state_filtration_for_qd.model.latent_policy import Latent_DiagGaussianPolicy
-
-from buffer import Buffer
+from state_filtration_for_qd.buffer import Buffer
 
 def main(config: Dict, exp_name: str = ''):
     np.random.seed(config['seed'])
@@ -128,6 +127,7 @@ def demo(path: str, remark: str) -> None:
             obs = env.reset()
             step = 0
             while not done:
+                env.render()
                 obs_z_tensor = torch.from_numpy(np.concatenate([obs, one_hot_z], -1)).float()
                 action = policy.act(obs_z_tensor, False).detach().numpy()
                 next_obs, r, done, info = env.step(action)
@@ -145,7 +145,7 @@ if __name__ == '__main__':
         'model_config': {
             'o_dim': None,
             'a_dim': None,
-            'z_dim': 10,
+            'z_dim': 30,
             'policy_hidden_layers': [128, 128],
             'value_hidden_layers': [128, 128],
             'disc_hidden_layers': [256, 256],
@@ -169,7 +169,9 @@ if __name__ == '__main__':
         'save_interval': 100000,
         'eval_episode': 1,
 
-        'seed': 10,
+        'reward_tradeoff_ex': 1,
+        'reward_tradeoff_in': 0.5,
+
         'lr': 0.0003,
         'gamma': 0.99,
         'tau': 0.005,
@@ -184,6 +186,6 @@ if __name__ == '__main__':
         for env_name in ['Walker', 'Hopper', 'HalfCheetah']:    
             config['env_config']['env_name'] = env_name
             config['seed'] = seed
-            main(config, '')
+            main(config, 'r_ex')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_coord_2_3-10/','best')
+    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_diayn/Walker-10_*_*/','600000')

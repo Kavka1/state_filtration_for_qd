@@ -101,9 +101,9 @@ def plot(csv_path: str, title: str) -> None:
 if __name__ == '__main__':
     plot(
         [
-            '/Users/xukang/Code/state_filtration_for_qd/statistic/Hopper_leg_1-10.csv',
-            '/Users/xukang/Code/state_filtration_for_qd/statistic/Hopper_leg_1-20.csv',
-            '/Users/xukang/Code/state_filtration_for_qd/statistic/Hopper_leg_1-30.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/Hopper_leg_1-10.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/Hopper_leg_1-20.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/Hopper_leg_1-30.csv',
         ],
         
         'Hopper - noise at the leg 1'

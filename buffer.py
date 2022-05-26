@@ -19,10 +19,14 @@ class Buffer(object):
 
     def sample(self, batch_size: int) -> Tuple:
         batch = random.sample(self.data, batch_size)
-        all_items = zip(*batch)
-        for item in all_items:
+        data_batch = []
+
+        for item in zip(*batch):
             item = np.stack(item, 0)
-        return all_items
+            data_batch.append(item)
+
+        data_batch = tuple(data_batch)
+        return data_batch
 
     def clear(self) -> None:
         self.data.clear()

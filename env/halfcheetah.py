@@ -102,8 +102,8 @@ class Missing_Info_HalfCheetah(HalfCheetahEnv):
 
     def _drop_unobservable_leg(self, qpos: np.array, qvel: np.array) -> Tuple:
         feasible_qpos, feasible_qvel = np.copy(qpos), np.copy(qvel)
-        leg_1_qpos_ind, leg_1_qvel_ind = [2,3,4], [11,12,13]
-        leg_2_qpos_ind, leg_2_qvel_ind = [5,6,7], [14,15,16]
+        leg_1_qpos_ind, leg_1_qvel_ind = [2,3,4], [3,4,5]
+        leg_2_qpos_ind, leg_2_qvel_ind = [5,6,7], [6,7,8]
 
         if '2' in self.missing_leg:
             feasible_qpos = np.delete(feasible_qpos, leg_2_qpos_ind)

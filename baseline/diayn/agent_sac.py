@@ -22,9 +22,10 @@ class DIAYN_SAC(object):
         self.tau                = config['tau']
         self.batch_size         = config['batch_size']
         self.train_policy_delay = config['train_policy_delay']
-        self.device             = torch.device(config['device'])
         self.tradeoff_ex        = config['reward_tradeoff_ex']
         self.tradeoff_in        = config['reward_tradeoff_in']
+        self.exp_path           = config['exp_path']
+        self.device             = torch.device(config['device'])
 
         self.target_entropy = - torch.tensor(config['model_config']['a_dim'], dtype=torch.float64)
         self.p_z            = np.tile(np.full(self.z_dim, 1/self.z_dim), self.batch_size).reshape(self.batch_size, self.z_dim)
@@ -101,9 +102,7 @@ class DIAYN_SAC(object):
 
     def compute_disc_loss(self, obs: torch.tensor, z: torch.tensor) -> torch.tensor:
         logits      = self.discriminator(obs)
-        probs       = F.softmax(logits, -1)
-        log_probs   = torch.log(probs.gather(-1, z))
-        loss_disc   = F.cross_entropy(log_probs, z.squeeze(-1))
+        loss_disc   = F.cross_entropy(logits, z.squeeze(-1))
         return loss_disc
 
     def unpack(self, obs: np.array, a: np.array, r: np.array, done: np.array, obs_: np.array, z: np.array,) -> Tuple:
@@ -114,7 +113,7 @@ class DIAYN_SAC(object):
         obs         = torch.from_numpy(obs).to(device).float()
         a           = torch.from_numpy(a).to(device).float()
         r           = torch.from_numpy(r).to(device).float().unsqueeze(-1)
-        done        = torch.from_numpy(done).to(device).int().unsqueeze(-1)
+        done        = torch.from_numpy(done).to(device).float().unsqueeze(-1)
         obs_        = torch.from_numpy(obs_).to(device).float()
         z           = torch.from_numpy(z).to(device).type(torch.int64).unsqueeze(-1)
         z_one_hot   = torch.from_numpy(z_one_hot).to(device).float()
@@ -134,14 +133,14 @@ class DIAYN_SAC(object):
         obs, a, r, done, obs_, z                = buffer.sample(self.batch_size)
         obs, a, r, done, obs_, z, z_one_hot     = self.unpack(obs, a, r, done, obs_, z)
         obs_z           = torch.cat([obs, z_one_hot], -1)
-        next_obs_z      = torch.cat([obs_, z_one_hot])
+        next_obs_z      = torch.cat([obs_, z_one_hot], -1)
         
         #   compute intrinsic rewards
         with torch.no_grad():
-            p_z                 = torch.from_numpy(self.p_z).to(self.device)
-            logits              =   self.discriminator(obs)
+            p_z                 =   torch.from_numpy(self.p_z).to(self.device).float()
+            logits              =   self.discriminator(obs).detach()
             probs               =   F.softmax(logits, -1)
-            log_P_z_given_s     =   torch.log(probs.gather(-1, z))
+            log_P_z_given_s     =   torch.log(probs.gather(-1, z) + 1e-6)
             log_P_z             =   torch.log(p_z.gather(-1, z) + 1e-6)
             bonus               =   log_P_z_given_s - log_P_z
         r   =   self.tradeoff_ex * r + self.tradeoff_in * bonus
@@ -187,7 +186,7 @@ class DIAYN_SAC(object):
         self.logger_loss_disc   = loss_disc.detach().item()
         self.update_count += 1
         return {
-            'loss_q':       self.logger_loss_q, 
+            'loss_value':       self.logger_loss_value, 
             'loss_disc':    self.logger_loss_disc,
             'loss_policy':  self.logger_loss_policy, 
             'loss_alpha':   self.logger_loss_alpha, 
