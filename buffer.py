@@ -4,57 +4,6 @@ from collections import deque
 import random
 
 
-class CoefficientBuffer(object):
-    def __init__(self, coeff_buffer_size: int, num_coeff: int, coeff_range: List) -> None:
-        self.num_coeff = num_coeff
-        self.size = coeff_buffer_size
-        self.coeff_range = coeff_range
-        self.coeff_min, self.coeff_max = [item[0] for item in coeff_range], [item[1] for item in coeff_range]
-        self.buffer = deque(maxlen=coeff_buffer_size)
-
-    def _sample_coeff(self, sample_size: int) -> List[List]:
-        assert len(self.buffer) > sample_size, "The coefficient buffer size is smaller than sample size"    
-        samples = random.sample(self.buffer, sample_size)
-        return samples
-    
-    def _mutate_sampled_coeff(self, sample_coeff: List[List], noise_num: int) -> List[List]:
-        mutated_coeff = []
-        np_sample_coeff = np.array(sample_coeff, dtype=np.float32)
-        for i in range(noise_num):
-            noise = [
-                np.random.uniform(
-                    -(self.coeff_range[j][1] - self.coeff_range[j][0]) / 2, (self.coeff_range[j][1] - self.coeff_range[j][0]) / 2
-                ) 
-                for j in range(len(self.coeff_range))
-            ]
-            offspring_coeff = np_sample_coeff + noise
-            #offspring_coeff = np.array(
-            #    [
-            #        [np.random.uniform(self.coeff_range[j][0], self.coeff_range[j][1]) for j in range(len(self.coeff_range))]
-            #        for _ in range(len(sample_coeff))
-            #    ]
-            ##)
-            offspring_coeff = np.clip(offspring_coeff, self.coeff_min, self.coeff_max)
-            mutated_coeff += offspring_coeff.tolist()
-        return sample_coeff + mutated_coeff
-
-    def draw_new_coeff(self, sample_size: int, noise_num: int) -> List[List]:
-        sample_coeff = self._sample_coeff(sample_size)
-        offspring_coeff = self._mutate_sampled_coeff(sample_coeff, noise_num)
-        return offspring_coeff
-
-    def store(self, new_coeff: List[List]) -> None:
-        for coeff in new_coeff:
-            self.buffer.append(coeff)
-
-    def warmup(self) -> None:
-        coeff = []
-        for i in range(self.size):
-            c = [np.random.random() * (self.coeff_max[i] - self.coeff_min[i]) + self.coeff_min[i] for i in range(self.num_coeff)]
-            coeff.append(c)
-        self.store(coeff)
-
-
 class Buffer(object):
     def __init__(self, buffer_size: int) -> None:
         super(Buffer, self).__init__()
@@ -70,9 +19,10 @@ class Buffer(object):
 
     def sample(self, batch_size: int) -> Tuple:
         batch = random.sample(self.data, batch_size)
-        obs, a, r, done, obs_, eps = zip(*batch)
-        obs, a, r, done, obs_, eps = np.stack(obs, 0), np.stack(a, 0), np.array(r), np.array(done), np.stack(obs_, 0), np.stack(eps, 0)
-        return obs, a, r, done, obs_, eps
+        all_items = zip(*batch)
+        for item in all_items:
+            item = np.stack(item, 0)
+        return all_items
 
     def clear(self) -> None:
         self.data.clear()

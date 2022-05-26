@@ -94,7 +94,7 @@ class RayWorker(object):
 
 
 
-class DIAYN(object):
+class DIAYN_PPO(object):
     def __init__(self, config: Dict) -> None:
         self.model_config           = config['model_config']
         self.tradeoff_ex            = config['reward_tradeoff_ex']

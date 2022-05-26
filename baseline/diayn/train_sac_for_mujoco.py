@@ -7,9 +7,10 @@ from torch.utils.tensorboard import SummaryWriter
 from state_filtration_for_qd.utils import confirm_path_exist, make_exp_path
 from state_filtration_for_qd.logger import Logger
 from state_filtration_for_qd.env.common import call_env
-from state_filtration_for_qd.baseline.diayn.agent import DIAYN
+from state_filtration_for_qd.baseline.diayn.agent_sac import DIAYN_SAC
+from state_filtration_for_qd.model.latent_policy import Latent_DiagGaussianPolicy
 
-from state_filtration_for_qd.model.latent_policy import Latent_FixStdGaussianPolicy
+from buffer import Buffer
 
 def main(config: Dict, exp_name: str = ''):
     np.random.seed(config['seed'])
@@ -26,60 +27,77 @@ def main(config: Dict, exp_name: str = ''):
     })
     with open(config['exp_path'] + 'config.yaml', 'w', encoding='utf-8') as f:
         yaml.safe_dump(config, f, indent=2)
-    # build agent
-    agent = DIAYN(config)
     # make loggers
     logger = Logger()
     tb = SummaryWriter(config['exp_path'])
+       
+    # build agent
+    agent = DIAYN_SAC(config)
+    buffer = Buffer(config['buffer_size'])
+    # 
+    z_dim   =  agent.z_dim
+    p_z     =  np.full(z_dim, 1/z_dim)
 
-    total_step, total_episode, total_iteration = 0, 0, 0
+    total_step, total_episode = 0, 0
     best_score = -100
+
+    obs             =   env.reset()
+    z               =   np.random.choice(z_dim, p=p_z)
     while total_step <= config['max_timesteps']:
-        logger_dict = agent.rollout_update()
+        one_hot_z       =   np.zeros(z_dim).astype(np.float64)
+        one_hot_z[z]    =   1
+        obs_z           =   np.concatenate([obs, one_hot_z], -1)
+        action          =   agent.choose_action(obs_z, True)
+        
+        obs_, reward, done, info    =    env.step(action)
 
-        total_step = agent.total_step
-        total_episode = agent.total_episode
+        buffer.store((obs, action, reward, done, obs_, z))
+        logger_dict = agent.train(buffer)
 
-        reward_across_skills = agent.evaluate(env, config['eval_episode'])
-        max_skill_score      = np.max(reward_across_skills)
-        mean_skill_score     = np.mean(reward_across_skills)
-        min_skill_score      = np.min(reward_across_skills)
-        if max_skill_score > best_score:
-            agent.save_policy('best')
-            best_score = max_skill_score
-        
-        logger_dict.update({
-            'iteration': total_iteration,
-            'episode': total_episode, 
-            'steps': total_step, 
-            'max_skill_score': max_skill_score,
-            'mean_skill_score': mean_skill_score,
-            'min_skill_score': min_skill_score
-        })
-        
-        logger.store(**logger_dict)   
-        # Log the results in terminal
-        print("| Iteration {} | Step {} | {}".format(total_iteration, total_step, logger))
-        # Log the evaluation results in tb
-        tb.add_scalar('Eval/max_skill_score', max_skill_score, total_iteration)
-        tb.add_scalar('Eval/min_skill_score', min_skill_score, total_iteration)
-        tb.add_scalar('Eval/mean_skill_score', mean_skill_score, total_iteration)
-        tb.add_scalar('Eval/total_step', total_step, total_iteration)
-        # Log the information of the training process in tb
-        for name, value_seq in list(logger.data.items()):
-            tb.add_scalar(f'Train/{name}', value_seq[-1], total_step)
-        
-        # save log
-        if total_iteration % config['log_interval'] == 0:
+        if done:
+            total_episode   +=  1
+            obs             =   env.reset()
+            z               =   np.random.choice(z_dim, p=p_z)
+        else:
+            obs             =   obs_
+
+        if total_step % config['eval_interval'] == 0:
+            rewards_across_skill = agent.evaluate(env, config['eval_episode'])
+            max_skill_score = np.max(rewards_across_skill)
+            mean_skill_score = np.mean(rewards_across_skill)
+            min_skill_score = np.min(rewards_across_skill)
+
+            if max_skill_score > best_score:
+                agent.save_policy('best')
+                best_score = max_skill_score
+
+            logger_dict.update({
+                'episode': total_episode, 
+                'steps': total_step, 
+                'eval_return': max_skill_score,
+                'max_skill_score': max_skill_score,
+                'mean_skill_score': mean_skill_score,
+                'min_skill_score': min_skill_score
+            })
+            logger.store(**logger_dict)
             logger.save(config['exp_path'] + 'log.pkl')
-
+            # Log the results in terminal
+            print("DIAYN | Step {} | Episode {} | {}".format(total_step, total_episode, logger))
+            # Log the results in tb
+            tb.add_scalar('Eval/eval_return', max_skill_score, total_step)
+            tb.add_scalar('Eval/max_skill_score', max_skill_score, total_step)
+            tb.add_scalar('Eval/mean_skill_score', mean_skill_score, total_step)
+            tb.add_scalar('Eval/min_skill_score', min_skill_score, total_step)
+            for name, value_seq in list(logger.data.items()):
+                tb.add_scalar(f'Train/{name}', value_seq[-1], total_step)
+        
         # save models periodically
-        if total_iteration % config['save_interval'] == 0:
-            agent.save_policy(f'{total_iteration}')
-            agent.save_discriminator(f'{total_iteration}')
+        if total_step % config['save_interval'] == 0:
+            agent.save_policy(f'{total_step}')
+            agent.save_discriminator(f'{total_step}')
 
-        total_iteration += 1
-
+        total_step += 1
+        
     agent.save_policy('final')
     agent.save_discriminator('final')
 
@@ -89,18 +107,17 @@ def demo(path: str, remark: str) -> None:
         config = yaml.safe_load(f)
     
     z_dim =  config['model_config']['z_dim']
-
-    policy = Latent_FixStdGaussianPolicy(
+    policy = Latent_DiagGaussianPolicy(
         config['model_config']['o_dim'],
         config['model_config']['a_dim'],
         config['model_config']['z_dim'],
         config['model_config']['policy_hidden_layers'],
-        config['model_config']['action_std'],
+        config['model_config']['policy_logstd_min'],
+        config['model_config']['policy_logstd_max'],
     )
     policy.load_model(path + f'model/policy_{remark}')
     
     env = call_env(config['env_config'])
-    
     for _ in range(100):
         for z in range(z_dim):
             reward = 0
@@ -131,8 +148,11 @@ if __name__ == '__main__':
             'z_dim': 10,
             'policy_hidden_layers': [128, 128],
             'value_hidden_layers': [128, 128],
-            'disc_hidden_layers': [128, 128],
-            'action_std': 0.4,
+            'disc_hidden_layers': [256, 256],
+            'policy_logstd_min': -20,
+            'policy_logstd_max': 2,
+            'disc_logstd_min': -10,
+            'disc_logstd_max': 0.5
         },
         'env_config': {
             'env_name': 'HalfCheetah',
@@ -143,22 +163,19 @@ if __name__ == '__main__':
             }
         },
 
-        'max_timesteps': 10000000,
-        'save_interval': 40,
-        'log_interval': 10,
+        'max_timesteps': 1000000,
+        'buffer_size': 1000000,
+        'eval_interval': 20000,
+        'save_interval': 100000,
         'eval_episode': 1,
-        
-        'num_workers': 10,
-        'num_worker_rollout': 5,
-        'reward_tradeoff_ex': 0.,
-        'reward_tradeoff_in': 1,
-        'num_epoch': 30,
+
+        'seed': 10,
         'lr': 0.0003,
         'gamma': 0.99,
-        'lamda': 0.95,
-        'ratio_clip': 0.25,
+        'tau': 0.005,
+        'fix_alpha': 0.1,
         'batch_size': 256,
-        'temperature_coef': 0.5,
+        'train_policy_delay': 2,
         'device': 'cuda',
         'result_path': '/home/xukang/Project/state_filtration_for_qd/results_for_diayn/'
     }
