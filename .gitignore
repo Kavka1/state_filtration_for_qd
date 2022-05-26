@@ -1,4 +1,5 @@
 results/
 results_for_ensemble/
+results_for_diayn/
 /__pycache__/
 */__pycache__/
