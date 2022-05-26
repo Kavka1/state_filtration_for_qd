@@ -16,7 +16,7 @@ def plot(csv_path: str, title: str) -> None:
             with open(path, 'r', encoding='utf-8') as f:
                 df = pd.read_csv(path)
 
-            chosen_noise_num = 10
+            chosen_noise_num = 15
             all_noise_scale = df.values[:chosen_noise_num,0]
             max_return = np.max(df.values[:chosen_noise_num, :])
 
@@ -96,10 +96,10 @@ def plot(csv_path: str, title: str) -> None:
 if __name__ == '__main__':
     plot(
         [
-            '/home/xukang/Project/state_filtration_for_qd/statistic/Walker_coord_2_3-10.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/Walker_coord_2_3-20.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/Walker_coord_2_3-30.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/Hopper_leg_1-10.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/Hopper_leg_1-20.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/Hopper_leg_1-30.csv',
         ],
         
-        'Walker - noise at the coordinate 2 & 3'
+        'Hopper - noise at the leg 1'
     )

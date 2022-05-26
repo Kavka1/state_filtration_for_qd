@@ -82,8 +82,8 @@ def main(path: str, remark: str, noise_index: List[int], csv_path: str) -> None:
 
 if __name__ == '__main__':
     main(
-        path='/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_coord_2_3-30/',
+        path='/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1-30/',
         remark='best',
-        noise_index=[2,3,4,5,6,7],
-        csv_path='/home/xukang/Project/state_filtration_for_qd/statistic/Walker_coord_2_3-30.csv'
+        noise_index=[2,3,4,11,12,13],
+        csv_path='/home/xukang/Project/state_filtration_for_qd/statistic/Walker_leg_1-30.csv'
     )

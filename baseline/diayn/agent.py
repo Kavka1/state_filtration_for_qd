@@ -22,12 +22,10 @@ class RayWorker(object):
         worker_id: int,
         model_config: Dict,
         env_config: Dict,
-        reward_tradeoff: float,
         seed: int,
         rollout_episode: int
     ) -> None:
         self.id = worker_id
-        self.tradeoff = reward_tradeoff
         self.rollout_episode = rollout_episode
 
         self.z_dim = model_config['z_dim']
@@ -75,7 +73,7 @@ class RayWorker(object):
                 a_seq.append(action)
                 r_seq.append(r)
                 logprob_seq.append(logprob)
-                z_seq.append(np.copy(z))
+                z_seq.append(z)
 
                 info_dict['step'] += 1
                 info_dict['rewards'] += r
@@ -99,7 +97,8 @@ class RayWorker(object):
 class DIAYN(object):
     def __init__(self, config: Dict) -> None:
         self.model_config           = config['model_config']
-        self.tradeoff               = config['reward_tradeoff']
+        self.tradeoff_ex            = config['reward_tradeoff_ex']
+        self.tradeoff_in            = config['reward_tradeoff_in']
         self.num_workers            = config['num_workers']
         self.exp_path               = config['exp_path']
         self.num_worker_rollout     = config['num_worker_rollout']
@@ -149,7 +148,6 @@ class DIAYN(object):
                     worker_id = i, 
                     model_config = self.model_config,
                     env_config = env_config,
-                    reward_tradeoff = self.tradeoff,
                     seed = initial_seed + i * seed_increment, 
                     rollout_episode = self.num_worker_rollout,
                 )
@@ -198,7 +196,7 @@ class DIAYN(object):
             )
             log_reward_in += np.mean(r_in_seq)
             # compute the hybrid rewards
-            hybrid_r = [r_ex + self.tradeoff * r_in for r_ex, r_in in zip(traj_dict['r'], r_in_seq)]
+            hybrid_r = [self.tradeoff_ex * r_ex + self.tradeoff_in * r_in for r_ex, r_in in zip(traj_dict['r'], r_in_seq)]
             value_seq = self.value(torch.from_numpy(np.stack(traj_dict['obs_z'], 0)).to(self.device).float()).squeeze(-1).detach().tolist()
             # compute the return and advantage 
             ret_seq, adv_seq = gae_estimator(hybrid_r, value_seq, self.gamma, self.lamda)
@@ -217,7 +215,7 @@ class DIAYN(object):
             data_buffer['adv']              += traj_dict['adv']                         # [num]
         for key in list(data_buffer.keys()):
             type_data = np.array(data_buffer[key], dtype=np.float64)
-            if key in ['ret', 'adv', 'z']:
+            if key in ['ret', 'adv']:
                 type_data = type_data.reshape(-1, 1)                    # convert [num] to [num, 1]
             data_buffer[key] = torch.from_numpy(type_data).to(self.device).float()
         all_batch = Dataset(data_buffer)
@@ -270,8 +268,7 @@ class DIAYN(object):
         if len(adv) != 1:   # length is 1, the std will be nan
             adv = (adv - adv.mean()) / (adv.std() + 1e-5)
         # compute the policy loss
-        dist = self.policy(obs_z)
-        new_logprob = dist.log_prob(a)
+        _, new_logprob, dist = self.policy(obs_z)
         entropy = dist.entropy()
         ratio = torch.exp(new_logprob.sum(-1, keepdim=True) - logprob.sum(-1, keepdim=True))
         surr1 = ratio * adv
@@ -287,7 +284,7 @@ class DIAYN(object):
 
     def compute_discriminator_loss(self, obs: torch.tensor, z: torch.tensor) -> torch.tensor:
         logits = self.discriminator(obs)
-        loss_disc = F.cross_entropy(logits, z)
+        loss_disc = F.cross_entropy(logits, z.type(torch.int64))
         return loss_disc
         
     def evaluate(self, env, num_episodes: int) -> float:
@@ -301,7 +298,8 @@ class DIAYN(object):
                 obs = env.reset()
                 step = 0
                 while not done:
-                    action = self.choose_action(obs, one_hot_z, False)
+                    obs_z = torch.from_numpy(np.concatenate([obs, one_hot_z],-1)).to(self.device).float()
+                    action = self.policy.act(obs_z, False).detach().cpu().numpy()
                     next_obs, r, done, info = env.step(action)
                     reward += r
                     obs = next_obs

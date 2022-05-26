@@ -9,7 +9,7 @@ from state_filtration_for_qd.logger import Logger
 from state_filtration_for_qd.env.common import call_env
 from state_filtration_for_qd.baseline.diayn.agent import DIAYN
 
-from model.latent_policy import Latent_FixStdGaussianPolicy
+from state_filtration_for_qd.model.latent_policy import Latent_FixStdGaussianPolicy
 
 def main(config: Dict, exp_name: str = ''):
     np.random.seed(config['seed'])
@@ -76,12 +76,12 @@ def main(config: Dict, exp_name: str = ''):
         # save models periodically
         if total_iteration % config['save_interval'] == 0:
             agent.save_policy(f'{total_iteration}')
-            agent.save_inverse_model(f'{total_iteration}')
+            agent.save_discriminator(f'{total_iteration}')
 
         total_iteration += 1
 
     agent.save_policy('final')
-    agent.save_inverse_model('final')
+    agent.save_discriminator('final')
 
 
 def demo(path: str, remark: str) -> None:
@@ -150,20 +150,21 @@ if __name__ == '__main__':
         
         'num_workers': 10,
         'num_worker_rollout': 5,
-        'reward_tradeoff': 0.05,
+        'reward_tradeoff_ex': 0.,
+        'reward_tradeoff_in': 1,
         'num_epoch': 30,
         'lr': 0.0003,
         'gamma': 0.99,
         'lamda': 0.95,
         'ratio_clip': 0.25,
         'batch_size': 256,
-        'temperature_coef': 0.1,
+        'temperature_coef': 0.5,
         'device': 'cuda',
         'result_path': '/home/xukang/Project/state_filtration_for_qd/results_for_diayn/'
     }
     
-    for env_name in ['Walker', 'Hopper', 'HalfCheetah']:
-        for seed in [10, 20, 30]:
+    for seed in [10, 20, 30]:
+        for env_name in ['Walker', 'Hopper', 'HalfCheetah']:    
             config['env_config']['env_name'] = env_name
             config['seed'] = seed
             main(config, '')

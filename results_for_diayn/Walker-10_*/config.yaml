@@ -1,0 +1,39 @@
+batch_size: 256
+device: cuda
+env_config:
+  env_name: Walker
+  missing_obs_info:
+    missing_coord: []
+    missing_joint: []
+    missing_leg: []
+eval_episode: 1
+exp_path: /home/xukang/Project/state_filtration_for_qd/results_for_diayn/Walker-10_*/
+gamma: 0.99
+lamda: 0.95
+log_interval: 10
+lr: 0.0003
+max_timesteps: 10000000
+model_config:
+  a_dim: 6
+  action_std: 0.4
+  disc_hidden_layers:
+  - 128
+  - 128
+  o_dim: 17
+  policy_hidden_layers:
+  - 128
+  - 128
+  value_hidden_layers:
+  - 128
+  - 128
+  z_dim: 10
+num_epoch: 30
+num_worker_rollout: 5
+num_workers: 10
+ratio_clip: 0.25
+result_path: /home/xukang/Project/state_filtration_for_qd/results_for_diayn/
+reward_tradeoff_ex: 0.0
+reward_tradeoff_in: 1
+save_interval: 40
+seed: 10
+temperature_coef: 0.5
