@@ -4,6 +4,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from cycler import cycler
+
+
+plt.rcParams['axes.prop_cycle']  = cycler(color=['#4E79A7', '#F28E2B', '#E15759', '#76B7B2','#59A14E',
+                                                 '#EDC949','#B07AA2','#FF9DA7','#9C755F','#BAB0AC'])
 
 
 def plot(csv_path: str, title: str) -> None:
@@ -96,9 +101,9 @@ def plot(csv_path: str, title: str) -> None:
 if __name__ == '__main__':
     plot(
         [
-            '/home/xukang/Project/state_filtration_for_qd/statistic/Hopper_leg_1-10.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/Hopper_leg_1-20.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/Hopper_leg_1-30.csv',
+            '/Users/xukang/Code/state_filtration_for_qd/statistic/Hopper_leg_1-10.csv',
+            '/Users/xukang/Code/state_filtration_for_qd/statistic/Hopper_leg_1-20.csv',
+            '/Users/xukang/Code/state_filtration_for_qd/statistic/Hopper_leg_1-30.csv',
         ],
         
         'Hopper - noise at the leg 1'

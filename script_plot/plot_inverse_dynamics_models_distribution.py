@@ -5,6 +5,12 @@ import pandas as pd
 import yaml
 import matplotlib.pyplot as plt
 import seaborn as sns
+from cycler import cycler
+
+
+plt.rcParams['axes.prop_cycle']  = cycler(color=['#4E79A7', '#F28E2B', '#E15759', '#76B7B2','#59A14E',
+                                                 '#EDC949','#B07AA2','#FF9DA7','#9C755F','#BAB0AC'])
+
 
 from state_filtration_for_qd.model.dynamics import DiagGaussianIDM
 from state_filtration_for_qd.env.common import call_env
