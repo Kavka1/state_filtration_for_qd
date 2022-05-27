@@ -203,4 +203,4 @@ if __name__ == '__main__':
             config['seed'] = seed
             #main(config, '')
 
-    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Hopper-missing_leg_1-30/','best')
+    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_leg_1-10/','best')

@@ -186,6 +186,6 @@ if __name__ == '__main__':
         for env_name in ['Walker', 'Hopper', 'HalfCheetah']:    
             config['env_config']['env_name'] = env_name
             config['seed'] = seed
-            main(config, 'r_ex')
+            #main(config, 'r_ex')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_diayn/Walker-10_*_*/','600000')
+    demo('/home/xukang/Project/state_filtration_for_qd/results_for_diayn/r_ex-HalfCheetah-10/','final')
