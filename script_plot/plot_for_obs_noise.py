@@ -23,29 +23,40 @@ def plot(csv_path: str, title: str) -> None:
 
             chosen_noise_num = 15
             all_noise_scale = df.values[:chosen_noise_num,0]
-            max_return = np.max(df.values[:chosen_noise_num, :])
 
-            primitive_scores = df.values[:chosen_noise_num,1:]
-            max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
-            baseline_rewards        =   primitive_scores[:,0]
+            if 'ensemble' in path:
+                primitive_scores = df.values[:chosen_noise_num,1:]
+                max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
+                baseline_rewards        =   primitive_scores[:,0]
+                # process the data
+                new_df.append(
+                    pd.DataFrame({
+                        'noise scale'               : all_noise_scale,
+                        'return'                    : max_primitive_rewards,
+                        'alg'                       : ['Ensemble Max'] * len(max_primitive_rewards),
+                        'seed'                      : [seed] * len(max_primitive_rewards)
+                    })
+                ) 
+                new_df.append(
+                    pd.DataFrame({
+                        'noise scale'               : all_noise_scale,
+                        'return'                    : baseline_rewards,
+                        'alg'                       : ['Single'] * len(max_primitive_rewards),
+                        'seed'                      : [seed]  * len(max_primitive_rewards)
+                    })
+                )
+            elif 'diayn' in path:
+                primitive_scores = df.values[:chosen_noise_num,1:]
+                max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
+                new_df.append(
+                    pd.DataFrame({
+                        'noise scale'               : all_noise_scale,
+                        'return'                    : max_primitive_rewards,
+                        'alg'                       : ['DIAYN'] * len(max_primitive_rewards),
+                        'seed'                      : [seed] * len(max_primitive_rewards)
+                    })
+                ) 
 
-            # process the data
-            new_df.append(
-                pd.DataFrame({
-                    'noise scale'               : all_noise_scale,
-                    'return'                    : max_primitive_rewards,
-                    'alg'                       : ['Ensemble Max'] * len(max_primitive_rewards),
-                    'seed'                      : [seed] * len(max_primitive_rewards)
-                })
-            ) 
-            new_df.append(
-                pd.DataFrame({
-                    'noise scale'               : all_noise_scale,
-                    'return'                    : baseline_rewards,
-                    'alg'                       : ['Single'] * len(max_primitive_rewards),
-                    'seed'                      : [seed]  * len(max_primitive_rewards)
-                })
-            )
         new_df = pd.concat(new_df)
 
     else:
@@ -101,10 +112,13 @@ def plot(csv_path: str, title: str) -> None:
 if __name__ == '__main__':
     plot(
         [
-            '/home/xukang/Project/state_filtration_for_qd/statistic/HalfCheetah_leg_1-10.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/HalfCheetah_leg_1-20.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/HalfCheetah_leg_1-30.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Walker_leg_1-10.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Walker_leg_1-20.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Walker_leg_1-30.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/diayn/Walker_leg_1-10.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/diayn/Walker_leg_1-20.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/diayn/Walker_leg_1-30.csv',
         ],
         
-        'HalfCheetah - noise at the leg 1'
+        'Walker - noise at the leg 1'
     )
