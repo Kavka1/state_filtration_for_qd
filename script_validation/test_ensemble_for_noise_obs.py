@@ -85,5 +85,5 @@ if __name__ == '__main__':
         path='/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_leg_1-20/',
         remark='best',
         noise_index=[2,3,4,11,12,13],
-        csv_path='/home/xukang/Project/state_filtration_for_qd/statistic/HalfCheetah_leg_1-20.csv'
+        csv_path='/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/HalfCheetah_leg_1-20.csv'
     )

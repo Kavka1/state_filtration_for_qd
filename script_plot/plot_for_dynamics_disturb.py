@@ -7,8 +7,9 @@ import seaborn as sns
 from cycler import cycler
 
 
-plt.rcParams['axes.prop_cycle']  = cycler(color=['#4E79A7', '#F28E2B', '#E15759', '#76B7B2','#59A14E',
-                                                 '#EDC949','#B07AA2','#FF9DA7','#9C755F','#BAB0AC'])
+plt.rcParams['axes.prop_cycle']  = cycler(color=[
+    '#4E79A7', '#F28E2B', '#E15759', '#76B7B2','#59A14E',
+    '#EDC949','#B07AA2','#FF9DA7','#9C755F','#BAB0AC'])
 
 
 def plot(csv_path: str, title: str) -> None:
@@ -56,7 +57,7 @@ def plot(csv_path: str, title: str) -> None:
 
     # plot
     sns.set_style('whitegrid')
-    fig, ax = plt.subplots(1, 1, figsize=(6,4))
+    fig, ax = plt.subplots(1, 1, figsize=(6,5))
 
     sns.lineplot(
         data    =   new_df,
@@ -64,21 +65,24 @@ def plot(csv_path: str, title: str) -> None:
         y       =   'return',
         hue     =   'alg',
         style   =   'alg',
-        ax      =   ax
+        ax      =   ax,
+        dashes  =   False,
+        markers =   True,
+        err_style   =   'band'
     )
     
     #ax.set_ylim([1000, 4000])
     ax.legend().set_title('')
-    ax.set_xlabel('Dynamics Parameter Scale', fontsize=11)
+    ax.set_xlabel('Dynamics parameter scale', fontsize=11)
     ax.set_ylabel('Return', fontsize=11)
-    ax.set_title(title, fontsize=11)
+    ax.set_title(title, fontsize=12)
 
     plt.show()
 
 
 
 if __name__ == '__main__':
-    env_name = 'Walker'
+    env_name = 'Hopper'
     disturbed_param = 'mass'
 
     plot(
@@ -91,5 +95,5 @@ if __name__ == '__main__':
             f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env_name}_dynamics_{disturbed_param}-30.csv',
         ],
         
-        f'Walker - dynamics parameter scaled at the foot {disturbed_param}'
+        f'Hopper - dynamics parameter scaled at the foot {disturbed_param}'
     )

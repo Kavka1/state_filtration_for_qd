@@ -96,6 +96,8 @@ def plot(csv_path: str, title: str) -> None:
         y       =   'return',
         hue     =   'alg',
         style   =   'alg',
+        dashes  =   False,
+        markers =   True,
         ax      =   ax
     )
     
@@ -112,13 +114,13 @@ def plot(csv_path: str, title: str) -> None:
 if __name__ == '__main__':
     plot(
         [
-            '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Walker_leg_1-10.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Walker_leg_1-20.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Walker_leg_1-30.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/diayn/Walker_leg_1-10.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/diayn/Walker_leg_1-20.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/diayn/Walker_leg_1-30.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/HalfCheetah_leg_1-10.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/HalfCheetah_leg_1-20.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/HalfCheetah_leg_1-30.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/diayn/HalfCheetah_leg_1-10.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/diayn/HalfCheetah_leg_1-20.csv',
+            '/home/xukang/Project/state_filtration_for_qd/statistic/diayn/HalfCheetah_leg_1-30.csv',
         ],
         
-        'Walker - noise at the leg 1'
+        'HalfCheetah - noise at the leg 1'
     )

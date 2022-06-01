@@ -86,17 +86,19 @@ def main(path: str, remark: str, env_config: Dict, disturbed_param: List[str], c
 
 
 if __name__ == '__main__':
+    env = 'Hopper'
+    disturb_param = ['mass']
     for seed in ['10', '20', '30']:
         main(
-            path=f'/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1-{seed}/',
+            path=f'/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Hopper-missing_leg_1-{seed}/',
             remark='best',
             env_config={
-                'env_name': 'Walker',
+                'env_name': env,
                 'dynamics_info': {
                     'foot_mass_scale': 1,
                     'foot_friction_scale': 1,
                 }
             },
-            disturbed_param= ['mass'],
-            csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/Walker_dynamics_mass-{seed}.csv'
+            disturbed_param= disturb_param,
+            csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_dynamics_{disturb_param[0]}-{seed}.csv'
         )
