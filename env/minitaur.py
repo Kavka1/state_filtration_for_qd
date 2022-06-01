@@ -411,7 +411,7 @@ class MinitaurBulletEnv(gym.Env):
 
 
 
-class MinitaurEnv(MinitaurBulletEnv):
+class Missing_Info_Minitaur(MinitaurBulletEnv):
     def __init__(self, 
             urdf_root=pybullet_data.getDataPath(), 
             action_repeat=1, 
@@ -434,9 +434,16 @@ class MinitaurEnv(MinitaurBulletEnv):
             render=False, 
             kd_for_pd_controllers=0.3, 
             episode_length=2000,
-            missing_obs_info: Dict = {},
+            missing_obs_info: Dict = {'missing_angle': []},
             apply_missing_obs: bool = False
         ):
+
+        self.apply_missing_obs  =   apply_missing_obs       
+        self.missing_angle      =   missing_obs_info['missing_angle']
+        #self.missing_leg        = missing_obs_info['missing_leg']
+        #assert len(self.missing_leg) < 5, f'Number of legs must be less than 5'
+
+
         super().__init__(urdf_root, action_repeat, distance_weight, 
                             energy_weight, shake_weight, drift_weight, 
                             distance_limit, observation_noise_stdev, 
@@ -447,10 +454,6 @@ class MinitaurEnv(MinitaurBulletEnv):
                             motor_overheat_protection, hard_reset, 
                             on_rack, render, kd_for_pd_controllers, episode_length)
         
-        self.apply_missing_obs  =   apply_missing_obs       
-        self.missing_angle      =   missing_obs_info['missing_angle']
-        #self.missing_leg        = missing_obs_info['missing_leg']
-        #assert len(self.missing_leg) < 5, f'Number of legs must be less than 5'
 
     def _get_observation(self):
         """
@@ -466,9 +469,18 @@ class MinitaurEnv(MinitaurBulletEnv):
         return obs
 
     def _drop_motor_angles(self, obs: np.array) -> np.array:
-        motor_angle_idx    =   [0,1,2,3,4,5,6,8]
-        if self.missing_angle:
-            obs = np.delete(obs, motor_angle_idx)
+        motor_angle_1_idx    =   [0,1]
+        motor_angle_2_idx    =   [2,3]
+        motor_angle_3_idx    =   [4,5]
+        motor_angle_4_idx    =   [6,8]
+        if '4' in self.missing_angle:
+            obs = np.delete(obs, motor_angle_4_idx)
+        if '3' in self.missing_angle:
+            obs = np.delete(obs, motor_angle_3_idx)
+        if '2' in self.missing_angle:
+            obs = np.delete(obs, motor_angle_2_idx)
+        if '1' in self.missing_angle:
+            obs = np.delete(obs, motor_angle_1_idx)
         return obs
 
     def _process_obs(self, obs: np.array) -> np.array:

@@ -138,22 +138,21 @@ if __name__ == '__main__':
             'idm_logstd_max': 0.5
         },
         'env_config': {
-            'env_name': 'HalfCheetah',
+            'env_name': 'Minitaur',
             'missing_obs_info': {
-                'missing_joint': ['thigh', 'shin', 'foot'],
-                'missing_coord': ['2', '3']
+                'missing_angle': ['1','2','3','4'],
             }
         },
 
         'num_primitive': 10,
-        'max_timesteps_per_primitive': 2500000,
+        'max_timesteps_per_primitive': 2000000,
         'save_interval': 40,
         'log_interval': 10,
         'eval_episode': 5,
         
         'num_workers': 10,
         'num_worker_rollout': 5,
-        'reward_tradeoff': 0.05,
+        'reward_tradeoff': 0.001,
         'num_epoch': 30,
         'lr': 0.0003,
         'gamma': 0.99,
@@ -165,42 +164,8 @@ if __name__ == '__main__':
         'result_path': '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/'
     }
     
-    for env_config in [
-        {   
-            'env_name': 'Walker',
-            'missing_obs_info': {
-                'missing_joint': [],#['foot','leg','thigh'],
-                'missing_coord': ['2', '3']
-            }
-        },
-        {
-            'env_name': 'Hopper',
-            'missing_obs_info': {
-                'missing_joint': [],#['foot','leg','thigh'],
-                'missing_coord': ['2']
-            }
-        },
-        {
-            'env_name': 'HalfCheetah',
-            'missing_obs_info': {
-                'missing_joint': [],
-                'missing_coord': ['2', '3']
-            }
-        },
-        {   
-            'env_name': 'Ant',
-            'missing_obs_info': {
-                'missing_joint': [],
-                'missing_coord': ['2', '3', '4', '5']
-            }
-        }
-    ]:
-        if env_config['env_name'] not in ['Hopper', 'Walker']:
-            continue
+    
+    for seed in [10, 20, 30]:
+        main(config, '')
 
-        for seed in [20, 30]:
-            config['env_config'] = env_config
-            config['seed'] = seed
-            #main(config, '')
-
-    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_leg_1-10/','best')
+    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_leg_1-10/','best')
