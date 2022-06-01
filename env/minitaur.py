@@ -60,7 +60,7 @@ class MinitaurBulletEnv(gym.Env):
       motor_velocity_limit=np.inf,
       pd_control_enabled=False,  #not needed to be true if accurate motor model is enabled (has its own better PD)
       leg_model_enabled=True,
-      accurate_motor_model_enabled=True,
+      accurate_motor_model_enabled=False,
       motor_kp=1.0,
       motor_kd=0.02,
       torque_control_enabled=False,
@@ -70,7 +70,6 @@ class MinitaurBulletEnv(gym.Env):
       render=False,
       kd_for_pd_controllers=0.3,
       episode_length=2000,
-      env_config: Dict = {}
     ):
         """Initialize the minitaur gym environment.
 
@@ -173,13 +172,7 @@ class MinitaurBulletEnv(gym.Env):
             MOTOR_VOLTAGE,
             MOTOR_VISCOUS_DAMPING,
         ]
-        self.current_coeff_value = deepcopy(self.initial_coeff_value)
-        self.n_adjustable_coeff = 4
-        self.fix_system = env_config['fix_system']
-        self.fix_coeff_magnitude = env_config['fix_coeff_magnitude']
-        self.flex_coeff_magnitude_range = env_config['flex_coeff_magnitude_range']
-        self.adjustable_coeff = env_config['adjustable_coeff']
-        self.n_truely_adjustable_coeff = int(sum(self.adjustable_coeff))
+        
 
     def set_env_randomizer(self, env_randomizer):
         self._env_randomizer = env_randomizer
@@ -413,6 +406,12 @@ class MinitaurBulletEnv(gym.Env):
         _seed = seed
         _step = step
 
+
+
+class MinitaurEnv(MinitaurBulletEnv):
+    def __init__(self, **args):
+        super().__init__(**args)
+        
 
 
 if __name__ == '__main__':
