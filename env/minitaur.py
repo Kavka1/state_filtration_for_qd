@@ -1,6 +1,8 @@
 from copy import deepcopy
 import os, inspect
 from typing import Dict, List
+
+from pandas import array
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, parentdir)
@@ -408,14 +410,79 @@ class MinitaurBulletEnv(gym.Env):
 
 
 
+
 class MinitaurEnv(MinitaurBulletEnv):
-    def __init__(self, **args):
-        super().__init__(**args)
+    def __init__(self, 
+            urdf_root=pybullet_data.getDataPath(), 
+            action_repeat=1, 
+            distance_weight=1, 
+            energy_weight=0.005, 
+            shake_weight=0, 
+            drift_weight=0, 
+            distance_limit=float("inf"), 
+            observation_noise_stdev=0, 
+            self_collision_enabled=True, 
+            motor_velocity_limit=np.inf, 
+            pd_control_enabled=False, 
+            leg_model_enabled=True,
+            accurate_motor_model_enabled=False, 
+            motor_kp=1, motor_kd=0.02, 
+            torque_control_enabled=False, 
+            motor_overheat_protection=True, 
+            hard_reset=True, 
+            on_rack=False, 
+            render=False, 
+            kd_for_pd_controllers=0.3, 
+            episode_length=2000,
+            missing_obs_info: Dict = {},
+            apply_missing_obs: bool = False
+        ):
+        super().__init__(urdf_root, action_repeat, distance_weight, 
+                            energy_weight, shake_weight, drift_weight, 
+                            distance_limit, observation_noise_stdev, 
+                            self_collision_enabled, motor_velocity_limit, 
+                            pd_control_enabled, leg_model_enabled, 
+                            accurate_motor_model_enabled, 
+                            motor_kp, motor_kd, torque_control_enabled, 
+                            motor_overheat_protection, hard_reset, 
+                            on_rack, render, kd_for_pd_controllers, episode_length)
         
+        self.apply_missing_obs  =   apply_missing_obs       
+        self.missing_angle      =   missing_obs_info['missing_angle']
+        #self.missing_leg        = missing_obs_info['missing_leg']
+        #assert len(self.missing_leg) < 5, f'Number of legs must be less than 5'
+
+    def _get_observation(self):
+        """
+        Original Observation info:
+            Motor angles:       [0:7]
+            Motor velocity:     [8:15]
+            Motor torque:       [16:23]
+            Base orientation:   [24:27]
+        """
+        obs = super()._get_observation()
+        if self.apply_missing_obs:
+            obs = self._drop_motor_angles(obs)
+        return obs
+
+    def _drop_motor_angles(self, obs: np.array) -> np.array:
+        motor_angle_idx    =   [0,1,2,3,4,5,6,8]
+        if self.missing_angle:
+            obs = np.delete(obs, motor_angle_idx)
+        return obs
+
+    def _process_obs(self, obs: np.array) -> np.array:
+        """
+        Process the original obs to missing info version
+        """
+        if self.missing_angle:
+            obs = self._drop_motor_angles(obs)
+        return obs
+
 
 
 if __name__ == '__main__':
-    env = MinitaurBulletEnv(render=True)
+    env = MinitaurEnv(render=True)
     a_high, a_low = env.action_space.high[0], env.action_space.low[0]
     
     for i in range(100):
