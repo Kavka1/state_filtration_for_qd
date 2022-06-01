@@ -494,7 +494,7 @@ class Missing_Info_Minitaur(MinitaurBulletEnv):
 
 
 if __name__ == '__main__':
-    env = MinitaurEnv(render=True)
+    env = Missing_Info_Minitaur(render=True)
     a_high, a_low = env.action_space.high[0], env.action_space.low[0]
     
     for i in range(100):
