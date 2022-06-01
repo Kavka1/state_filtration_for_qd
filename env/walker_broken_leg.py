@@ -10,13 +10,17 @@ class Broken_Leg_Walker(Walker2dEnv):
         self.episode_step   = 0
         self.is_left_leg    = is_left_leg
         
+        super().__init__()
         if self.is_left_leg:
             self.model.jnt_range[7][0] = self.model.jnt_range[7][0] * leg_jnt_scale     # left leg joint minimum rotation
+            self.model.jnt_range[7][1] = self.model.jnt_range[7][1] * leg_jnt_scale
             self.model.jnt_range[8][0] = self.model.jnt_range[8][0] * foot_jnt_scale    # left foot joint minimum rotation
+            self.model.jnt_range[8][1] = self.model.jnt_range[8][1] * foot_jnt_scale 
         else:
             self.model.jnt_range[4][0] = self.model.jnt_range[4][0] * leg_jnt_scale     # right leg joint
+            self.model.jnt_range[4][1] = self.model.jnt_range[4][1] * leg_jnt_scale
             self.model.jnt_range[5][0] = self.model.jnt_range[5][0] * foot_jnt_scale    # right foot joint 
-        super().__init__()
+            self.model.jnt_range[5][1] = self.model.jnt_range[5][1] * foot_jnt_scale 
 
     def step(self, action: np.array) -> Tuple:
         obs, r, done, info = super().step(action)

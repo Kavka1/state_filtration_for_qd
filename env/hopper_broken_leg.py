@@ -9,9 +9,11 @@ class Broken_Leg_Hopper(HopperEnv):
         self.episode_length = 1000
         self.episode_step   = 0
 
-        self.model.jnt_range[4][0] = self.model.jnt_range[4][0] * leg_jnt_scale     # leg joint minimum rotation
-        self.model.jnt_range[5][0] = self.model.jnt_range[5][0] * foot_jnt_scale    # foot joint
         super().__init__()
+        self.model.jnt_range[4][0] = self.model.jnt_range[4][0] * leg_jnt_scale     # leg joint minimum rotation
+        self.model.jnt_range[4][1] = self.model.jnt_range[4][1] * leg_jnt_scale
+        self.model.jnt_range[5][0] = self.model.jnt_range[5][0] * foot_jnt_scale    # foot joint
+        self.model.jnt_range[5][1] = self.model.jnt_range[5][1] * foot_jnt_scale
 
     def step(self, a):
         obs, r, done, info = super().step(a)
