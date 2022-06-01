@@ -9,6 +9,8 @@ from state_filtration_for_qd.env.swimmer import Missing_Info_Swimmer
 from state_filtration_for_qd.env.halfcheetah import Missing_Info_HalfCheetah
 from state_filtration_for_qd.env.hopper_broken_leg import Broken_Leg_Hopper
 from state_filtration_for_qd.env.walker_broken_leg import Broken_Leg_Walker
+from state_filtration_for_qd.env.walker_disturb_dynamics import Disturb_Dynamics_Walker
+from state_filtration_for_qd.env.hopper_disturb_dynamics import Disturb_Dynamics_Hopper
 
 
 NAME2Env = {
@@ -22,6 +24,11 @@ NAME2Env = {
 NAME2BROKEN_ENV = {
     'Hopper': Broken_Leg_Hopper,
     'Walker': Broken_Leg_Walker
+}
+
+NAME2DYNAMICS_ENV = {
+    'Hopper': Disturb_Dynamics_Hopper,
+    'Walker': Disturb_Dynamics_Walker
 }
 
 
@@ -41,3 +48,13 @@ def call_broken_leg_env(env_config: Dict) -> gym.Env:
         return NAME2BROKEN_ENV[name](**args)
     else:
         raise ValueError(f"Invalid broken env name {name}")
+
+
+def call_disturb_dynamics_env(env_config: Dict) -> gym.Env:
+    name = env_config['env_name']
+    args = env_config['dynamics_info']
+    if name in list(NAME2BROKEN_ENV.keys()):
+        return NAME2DYNAMICS_ENV[name](**args)
+    else:
+        raise ValueError(f"Invalid dynamics disturbed env name {name}")
+    
