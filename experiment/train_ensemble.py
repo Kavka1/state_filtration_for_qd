@@ -93,7 +93,7 @@ def demo(path: str, remark: str) -> None:
     with open(path + 'config.yaml', 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
     
-    num_primitive =  config['num_primitive']
+    num_primitive = 5#  config['num_primitive']
     all_policy = []
 
     for k in range(num_primitive):
@@ -106,7 +106,7 @@ def demo(path: str, remark: str) -> None:
         policy.load_model(path + f'model/policy_{k}_{remark}')
         all_policy.append(policy)
     
-    env = call_env(config['env_config'])
+    env = call_env(config['env_config'], is_render=True)
     
     for _ in range(100):
         for k in range(len(all_policy)):
@@ -166,6 +166,7 @@ if __name__ == '__main__':
     
     
     for seed in [10, 20, 30]:
+        #pass
         main(config, '')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_leg_1-10/','best')
+    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Minitaur-missing_angle_1_2_3_4-10/','final')

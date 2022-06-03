@@ -34,11 +34,14 @@ NAME2DYNAMICS_ENV = {
 }
 
 
-def call_env(env_config: Dict) -> gym.Env:
+def call_env(env_config: Dict, is_render: bool = False) -> gym.Env:
     name = env_config['env_name']
     missing_obs_info = env_config['missing_obs_info']
     if name in list(NAME2Env.keys()):
-        return NAME2Env[name](missing_obs_info=missing_obs_info)
+        if name == "Minitaur":
+            return NAME2Env[name](missing_obs_info=missing_obs_info, render=is_render)
+        else:
+            return NAME2Env[name](missing_obs_info=missing_obs_info)
     else:
         raise ValueError(f"Invalid env name {name}")
 
