@@ -18,6 +18,14 @@ class Missing_Info_Quadruped_Walk(gym.Env):
         self.apply_missing_obs  =   apply_missing_obs
     
     @property
+    def action_space(self) -> gym.Box:
+        return self._env.action_space
+    
+    @property
+    def observation_space(self) -> gym.Box:
+        return self._env.observation_space
+
+    @property
     def action_bound(self) -> float:
         return self._env.action_space.high[0]
 
@@ -40,3 +48,19 @@ class Missing_Info_Quadruped_Walk(gym.Env):
         # todo: update this api
         obs_copy = np.copy(obs)
         return obs_copy
+
+
+
+if __name__ == '__main__':
+    env = Missing_Info_Quadruped_Walk(
+        missing_obs_info={'missing_leg': []},
+        apply_missing_obs= False
+    )
+    for _ in range(100):
+        done = False
+        obs = env.reset()
+        while not done:
+            action = env.action_space.sample()
+            obs, r, done, _ = env.step(action)
+    
+    
