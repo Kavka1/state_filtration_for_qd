@@ -6,6 +6,7 @@ from state_filtration_for_qd.env.walker import Missing_Info_Walker
 from state_filtration_for_qd.env.ant import Missing_Info_Ant
 from state_filtration_for_qd.env.hopper import Missing_Info_Hopper
 from state_filtration_for_qd.env.swimmer import Missing_Info_Swimmer
+from state_filtration_for_qd.env.dmc_quadruped import Missing_Info_Quadruped_Walk
 from state_filtration_for_qd.env.minitaur import Missing_Info_Minitaur
 from state_filtration_for_qd.env.halfcheetah import Missing_Info_HalfCheetah
 from state_filtration_for_qd.env.hopper_broken_leg import Broken_Leg_Hopper
@@ -20,7 +21,8 @@ NAME2Env = {
     'HalfCheetah': Missing_Info_HalfCheetah,
     'Ant': Missing_Info_Ant,
     'Swimmer': Missing_Info_Swimmer,
-    'Minitaur': Missing_Info_Minitaur
+    'Minitaur': Missing_Info_Minitaur,
+    'Quadruped': Missing_Info_Quadruped_Walk
 }
 
 NAME2BROKEN_ENV = {
