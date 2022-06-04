@@ -182,7 +182,7 @@ if __name__ == '__main__':
         'result_path': '/home/xukang/Project/state_filtration_for_qd/results_for_diayn/'
     }
     
-    for seed in [10, 20, 30]:
+    for seed in [20, 30]:
         for env_name in ['Ant']:    
             config['env_config']['env_name'] = env_name
             config['seed'] = seed

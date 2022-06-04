@@ -16,7 +16,7 @@ def main(path: str, remark: str, num_obs: int, csv_path: str, csv_remark: str) -
     model_config = config['model_config']
     env_config   = config['env_config']
     
-    num_primitive = config['num_primitive']
+    num_primitive = 5# config['num_primitive']
     env = call_env(env_config)
     env.apply_missing_obs = False            # output the clipped observation
     all_IDMs = []
@@ -38,55 +38,68 @@ def main(path: str, remark: str, num_obs: int, csv_path: str, csv_remark: str) -
             model_config['policy_hidden_layers'],
             model_config['action_std']
         )
-        policy.load_model(config['exp_path'] + f'models/policy_{remark}')
+        policy.load_model(path + f'model/policy_{k}_{remark}')
         all_Pis.append(policy)
 
     # collect plenty observation data
-    all_obs                 = []
+    all_obs                 = [[] for _ in range(num_primitive)]
     all_filtrated_obs       = []
     all_filtrated_next_obs  = []
-    obs = env.reset()
-    while len(all_filtrated_obs) < num_obs:
-        a = env.action_space.sample()
-        obs_, r, done, info = env.step(a)
-        all_obs.append(obs.tolist())
-        all_filtrated_obs.append(env._process_obs(obs).tolist())
-        all_filtrated_next_obs.append(env._process_obs(obs_).tolist())
-        if done:
-            obs = env.reset()
-        obs = obs_
+    all_policy_action_mean  = [[] for _ in range(num_primitive)]
+    all_idm_action_mean     = [[] for _ in range(num_primitive)]
+    for i, policy in enumerate(all_Pis):
+        obs = env.reset()
+        step = 0
+        while step < num_obs:
+            a = policy.act(torch.from_numpy(obs).float(), False).detach().numpy()
+            obs_, r, done, info = env.step(a)
+            
+            filtrated_obs = env._process_obs(obs)
+            filtrated_next_obs = env._process_obs(obs_)
+            a_idm = all_IDMs[i](torch.from_numpy(filtrated_obs).float(), torch.from_numpy(filtrated_next_obs).float()).mean.detach().numpy()
 
-    # inference the actions of all IDMs
-    all_obs_tensor = torch.as_tensor(all_obs).float()
-    all_filtrated_obs_tensor = torch.as_tensor(all_filtrated_obs).float()
-    all_filtrated_next_obs_tensor = torch.as_tensor(all_filtrated_next_obs).float()
+            all_obs[i].append(obs)
+            all_policy_action_mean[i].append(a)
+            all_idm_action_mean[i].append(a_idm)
+
+            if done:
+                obs = env.reset()
+            obs = obs_
+            step += 1
 
     # train the tsne embedding for the policy output
-    X = [all_Pis[k](all_obs_tensor).mean().detach().numpy() for k in range(num_primitive)]
     y = [np.array([i for _ in range(num_obs)]) for i in range(num_primitive)]
-    X = np.concatenate(X, 0)
+    X = np.concatenate(all_obs, 0)
     y = np.concatenate(y, 0).tolist()
-
     embedding = TSNE().fit(X)
-    df = pd.DataFrame({'embedding': embedding, 'model': y})
+    df = pd.DataFrame({'embedding': [list(embedding[i]) for i in range(len(embedding))], 'model': y})
+    df.to_csv(csv_path + f'{csv_remark}-obs.csv')
+    print("t-SNE of visited obs saved to csv")
+
+    # train the tsne embedding for the policy output
+    y = [np.array([i for _ in range(num_obs)]) for i in range(num_primitive)]
+    X = np.concatenate(all_policy_action_mean, 0)
+    y = np.concatenate(y, 0).tolist()
+    embedding = TSNE().fit(X)
+    df = pd.DataFrame({'embedding': [list(embedding[i]) for i in range(len(embedding))], 'model': y})
     df.to_csv(csv_path + f'{csv_remark}-policy.csv')
+    print("t-SNE of policy output saved to csv")
 
     # train the tsne embedding for the idm output
-    X_idm = [all_IDMs[k](all_filtrated_obs_tensor, all_filtrated_next_obs_tensor).mean().detach().numpy() for k in range(num_primitive)]
     y_idm = [np.array([i for _ in range(num_obs)]) for i in range(num_primitive)]
-    X_idm = np.concatenate(X_idm, 0)
+    X_idm = np.concatenate(all_idm_action_mean, 0)
     y_idm = np.concatenate(y_idm, 0).tolist()
-
     embedding_idm = TSNE().fit(X_idm)
-    df_idm = pd.DataFrame({'embedding': embedding_idm, 'model': y_idm})
+    df_idm = pd.DataFrame({'embedding': [list(embedding_idm[i]) for i in range(len(embedding_idm))], 'model': y_idm})
     df_idm.to_csv(csv_path + f'{csv_remark}-idm.csv')
+    print("t-SNE of IDM output saved to csv")
 
 
 if __name__ == '__main__':
     main(
         '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1-10/',
         'final',
-        5000,
+        500,
         '/home/xukang/Project/state_filtration_for_qd/statistic/tsne/',
         'walker-missing_leg_1-10'
     )
