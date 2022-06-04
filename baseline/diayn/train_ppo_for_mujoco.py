@@ -150,8 +150,8 @@ if __name__ == '__main__':
         
         'num_workers': 10,
         'num_worker_rollout': 5,
-        'reward_tradeoff_ex': 0.,
-        'reward_tradeoff_in': 1,
+        'reward_tradeoff_ex': 1.,
+        'reward_tradeoff_in': 0.5,
         'num_epoch': 30,
         'lr': 0.0003,
         'gamma': 0.99,
@@ -167,6 +167,6 @@ if __name__ == '__main__':
         for env_name in ['Walker', 'Hopper', 'HalfCheetah']:    
             config['env_config']['env_name'] = env_name
             config['seed'] = seed
-            main(config, '')
+            main(config, 'ppo-r_ex')
 
     #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_coord_2_3-10/','best')

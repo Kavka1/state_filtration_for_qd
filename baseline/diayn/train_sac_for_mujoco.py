@@ -170,7 +170,7 @@ if __name__ == '__main__':
         'eval_episode': 1,
 
         'reward_tradeoff_ex': 1,
-        'reward_tradeoff_in': 0.5,
+        'reward_tradeoff_in': 0.01,
 
         'lr': 0.0003,
         'gamma': 0.99,

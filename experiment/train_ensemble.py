@@ -2,6 +2,8 @@ from typing import List, Dict, Tuple
 import numpy as np
 import torch
 import yaml
+import os
+import cv2
 from torch.utils.tensorboard import SummaryWriter
 
 from state_filtration_for_qd.utils import confirm_path_exist, make_exp_path
@@ -93,7 +95,7 @@ def demo(path: str, remark: str) -> None:
     with open(path + 'config.yaml', 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
     
-    num_primitive = 5#  config['num_primitive']
+    num_primitive = config['num_primitive']
     all_policy = []
 
     for k in range(num_primitive):
@@ -108,19 +110,51 @@ def demo(path: str, remark: str) -> None:
     
     env = call_env(config['env_config'], is_render=True)
     
+    if config['env_config']['env_name'] == 'Quadruped':
+        is_dmc = True
+    else:
+        is_dmc = False
+    
     for _ in range(100):
         for k in range(len(all_policy)):
+            if is_dmc:
+                video_path = '/home/xukang/Project/state_filtration_for_qd/video.avi'
+                video = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc('M','J','P','G'), 30, (600,480))
+
             policy = all_policy[k]
             done = False
             episode_r = 0
             obs = env.reset()
             while not done:
-                env.render()
+                
+                if is_dmc:
+                    rgb_arr = env.render()
+                    video.write(cv2.cvtColor(rgb_arr, cv2.COLOR_BGR2RGB))
+                else:
+                    env.render()
+
                 obs = torch.from_numpy(obs).float()
                 a = policy.act(obs, False).detach().numpy()
                 obs, r, done, info = env.step(a)
                 episode_r += r
             print(f"Primitive {k} CheckPoint {remark} Episode {_} Episode Reward {episode_r}")
+
+            if is_dmc:
+                video.release()
+                cap = cv2.VideoCapture(video_path)
+                while cap.isOpened():
+                    ret, frame = cap.read()
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
+                    if not ret:
+                        break
+                    cv2.imshow('Playback', frame)
+                    
+                cap.release()
+                
+                cv2.destroyAllWindows()
+                os.remove(video_path)
+
 
 
 if __name__ == '__main__':
@@ -138,21 +172,23 @@ if __name__ == '__main__':
             'idm_logstd_max': 0.5
         },
         'env_config': {
-            'env_name': 'Minitaur',
+            'env_name': 'Ant',
             'missing_obs_info': {
-                'missing_angle': ['1','2','3','4'],
+                'missing_leg': ['1', '2', '3', '4'],
+                'missing_joint': [],
+                'missing_coord': []
             }
         },
 
         'num_primitive': 10,
-        'max_timesteps_per_primitive': 2000000,
+        'max_timesteps_per_primitive': 2500000,
         'save_interval': 40,
         'log_interval': 10,
         'eval_episode': 5,
         
         'num_workers': 10,
         'num_worker_rollout': 5,
-        'reward_tradeoff': 0.001,
+        'reward_tradeoff': 0.01,
         'num_epoch': 30,
         'lr': 0.0003,
         'gamma': 0.99,
@@ -165,8 +201,8 @@ if __name__ == '__main__':
     }
     
     
-    for seed in [10, 20, 30]:
-        #pass
-        main(config, '')
+    for seed in [20, 30]:
+        config['seed'] = seed
+        #main(config, '')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Minitaur-missing_angle_1_2_3_4-10/','final')
+    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Minitaur-missing_angle_1_2_3_4-10/','final')

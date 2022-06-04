@@ -135,7 +135,7 @@ class DIAYN_PPO(object):
         self.workers = self._init_workers(config['env_config'], config['seed'])
 
         self.p_z = np.full(self.model_config['z_dim'], 1/self.model_config['z_dim'])
-        self.p_z = np.tile(self.p_z, self.batch_size).reshape(self.batch_size, self.model_config['z_dim'])
+        #self.p_z = np.tile(self.p_z, self.batch_size).reshape(self.batch_size, self.model_config['z_dim'])
 
         self.current_trained_primitive      = 0
         self.total_step, self.total_episode = 0, 0
@@ -157,13 +157,14 @@ class DIAYN_PPO(object):
     def _compute_discrimination_reward(self, obs: np.array, z: np.array) -> List[float]:
         obs_tensor  = torch.from_numpy(obs).float().to(self.device)
         z_tensor    = torch.from_numpy(z).type(torch.int64).to(self.device)
-        p_z         = torch.from_numpy(self.p_z).to(self.device).float()
+        p_z         = np.tile(self.p_z, len(z_tensor)).reshape(len(z_tensor), self.model_config['z_dim'])
+        p_z         = torch.from_numpy(p_z).to(self.device).float()
 
         logits      = self.discriminator(obs_tensor)
         probs       = F.softmax(logits, -1)
         P_z_s       = probs.gather(-1, z_tensor.unsqueeze(-1))
-        log_P_z_s   = torch.log(P_z_s)
-        log_P_z     = torch.log(p_z.gather(-1, z_tensor.unsqueeze(-1)))
+        log_P_z_s   = torch.log(P_z_s + 1e-6)
+        log_P_z     = torch.log(p_z.gather(-1, z_tensor.unsqueeze(-1)) + 1e-6)
 
         rewards     = (log_P_z_s.detach() - log_P_z.detach()).squeeze(-1).tolist()
         return rewards

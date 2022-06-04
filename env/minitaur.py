@@ -2,7 +2,6 @@ from copy import deepcopy
 import os, inspect
 from typing import Dict, List
 
-from pandas import array
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, parentdir)
@@ -16,6 +15,7 @@ import numpy as np
 import pybullet
 from pybullet_utils import bullet_client as bc
 from pybullet_envs.bullet import minitaur
+from pybullet_envs.bullet import minitaur_env_randomizer
 from pybullet_envs.bullet.motor import MOTOR_VOLTAGE, MOTOR_VISCOUS_DAMPING
 import os
 import pybullet_data
@@ -62,7 +62,7 @@ class MinitaurBulletEnv(gym.Env):
       motor_velocity_limit=np.inf,
       pd_control_enabled=False,  #not needed to be true if accurate motor model is enabled (has its own better PD)
       leg_model_enabled=True,
-      accurate_motor_model_enabled=True,
+      accurate_motor_model_enabled=False,
       motor_kp=1.0,
       motor_kd=0.02,
       torque_control_enabled=False,
@@ -142,7 +142,7 @@ class MinitaurBulletEnv(gym.Env):
         self._last_frame_time = 0.0
         print("urdf_root=" + self._urdf_root)
 
-        self._env_randomizer = None
+        self._env_randomizer = minitaur_env_randomizer.MinitaurEnvRandomizer()
 
         # PD control needs smaller time step for stability.
         if pd_control_enabled or accurate_motor_model_enabled:
@@ -175,7 +175,6 @@ class MinitaurBulletEnv(gym.Env):
             MOTOR_VISCOUS_DAMPING,
         ]
         
-
     def set_env_randomizer(self, env_randomizer):
         self._env_randomizer = env_randomizer
 
@@ -272,6 +271,7 @@ class MinitaurBulletEnv(gym.Env):
                 0.95 * curTargetPos[0] + 0.05 * base_pos[0], 0.95 * curTargetPos[1] + 0.05 * base_pos[1],
                 curTargetPos[2]
             ]
+            
             self._pybullet_client.resetDebugVisualizerCamera(distance, yaw, pitch, base_pos)
         action = self._transform_action_to_motor_command(action)
         for _ in range(self._action_repeat):
@@ -425,7 +425,7 @@ class Missing_Info_Minitaur(MinitaurBulletEnv):
             motor_velocity_limit=np.inf, 
             pd_control_enabled=False, 
             leg_model_enabled=True,
-            accurate_motor_model_enabled=False, 
+            accurate_motor_model_enabled=True, 
             motor_kp=1, motor_kd=0.02, 
             torque_control_enabled=False, 
             motor_overheat_protection=True, 
