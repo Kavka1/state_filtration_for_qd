@@ -11,8 +11,10 @@ from state_filtration_for_qd.env.minitaur import Missing_Info_Minitaur
 from state_filtration_for_qd.env.halfcheetah import Missing_Info_HalfCheetah
 from state_filtration_for_qd.env.hopper_broken_leg import Broken_Leg_Hopper
 from state_filtration_for_qd.env.walker_broken_leg import Broken_Leg_Walker
+from state_filtration_for_qd.env.ant_broken_leg import Broken_Leg_Ant
 from state_filtration_for_qd.env.walker_disturb_dynamics import Disturb_Dynamics_Walker
 from state_filtration_for_qd.env.hopper_disturb_dynamics import Disturb_Dynamics_Hopper
+from state_filtration_for_qd.env.ant_disturb_dynamics import Disturb_Dynamics_Ant
 
 
 NAME2Env = {
@@ -27,12 +29,14 @@ NAME2Env = {
 
 NAME2BROKEN_ENV = {
     'Hopper': Broken_Leg_Hopper,
-    'Walker': Broken_Leg_Walker
+    'Walker': Broken_Leg_Walker,
+    'Ant'   : Broken_Leg_Ant,
 }
 
 NAME2DYNAMICS_ENV = {
     'Hopper': Disturb_Dynamics_Hopper,
-    'Walker': Disturb_Dynamics_Walker
+    'Walker': Disturb_Dynamics_Walker,
+    'Ant'   : Disturb_Dynamics_Ant,
 }
 
 
