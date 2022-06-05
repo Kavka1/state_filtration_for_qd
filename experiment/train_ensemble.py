@@ -205,4 +205,4 @@ if __name__ == '__main__':
         config['seed'] = seed
         #main(config, '')
 
-    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Minitaur-missing_angle_1_2_3_4-10/','final')
+    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Minitaur-missing_angle_1_2_3_4-30/','best')

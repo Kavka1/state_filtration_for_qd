@@ -151,8 +151,6 @@ if __name__ == '__main__':
             'disc_hidden_layers': [256, 256],
             'policy_logstd_min': -20,
             'policy_logstd_max': 2,
-            'disc_logstd_min': -10,
-            'disc_logstd_max': 0.5
         },
         'env_config': {
             'env_name': 'HalfCheetah',
@@ -170,7 +168,7 @@ if __name__ == '__main__':
         'eval_episode': 1,
 
         'reward_tradeoff_ex': 1,
-        'reward_tradeoff_in': 0.01,
+        'reward_tradeoff_in': 0.001,
 
         'lr': 0.0003,
         'gamma': 0.99,
@@ -182,10 +180,17 @@ if __name__ == '__main__':
         'result_path': '/home/xukang/Project/state_filtration_for_qd/results_for_diayn/'
     }
     
-    for seed in [20, 30]:
-        for env_name in ['Ant']:    
-            config['env_config']['env_name'] = env_name
+    for seed in [10, 20, 30]:
+        for env_config in [
+            {
+                'env_name': 'Minitaur',
+                'missing_obs_info': {
+                    'missing_angle':    ['1', '2', '3', '4'],
+                }
+            }
+        ]:    
+            config['env_config'] = env_config
             config['seed'] = seed
             main(config, 'r_ex')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_diayn/r_ex-HalfCheetah-10/','final')
+    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_diayn/r_ex-Ant-10/','final')
