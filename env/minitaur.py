@@ -184,13 +184,12 @@ class MinitaurBulletEnv(gym.Env):
     def reset(self):
         if self._hard_reset:
             self._pybullet_client.resetSimulation()
-            self._pybullet_client.setPhysicsEngineParameter(
-                numSolverIterations=int(self._num_bullet_solver_iterations))
+            self._pybullet_client.setPhysicsEngineParameter(numSolverIterations=int(self._num_bullet_solver_iterations))
             self._pybullet_client.setTimeStep(self._time_step)
             plane = self._pybullet_client.loadURDF("%s/plane.urdf" % self._urdf_root)
             self._pybullet_client.changeVisualShape(plane, -1, rgbaColor=[1, 1, 1, 0.9])
             self._pybullet_client.configureDebugVisualizer(
-                self._pybullet_client.COV_ENABLE_PLANAR_REFLECTION, 0)
+                self._pybullet_client.COV_ENABLE_PLANAR_REFLECTION, plane)
             self._pybullet_client.setGravity(0, 0, -10)
             acc_motor = self._accurate_motor_model_enabled
             motor_protect = self._motor_overheat_protection

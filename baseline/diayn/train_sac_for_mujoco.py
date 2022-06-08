@@ -145,9 +145,9 @@ if __name__ == '__main__':
         'model_config': {
             'o_dim': None,
             'a_dim': None,
-            'z_dim': 30,
-            'policy_hidden_layers': [128, 128],
-            'value_hidden_layers': [128, 128],
+            'z_dim': 10,
+            'policy_hidden_layers': [256, 256],
+            'value_hidden_layers': [256, 256],
             'disc_hidden_layers': [256, 256],
             'policy_logstd_min': -20,
             'policy_logstd_max': 2,
@@ -180,17 +180,17 @@ if __name__ == '__main__':
         'result_path': '/home/xukang/Project/state_filtration_for_qd/results_for_diayn/'
     }
     
-    for seed in [10, 20, 30]:
+    for seed in [40, 50]:
         for env_config in [
             {
                 'env_name': 'Minitaur',
                 'missing_obs_info': {
-                    'missing_angle':    ['1', '2', '3', '4'],
+                    'missing_angle':    [],
                 }
             }
         ]:    
             config['env_config'] = env_config
             config['seed'] = seed
-            main(config, 'r_ex')
+            main(config, 'r_ex-10_skill')
 
     #demo('/home/xukang/Project/state_filtration_for_qd/results_for_diayn/r_ex-Ant-10/','final')

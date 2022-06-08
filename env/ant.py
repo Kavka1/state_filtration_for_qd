@@ -1,4 +1,5 @@
 from typing import List, Tuple, Dict
+import gym
 import numpy as np
 from gym.envs.mujoco.ant import AntEnv
 
