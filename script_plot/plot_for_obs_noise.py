@@ -112,15 +112,20 @@ def plot(csv_path: str, title: str) -> None:
 
 
 if __name__ == '__main__':
+    mark = 'Ant_coord_2_3_4_5'
     plot(
         [
-            '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/HalfCheetah_leg_1-10.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/HalfCheetah_leg_1-20.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/HalfCheetah_leg_1-30.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/diayn/HalfCheetah_leg_1-10.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/diayn/HalfCheetah_leg_1-20.csv',
-            '/home/xukang/Project/state_filtration_for_qd/statistic/diayn/HalfCheetah_leg_1-30.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{mark}-10.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{mark}-20.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{mark}-30.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{mark}-40.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{mark}-50.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{mark}-10.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{mark}-20.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{mark}-30.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{mark}-40.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{mark}-50.csv',
         ],
         
-        'HalfCheetah - noise at the leg 1'
+        'Ant - noise at the coordinate 2 3 4 5'
     )

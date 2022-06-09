@@ -92,19 +92,19 @@ def main(path: str, remark: str, env_config: Dict, disturbed_param: List[str], c
 
 
 if __name__ == '__main__':
-    env = 'Hopper'
-    disturb_param = ['mass']
-    for seed in [10, 20, 30]:
-        main(
-            path=f'/home/xukang/Project/state_filtration_for_qd/results_for_diayn/r_ex-{env}-{seed}/',
-            remark='best',
-            env_config={
-                'env_name': env,
-                'dynamics_info': {
-                    'foot_mass_scale': 1,
-                    'foot_friction_scale': 1
-                }
-            },
-            disturbed_param= disturb_param,
-            csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env}_dynamics_{disturb_param[0]}-{seed}.csv'
-        )
+    for env in ['Hopper', 'Walker']:
+        for disturb_param in [['mass'], ['fric']]:
+            for seed in [10, 20, 30, 40, 50]:
+                main(
+                    path=f'/home/xukang/Project/state_filtration_for_qd/results_for_diayn/r_ex-10_skill-{env}-{seed}/',
+                    remark='best',
+                    env_config={
+                        'env_name': env,
+                        'dynamics_info': {
+                            'foot_mass_scale': 1,
+                            'foot_friction_scale': 1
+                        }
+                    },
+                    disturbed_param= disturb_param,
+                    csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env}_dynamics_{disturb_param[0]}-{seed}.csv'
+                )

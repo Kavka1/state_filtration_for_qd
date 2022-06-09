@@ -75,16 +75,24 @@ def main(path: str, remark: str, env_config: Dict, csv_path: str) -> None:
 
 
 if __name__ == '__main__':
-    for seed in [10, 20, 30]:
-        main(
-            path=f'/home/xukang/Project/state_filtration_for_qd/results_for_diayn/r_ex-Hopper-{seed}/',
-            remark='best',
-            env_config={
-                'env_name': 'Hopper',
-                'broken_leg_info': {
-                    'leg_jnt_scale': 0,
-                    'foot_jnt_scale': 1
-                }
-            },
-            csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/Hopper_broken_leg-{seed}.csv'
-        )
+    for env in ['Walker']:
+        for seed in [10, 20, 30, 40, 50]:
+            for leg_foot in [[0,1], [1,0]]:
+                if leg_foot == [0,1]:
+                    csv_mark = 'right_leg'
+                else:
+                    csv_mark = 'right_foot'
+
+                main(
+                    path=f'/home/xukang/Project/state_filtration_for_qd/results_for_diayn/r_ex-10_skill-{env}-{seed}/',
+                    remark='best',
+                    env_config={
+                        'env_name': env,
+                        'broken_leg_info': {
+                            'is_left_leg': False,
+                            'leg_jnt_scale': leg_foot[0],
+                            'foot_jnt_scale': leg_foot[1]
+                        }
+                    },
+                    csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env}_broken_{csv_mark}-{seed}.csv'
+                )

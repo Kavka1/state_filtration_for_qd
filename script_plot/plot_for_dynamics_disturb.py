@@ -82,18 +82,22 @@ def plot(csv_path: str, title: str) -> None:
 
 
 if __name__ == '__main__':
-    env_name = 'Hopper'
-    disturbed_param = 'mass'
+    env_name = 'Walker'
+    disturbed_param = 'fric'
 
     plot(
         [
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env_name}_dynamics_{disturbed_param}-10.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env_name}_dynamics_{disturbed_param}-20.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env_name}_dynamics_{disturbed_param}-30.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env_name}_dynamics_{disturbed_param}-40.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env_name}_dynamics_{disturbed_param}-50.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env_name}_dynamics_{disturbed_param}-10.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env_name}_dynamics_{disturbed_param}-20.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env_name}_dynamics_{disturbed_param}-30.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env_name}_dynamics_{disturbed_param}-40.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env_name}_dynamics_{disturbed_param}-50.csv',
         ],
         
-        f'Hopper - dynamics parameter scaled at the foot {disturbed_param}'
+        f'{env_name} - dynamics parameter scaled at the foot {disturbed_param}'
     )

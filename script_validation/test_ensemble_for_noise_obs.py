@@ -81,9 +81,20 @@ def main(path: str, remark: str, noise_index: List[int], csv_path: str) -> None:
 
 
 if __name__ == '__main__':
-    main(
-        path='/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_leg_1-20/',
-        remark='best',
-        noise_index=[2,3,4,11,12,13],
-        csv_path='/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/HalfCheetah_leg_1-20.csv'
-    )
+    for env, noise_idx in zip(['Hopper','Walker','Ant'],[[2,3,4,8,9,10],[2,3,4,11,12,13],list(range(1,13))]):
+        if env == 'Hopper':
+            path_mark = 'missing_leg_1'
+            csv_mark = 'leg_1'
+        elif env == 'Walker':
+            path_mark = 'missing_leg_1'
+            csv_mark = 'leg_1'
+        else:
+            path_mark = 'missing_leg_1_2_3_4'
+            csv_mark = 'coord_2_3_4_5'
+        for seed in [40, 50]:
+            main(
+                path=f'/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/{env}-{path_mark}-{seed}/',
+                remark='best',
+                noise_index=noise_idx,
+                csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_{csv_mark}-{seed}.csv'
+            )
