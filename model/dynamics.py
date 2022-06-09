@@ -78,3 +78,59 @@ class DiagGaussianIDM(nn.Module):
         logstd = self.logstd_min + F.softplus(logstd - self.logstd_min)
 
         return Normal(mean, torch.exp(logstd))
+
+
+
+class LatentDiagGaussianIDM(nn.Module):
+    """
+    Inverse Dynamics Model with Diagnose Gaussian action distribution output
+    """
+    def __init__(self, o_dim: int, a_dim: int, z_dim: int, input_delta: bool, hidden_layers: List[int], logstd_min: float, logstd_max: float) -> None:
+        super(DiagGaussianIDM, self).__init__()
+        self.o_dim = o_dim
+        self.a_dim = a_dim
+        self.z_dim = z_dim
+        self.input_delta = input_delta
+        self.hidden_layers = hidden_layers
+
+        self.in_dim = 2 * self.o_dim + self.z_dim if not input_delta else self.o_dim + self.z_dim
+        self.out_dim = self.a_dim * 2
+        self.model = call_mlp(
+            self.in_dim,
+            self.out_dim,
+            self.hidden_layers,
+            inter_activation= 'ReLU',
+            output_activation= 'Identity'
+        )
+        self.logstd_min = nn.Parameter(torch.ones(size=(self.a_dim,)).float() * logstd_min) 
+        self.logstd_max = nn.Parameter(torch.ones(size=(self.a_dim,)).float() * logstd_max)
+
+    def inference_likelihood(self, obs: torch.tensor, obs_: torch.tensor, a: torch.tensor, z_one_hot: torch.tensor) -> float:
+        if self.input_delta:
+            x = torch.concat([obs_ - obs, z_one_hot], -1)
+        else:
+            x = torch.concat([obs, obs_, z_one_hot], -1)
+        x = self.model(x)
+        mean, logstd = torch.chunk(x, 2, dim=-1)
+        mean = torch.tanh(mean)
+        logstd = self.logstd_max - F.softplus(self.logstd_max - logstd)
+        logstd = self.logstd_min + F.softplus(logstd - self.logstd_min)
+
+        dist = Normal(mean, torch.exp(logstd))
+        log_likelihood = dist.log_prob(a).tolist()
+        likelihood = np.exp(log_likelihood).mean(-1)
+        return likelihood
+
+    def __call__(self, obs: torch.tensor, obs_: torch.tensor, z_one_hot: torch.tensor) -> torch.distributions.Distribution:
+        if self.input_delta:
+            x = torch.concat([obs_ - obs, z_one_hot], -1)
+        else:
+            x = torch.concat([obs, obs_, z_one_hot], -1)
+        x = self.model(x)
+        mean, logstd = torch.chunk(x, 2, dim=-1)
+
+        mean = torch.tanh(mean)
+        logstd = self.logstd_max - F.softplus(self.logstd_max - logstd)
+        logstd = self.logstd_min + F.softplus(logstd - self.logstd_min)
+
+        return Normal(mean, torch.exp(logstd))
