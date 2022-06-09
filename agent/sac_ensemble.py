@@ -13,9 +13,9 @@ from state_filtration_for_qd.model.dynamics import LatentDiagGaussianIDM
 from state_filtration_for_qd.model.value import TwinQFunction
 
 
-class Ensemble_SAC(object):
+class Sac_Ensemble(object):
     def __init__(self, config: Dict) -> None:
-        super(Ensemble_SAC, self).__init__()
+        super(Sac_Ensemble, self).__init__()
         self.model_config       = config['model_config']
         self.z_dim              = self.model_config['z_dim']
         self.lr                 = config['lr']
@@ -25,6 +25,7 @@ class Ensemble_SAC(object):
         self.train_policy_delay = config['train_policy_delay']
         self.tradeoff_ex        = config['reward_tradeoff_ex']
         self.tradeoff_in        = config['reward_tradeoff_in']
+        self.reward_in_start    = config['reward_in_start_step']
         self.exp_path           = config['exp_path']
         self.device             = torch.device(config['device'])
 
@@ -59,10 +60,14 @@ class Ensemble_SAC(object):
         value_hiddens           = self.model_config['value_hidden_layers']
         idm_hiddens             = self.model_config['idm_hidden_layers']
         idm_input_delta         = self.model_config['idm_input_delta']
-        logstd_min, logstd_max  = self.model_config['policy_logstd_min'], self.model_config['policy_logstd_max']
 
-        self.policy = Latent_DiagGaussianPolicy(o_dim, a_dim, z_dim, policy_hiddens, logstd_min, logstd_max).to(self.device)
-        self.inverse_dynamics = LatentDiagGaussianIDM(o_dim, a_dim, z_dim, idm_input_delta, idm_hiddens, logstd_min, logstd_max).to(self.device)
+        policy_logstd_min       = self.model_config['policy_logstd_min']
+        policy_logstd_max       = self.model_config['policy_logstd_max']
+        idm_logstd_min          = self.model_config['idm_logstd_min']
+        idm_logstd_max          = self.model_config['idm_logstd_max']
+
+        self.policy = Latent_DiagGaussianPolicy(o_dim, a_dim, z_dim, policy_hiddens, policy_logstd_min, policy_logstd_max).to(self.device)
+        self.inverse_dynamics = LatentDiagGaussianIDM(o_dim, a_dim, z_dim, idm_input_delta, idm_hiddens, idm_logstd_min, idm_logstd_max).to(self.device)
         self.value = TwinQFunction(o_dim + z_dim, a_dim, value_hiddens).to(self.device)
         self.value_tar = TwinQFunction(o_dim + z_dim, a_dim, value_hiddens).to(self.device)
         hard_update(self.value, self.value_tar)
@@ -142,27 +147,30 @@ class Ensemble_SAC(object):
         next_obs_z      = torch.cat([obs_, z_one_hot], -1)
         
         #   compute intrinsic rewards
-        with torch.no_grad():
-            expanded_obs_filt       = torch.reshape(
-                obs_filt.repeat(1, self.z_dim - 1), 
-                (self.batch_size, self.z_dim-1, self.model_config['o_dim']))
-            expanded_next_obs_filt  = torch.reshape(
-                next_obs_filt.repeat(1, self.z_dim - 1),
-                (self.batch_size, self.z_dim-1, self.model_config['o_dim']))
-            expanded_a              = torch.reshape(
-                a.repeat(1, self.z_dim-1),
-                (self.batch_size, self.z_dim-1, self.model_config['a_dim']))
-            
-            temp_z_one_hot_batch    = []
-            for single_z in z:
-                z_idx               = single_z.detach().tolist()[0]
-                temp_z_one_hot_batch.append(np.copy(self.prepare_one_hot_z_expand[z_idx]))
-            temp_z_one_hot_batch    = np.stack(temp_z_one_hot_batch, 0)
-            expanded_z_one_hot      = torch.from_numpy(temp_z_one_hot_batch).to(self.device).float()
-            
-            inference_dist  = self.inverse_dynamics(expanded_obs_filt, expanded_next_obs_filt, expanded_z_one_hot)  # [B, |Z|-1, |Z|]
-            log_likelihood  = inference_dist.log_prob(expanded_a).mean(-1, keepdim=False)   # [B, |Z|-1]
-            bonus           = torch.mean(-log_likelihood, -1, keepdim=True)
+        if self.update_count > self.reward_in_start:
+            with torch.no_grad():
+                expanded_obs_filt       = torch.reshape(
+                    obs_filt.repeat(1, self.z_dim - 1), 
+                    (self.batch_size, self.z_dim-1, self.model_config['o_dim']))
+                expanded_next_obs_filt  = torch.reshape(
+                    next_obs_filt.repeat(1, self.z_dim - 1),
+                    (self.batch_size, self.z_dim-1, self.model_config['o_dim']))
+                expanded_a              = torch.reshape(
+                    a.repeat(1, self.z_dim-1),
+                    (self.batch_size, self.z_dim-1, self.model_config['a_dim']))
+                
+                temp_z_one_hot_batch    = []
+                for single_z in z:
+                    z_idx               = single_z.detach().tolist()[0]
+                    temp_z_one_hot_batch.append(np.copy(self.prepare_one_hot_z_expand[z_idx]))
+                temp_z_one_hot_batch    = np.stack(temp_z_one_hot_batch, 0)
+                expanded_z_one_hot      = torch.from_numpy(temp_z_one_hot_batch).to(self.device).float()
+                
+                inference_dist  = self.inverse_dynamics(expanded_obs_filt, expanded_next_obs_filt, expanded_z_one_hot)  # [B, |Z|-1, |Z|]
+                log_likelihood  = inference_dist.log_prob(expanded_a).mean(-1, keepdim=False)   # [B, |Z|-1]
+                bonus           = torch.mean(-log_likelihood, -1, keepdim=True)
+        else:
+            bonus = torch.zeros_like(r).to(self.device).float()
         r   =   self.tradeoff_ex * r + self.tradeoff_in * bonus
 
         #   train value function
