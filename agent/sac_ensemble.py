@@ -56,6 +56,7 @@ class Sac_Ensemble(object):
 
     def _init_model(self) -> None:
         o_dim, a_dim, z_dim     = self.model_config['o_dim'], self.model_config['a_dim'], self.model_config['z_dim']
+        filtrated_o_dim         = self.model_config['filtrated_o_dim']
         policy_hiddens          = self.model_config['policy_hidden_layers']
         value_hiddens           = self.model_config['value_hidden_layers']
         idm_hiddens             = self.model_config['idm_hidden_layers']
@@ -67,7 +68,7 @@ class Sac_Ensemble(object):
         idm_logstd_max          = self.model_config['idm_logstd_max']
 
         self.policy = Latent_DiagGaussianPolicy(o_dim, a_dim, z_dim, policy_hiddens, policy_logstd_min, policy_logstd_max).to(self.device)
-        self.inverse_dynamics = LatentDiagGaussianIDM(o_dim, a_dim, z_dim, idm_input_delta, idm_hiddens, idm_logstd_min, idm_logstd_max).to(self.device)
+        self.inverse_dynamics = LatentDiagGaussianIDM(filtrated_o_dim, a_dim, z_dim, idm_input_delta, idm_hiddens, idm_logstd_min, idm_logstd_max).to(self.device)
         self.value = TwinQFunction(o_dim + z_dim, a_dim, value_hiddens).to(self.device)
         self.value_tar = TwinQFunction(o_dim + z_dim, a_dim, value_hiddens).to(self.device)
         hard_update(self.value, self.value_tar)
@@ -151,10 +152,10 @@ class Sac_Ensemble(object):
             with torch.no_grad():
                 expanded_obs_filt       = torch.reshape(
                     obs_filt.repeat(1, self.z_dim - 1), 
-                    (self.batch_size, self.z_dim-1, self.model_config['o_dim']))
+                    (self.batch_size, self.z_dim-1, self.model_config['filtrated_o_dim']))
                 expanded_next_obs_filt  = torch.reshape(
                     next_obs_filt.repeat(1, self.z_dim - 1),
-                    (self.batch_size, self.z_dim-1, self.model_config['o_dim']))
+                    (self.batch_size, self.z_dim-1, self.model_config['filtrated_o_dim']))
                 expanded_a              = torch.reshape(
                     a.repeat(1, self.z_dim-1),
                     (self.batch_size, self.z_dim-1, self.model_config['a_dim']))

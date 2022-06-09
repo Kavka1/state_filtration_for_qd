@@ -174,8 +174,8 @@ if __name__ == '__main__':
         'eval_episode': 1,
 
         'reward_tradeoff_ex': 1,
-        'reward_tradeoff_in': 0.001,
-        'reward_in_start_step': 50000,
+        'reward_tradeoff_in': 1,
+        'reward_in_start_step': 10000,
 
         'lr': 0.0003,
         'gamma': 0.99,
@@ -189,14 +189,14 @@ if __name__ == '__main__':
     
     for seed in [10, 20, 30, 40, 50]:
         for env_config in [
-            {
-                'env_name': 'Hopper',
-                'missing_obs_info': {
-                    'missing_joint':    [],
-                    'missing_coord':    [],
-                    'missing_leg':      ['1']
-                }
-            },
+            #{
+            #    'env_name': 'Hopper',
+            #    'missing_obs_info': {
+            #        'missing_joint':    [],
+            #        'missing_coord':    [],
+            #        'missing_leg':      ['1']
+            #    }
+            #},
             {
                 'env_name': 'Walker',
                 'missing_obs_info': {
@@ -210,4 +210,4 @@ if __name__ == '__main__':
             config['seed'] = seed
             main(config, '')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_diayn/r_ex-Ant-10/','final')
+    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_sac_ensemble/Hopper-missing_leg_1-10_*/','best')

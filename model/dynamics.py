@@ -86,7 +86,7 @@ class LatentDiagGaussianIDM(nn.Module):
     Inverse Dynamics Model with Diagnose Gaussian action distribution output
     """
     def __init__(self, o_dim: int, a_dim: int, z_dim: int, input_delta: bool, hidden_layers: List[int], logstd_min: float, logstd_max: float) -> None:
-        super(DiagGaussianIDM, self).__init__()
+        super(LatentDiagGaussianIDM, self).__init__()
         self.o_dim = o_dim
         self.a_dim = a_dim
         self.z_dim = z_dim
