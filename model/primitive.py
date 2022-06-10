@@ -17,7 +17,8 @@ class Primitive(object):
             model_config['o_dim'],
             model_config['a_dim'],
             model_config['policy_hidden_layers'],
-            model_config['action_std']
+            model_config['action_std'],
+            model_config['policy_activation']
         ).to(device)
         self.inverse_model = DiagGaussianIDM(
             model_config['filtrated_o_dim'],

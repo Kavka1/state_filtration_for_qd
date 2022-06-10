@@ -9,7 +9,7 @@ from state_filtration_for_qd.model.common import call_mlp
 
 
 class Latent_FixStdGaussianPolicy(nn.Module):
-    def __init__(self, o_dim: int, a_dim: int, z_dim: int, hidden_layers: List[int], action_std: float) -> None:
+    def __init__(self, o_dim: int, a_dim: int, z_dim: int, hidden_layers: List[int], action_std: float, activation: str) -> None:
         super(Latent_FixStdGaussianPolicy, self).__init__()
         self.o_dim = o_dim
         self.a_dim = a_dim
@@ -19,7 +19,7 @@ class Latent_FixStdGaussianPolicy(nn.Module):
             o_dim + z_dim,
             a_dim,
             hidden_layers,
-            inter_activation='ReLU',
+            inter_activation=activation,
             output_activation='Tanh'
         )
         self.ac_std = nn.Parameter(torch.ones(size=(a_dim,)) * action_std, requires_grad=False)
@@ -37,10 +37,7 @@ class Latent_FixStdGaussianPolicy(nn.Module):
     def __call__(self, obs_z: torch.tensor) -> Tuple[torch.tensor, torch.tensor, torch.distributions.Distribution]:
         mean = self.model(obs_z)
         dist = Normal(mean, self.ac_std)
-
-        action = dist.rsample()
-        logprob = dist.log_prob(action)
-        return action, logprob, dist
+        return dist
 
     def load_model(self, path: str) -> None:
         self.load_state_dict(torch.load(path, map_location='cpu'))

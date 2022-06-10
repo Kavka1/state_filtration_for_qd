@@ -129,10 +129,11 @@ if __name__ == '__main__':
             'o_dim': None,
             'a_dim': None,
             'z_dim': 10,
-            'policy_hidden_layers': [128, 128],
-            'value_hidden_layers': [128, 128],
-            'disc_hidden_layers': [128, 128],
+            'policy_hidden_layers': [256, 256],
+            'value_hidden_layers': [256, 256],
+            'disc_hidden_layers': [256, 256],
             'action_std': 0.4,
+            'policy_activation': 'ReLU'
         },
         'env_config': {
             'env_name': 'HalfCheetah',
@@ -143,7 +144,7 @@ if __name__ == '__main__':
             }
         },
 
-        'max_timesteps': 10000000,
+        'max_timesteps': 20000000,
         'save_interval': 40,
         'log_interval': 10,
         'eval_episode': 1,
@@ -158,13 +159,13 @@ if __name__ == '__main__':
         'lamda': 0.95,
         'ratio_clip': 0.25,
         'batch_size': 256,
-        'temperature_coef': 0.5,
+        'temperature_coef': 0.1,
         'device': 'cuda',
         'result_path': '/home/xukang/Project/state_filtration_for_qd/results_for_diayn/'
     }
     
-    for seed in [10, 20, 30]:
-        for env_name in ['Walker', 'Hopper', 'HalfCheetah']:    
+    for seed in [10, 20, 30, 40, 50]:
+        for env_name in ['Walker']:    
             config['env_config']['env_name'] = env_name
             config['seed'] = seed
             main(config, 'ppo-r_ex')

@@ -208,6 +208,6 @@ if __name__ == '__main__':
         ]:    
             config['env_config'] = env_config
             config['seed'] = seed
-            main(config, '')
+            #main(config, '')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_sac_ensemble/Hopper-missing_leg_1-10_*/','best')
+    demo('/home/xukang/Project/state_filtration_for_qd/results_for_sac_ensemble/Walker-missing_leg_1-10/','best')

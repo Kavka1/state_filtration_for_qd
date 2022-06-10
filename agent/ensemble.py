@@ -22,19 +22,18 @@ class RayWorker(object):
         worker_id: int,
         model_config: Dict,
         env_config: Dict,
-        reward_tradeoff: float,
         seed: int,
         rollout_episode: int
     ) -> None:
         self.id = worker_id
-        self.tradeoff = reward_tradeoff
         self.rollout_episode = rollout_episode
 
         self.policy = FixStdGaussianPolicy(
             model_config['o_dim'],
             model_config['a_dim'],
             model_config['policy_hidden_layers'],
-            model_config['action_std']
+            model_config['action_std'],
+            model_config['policy_activation']
         )
         self.env = call_env(env_config)
         self.env.seed(seed)
@@ -142,7 +141,6 @@ class Ensemble(object):
                     worker_id = i, 
                     model_config = self.model_config,
                     env_config = env_config,
-                    reward_tradeoff = self.tradeoff,
                     seed = initial_seed + i * seed_increment, 
                     rollout_episode = self.num_worker_rollout,
                 )

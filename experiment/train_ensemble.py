@@ -106,6 +106,7 @@ def demo(path: str, remark: str) -> None:
             config['model_config']['a_dim'],
             config['model_config']['policy_hidden_layers'],
             config['model_config']['action_std'],
+            'Tanh'
         )
         policy.load_model(path + f'model/policy_{k}_{remark}')
         all_policy.append(policy)
@@ -171,7 +172,8 @@ if __name__ == '__main__':
             'idm_hidden_layers': [128, 128],
             'action_std': 0.4,
             'idm_logstd_min': -10,
-            'idm_logstd_max': 0.5
+            'idm_logstd_max': 0.5,
+            'policy_activation': 'ReLU'
         },
         'env_config': {
             'env_name': 'Minitaur',
@@ -203,6 +205,6 @@ if __name__ == '__main__':
     
     for seed in [40, 50]:
         config['seed'] = seed
-        main(config, '')
+        #main(config, '')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Minitaur-missing_angle_1_2_3_4-30/','best')
+    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1-30/','best')

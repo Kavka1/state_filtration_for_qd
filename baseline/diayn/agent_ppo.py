@@ -36,7 +36,8 @@ class RayWorker(object):
             model_config['a_dim'],
             model_config['z_dim'],
             model_config['policy_hidden_layers'],
-            model_config['action_std']
+            model_config['action_std'],
+            model_config['policy_activation']
         )
         self.env = call_env(env_config)
         self.env.seed(seed)
@@ -61,7 +62,9 @@ class RayWorker(object):
                 obs_z = np.concatenate([obs, z_one_hot], -1)
 
                 with torch.no_grad():
-                    action, logprob, dist = self.policy(torch.from_numpy(obs_z).float())
+                    dist = self.policy(torch.from_numpy(obs_z).float())
+                    action = dist.sample()
+                    logprob = dist.log_prob(action)
                 action, logprob = action.detach().numpy(), logprob.detach().numpy()
 
                 cliped_a = np.clip(action, -self.action_bound, self.action_bound)
@@ -96,6 +99,7 @@ class RayWorker(object):
 
 class DIAYN_PPO(object):
     def __init__(self, config: Dict) -> None:
+        super().__init__()
         self.model_config           = config['model_config']
         self.tradeoff_ex            = config['reward_tradeoff_ex']
         self.tradeoff_in            = config['reward_tradeoff_in']
@@ -121,7 +125,8 @@ class DIAYN_PPO(object):
             self.model_config['a_dim'],
             self.model_config['z_dim'],
             self.model_config['policy_hidden_layers'],
-            self.model_config['action_std']
+            self.model_config['action_std'],
+            self.model_config['policy_activation']
         ).to(self.device)
         self.discriminator = S_DiscreteZ_Discriminator(
             self.model_config['o_dim'],
@@ -129,12 +134,12 @@ class DIAYN_PPO(object):
             self.model_config['disc_hidden_layers']
         ).to(self.device)
 
-        self.optimizer_policy = optim.Adam(self.policy.parameters(), self.lr)
-        self.optimizer_value = optim.Adam(self.value.parameters(), self.lr)
-        self.optimizer_disc = optim.Adam(self.discriminator.parameters(), self.lr)
-        self.workers = self._init_workers(config['env_config'], config['seed'])
+        self.optimizer_policy   = optim.Adam(self.policy.parameters(), self.lr)
+        self.optimizer_value    = optim.Adam(self.value.parameters(), self.lr)
+        self.optimizer_disc     = optim.Adam(self.discriminator.parameters(), self.lr)
+        self.workers            = self._init_workers(config['env_config'], config['seed'])
 
-        self.p_z = np.full(self.model_config['z_dim'], 1/self.model_config['z_dim'])
+        self.p_z                = np.full(self.model_config['z_dim'], 1/self.model_config['z_dim'])
         #self.p_z = np.tile(self.p_z, self.batch_size).reshape(self.batch_size, self.model_config['z_dim'])
 
         self.current_trained_primitive      = 0
@@ -193,12 +198,14 @@ class DIAYN_PPO(object):
             # compute the discrimination reward
             r_in_seq = self._compute_discrimination_reward(
                 np.stack(traj_dict['obs'], 0),
-                np.array(traj_dict['z'], dtype=np.int64)
+                np.stack(traj_dict['z'], 0).astype(dtype=np.int64)
             )
             log_reward_in += np.mean(r_in_seq)
             # compute the hybrid rewards
             hybrid_r = [self.tradeoff_ex * r_ex + self.tradeoff_in * r_in for r_ex, r_in in zip(traj_dict['r'], r_in_seq)]
-            value_seq = self.value(torch.from_numpy(np.stack(traj_dict['obs_z'], 0)).to(self.device).float()).squeeze(-1).detach().tolist()
+            value_seq = self.value(
+                torch.from_numpy(np.stack(traj_dict['obs_z'], 0)).to(self.device).float()
+            ).squeeze(-1).detach().tolist()
             # compute the return and advantage 
             ret_seq, adv_seq = gae_estimator(hybrid_r, value_seq, self.gamma, self.lamda)
             traj_dict.update({'ret': ret_seq, 'adv': adv_seq})
@@ -214,10 +221,11 @@ class DIAYN_PPO(object):
             data_buffer['z']                += traj_dict['z']                           # [num, ]
             data_buffer['ret']              += traj_dict['ret']                         # [num]
             data_buffer['adv']              += traj_dict['adv']                         # [num]
+
         for key in list(data_buffer.keys()):
             type_data = np.array(data_buffer[key], dtype=np.float64)
             if key in ['ret', 'adv']:
-                type_data = type_data.reshape(-1, 1)                    # convert [num] to [num, 1]
+                type_data = type_data.reshape(-1, 1)                                    # convert [num] to [num, 1]
             data_buffer[key] = torch.from_numpy(type_data).to(self.device).float()
         all_batch = Dataset(data_buffer)
 
@@ -252,24 +260,25 @@ class DIAYN_PPO(object):
                 log_loss_disc           += loss_disc.detach().item()
         
         return {
-            'loss_policy': log_loss_policy / update_count,
-            'loss_disc':   log_loss_disc / update_count,
-            'loss_value': log_loss_value / update_count,
-            'work_score': float(np.mean(worker_rewards)),
-            'reward_in': log_reward_in
+            'loss_policy':   log_loss_policy / update_count,
+            'loss_disc':     log_loss_disc / update_count,
+            'loss_value':    log_loss_value / update_count,
+            'work_score':    float(np.mean(worker_rewards)),
+            'reward_in':     log_reward_in
         }
 
     def compute_policy_loss(
         self, 
         obs_z: torch.tensor, 
-        a: torch.tensor, 
+        a: torch.tensor,
         logprob: torch.tensor, 
         adv: torch.tensor,
     ) -> Tuple[torch.tensor, torch.tensor]:
         if len(adv) != 1:   # length is 1, the std will be nan
             adv = (adv - adv.mean()) / (adv.std() + 1e-5)
         # compute the policy loss
-        _, new_logprob, dist = self.policy(obs_z)
+        dist = self.policy(obs_z)
+        new_logprob = dist.log_prob(a)
         entropy = dist.entropy()
         ratio = torch.exp(new_logprob.sum(-1, keepdim=True) - logprob.sum(-1, keepdim=True))
         surr1 = ratio * adv
@@ -299,8 +308,9 @@ class DIAYN_PPO(object):
                 obs = env.reset()
                 step = 0
                 while not done:
-                    obs_z = torch.from_numpy(np.concatenate([obs, one_hot_z],-1)).to(self.device).float()
+                    obs_z = torch.from_numpy(np.concatenate([obs, one_hot_z], -1)).to(self.device).float()
                     action = self.policy.act(obs_z, False).detach().cpu().numpy()
+                    action = np.clip(action, -env.action_bound, env.action_bound)
                     next_obs, r, done, info = env.step(action)
                     reward += r
                     obs = next_obs

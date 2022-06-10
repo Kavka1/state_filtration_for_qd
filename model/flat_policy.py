@@ -9,7 +9,7 @@ from state_filtration_for_qd.model.common import call_mlp
 
 
 class FixStdGaussianPolicy(nn.Module):
-    def __init__(self, o_dim: int, a_dim: int, hidden_layers: List[int], action_std: float) -> None:
+    def __init__(self, o_dim: int, a_dim: int, hidden_layers: List[int], action_std: float, activation: str) -> None:
         super(FixStdGaussianPolicy, self).__init__()
         self.o_dim = o_dim
         self.a_dim = a_dim
@@ -18,7 +18,7 @@ class FixStdGaussianPolicy(nn.Module):
             o_dim,
             a_dim,
             hidden_layers,
-            inter_activation='Tanh',
+            inter_activation=activation,
             output_activation='Tanh'
         )
         self.ac_std = nn.Parameter(torch.ones(size=(a_dim,)) * action_std, requires_grad=False)
