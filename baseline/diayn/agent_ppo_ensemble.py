@@ -28,7 +28,7 @@ class RayWorker(object):
         self.id = worker_id
         self.rollout_episode = rollout_episode
         
-        self.policies = FixStdGaussianPolicy(
+        self.policy = FixStdGaussianPolicy(
             model_config['o_dim'],
             model_config['a_dim'],
             model_config['policy_hidden_layers'],
@@ -49,9 +49,7 @@ class RayWorker(object):
 
             obs = self.env.reset()
             done = False
-            z = np.random.choice(self.z_dim, p=self.p_z)
             while not done:
-
                 with torch.no_grad():
                     dist = self.policy(torch.from_numpy(obs).float())
                     action = dist.sample()
@@ -87,7 +85,7 @@ class DIAYN_PPO_Discrete_Policy(object):
     def __init__(self, config: Dict) -> None:
         super().__init__()
         self.model_config           = config['model_config']
-        self.z_dim                  = config['z_dim']
+        self.z_dim                  = config['model_config']['z_dim']
         self.tradeoff_ex            = config['reward_tradeoff_ex']
         self.tradeoff_in            = config['reward_tradeoff_in']
         self.num_workers            = config['num_workers']
@@ -104,7 +102,7 @@ class DIAYN_PPO_Discrete_Policy(object):
         self.device = torch.device(config['device'])
 
         self.value = VFunction(
-            self.model_config['o_dim'] + self.model_config['z_dim'],
+            self.model_config['o_dim'],
             self.model_config['value_hidden_layers']
         ).to(self.device)
         self.policies = [
@@ -114,7 +112,7 @@ class DIAYN_PPO_Discrete_Policy(object):
                 self.model_config['policy_hidden_layers'],
                 self.model_config['action_std'],
                 self.model_config['policy_activation']
-            )
+            ).to(self.device)
             for _ in range(self.model_config['z_dim'])
         ]
         self.discriminator = S_DiscreteZ_Discriminator(
@@ -128,6 +126,7 @@ class DIAYN_PPO_Discrete_Policy(object):
         self.optimizer_disc     = optim.Adam(self.discriminator.parameters(), self.lr)
         self.workers            = self._init_workers(config['env_config'], config['seed'])
 
+        self.p_z                = np.full(self.z_dim, 1/self.z_dim)
         self.current_trained_primitive      = 0
         self.total_step, self.total_episode = 0, 0
 
@@ -148,14 +147,14 @@ class DIAYN_PPO_Discrete_Policy(object):
     def _compute_discrimination_reward(self, obs: np.array, z: np.array) -> List[float]:
         obs_tensor  = torch.from_numpy(obs).float().to(self.device)
         z_tensor    = torch.from_numpy(z).type(torch.int64).to(self.device)
-        p_z         = np.tile(self.p_z, len(z_tensor)).reshape(len(z_tensor), self.model_config['z_dim'])
+        p_z         = np.tile(self.p_z, len(z_tensor)).reshape(len(z_tensor), self.z_dim)
         p_z         = torch.from_numpy(p_z).to(self.device).float()
 
         logits      = self.discriminator(obs_tensor)
         probs       = F.softmax(logits, -1)
-        P_z_s       = probs.gather(-1, z_tensor.unsqueeze(-1))
+        P_z_s       = probs.gather(-1, z_tensor)
         log_P_z_s   = torch.log(P_z_s + 1e-6)
-        log_P_z     = torch.log(p_z.gather(-1, z_tensor.unsqueeze(-1)) + 1e-6)
+        log_P_z     = torch.log(p_z.gather(-1, z_tensor) + 1e-6)
 
         rewards     = (log_P_z_s.detach() - log_P_z.detach()).squeeze(-1).tolist()
         return rewards
@@ -234,7 +233,7 @@ class DIAYN_PPO_Discrete_Policy(object):
                     nn.utils.clip_grad_norm_(policy.parameters(), 0.5)
                     self.optimizers_policy[k].step()
 
-                    loss_disc = self.compute_discriminator_loss(obs, torch.ones_like(ret).to(self.device) * k)
+                    loss_disc = self.compute_discriminator_loss(obs, torch.ones((len(ret))).to(self.device) * k)
                     self.optimizer_disc.zero_grad()
                     loss_disc.backward()
                     nn.utils.clip_grad_norm_(self.discriminator.parameters(), 0.5)
@@ -293,7 +292,7 @@ class DIAYN_PPO_Discrete_Policy(object):
                 obs = env.reset()
                 step = 0
                 while not done:
-                    action = self.policies[k].act(obs, False).detach().cpu().numpy()
+                    action = self.policies[k].act(torch.from_numpy(obs).float().to(self.device), False).detach().cpu().numpy()
                     action = np.clip(action, -env.action_bound, env.action_bound)
                     next_obs, r, done, info = env.step(action)
                     reward += r
@@ -306,9 +305,9 @@ class DIAYN_PPO_Discrete_Policy(object):
         model_path = self.exp_path + 'model/'
         confirm_path_exist(model_path)
         for k in range(self.z_dim):
-            model_path = model_path + f'policy_{k}_{remark}'
-            torch.save(self.policies[k].state_dict(), model_path)
-        print(f"------- Policy saved to {model_path} ----------")
+            path = model_path + f'policy_{k}_{remark}'
+            torch.save(self.policies[k].state_dict(), path)
+        print(f"------- Policy saved to {model_path} as {remark} ----------")
     
     def save_discriminator(self, remark: str) -> None:
         model_path = self.exp_path + 'model/'

@@ -129,18 +129,19 @@ if __name__ == '__main__':
             'o_dim': None,
             'a_dim': None,
             'z_dim': 10,
-            'policy_hidden_layers': [256, 256],
-            'value_hidden_layers': [256, 256],
+            'policy_hidden_layers': [64, 64],
+            'value_hidden_layers': [128, 128],
             'disc_hidden_layers': [256, 256],
             'action_std': 0.4,
             'policy_activation': 'Tanh'
         },
         'env_config': {
-            'env_name': 'HalfCheetah',
+            'env_name': 'Minitaur',
             'missing_obs_info': {
-                'missing_joint':    [],
-                'missing_coord':    [],
-                'missing_leg':      []
+                #'missing_joint':    [],
+                #'missing_coord':    [],
+                #'missing_leg':      []
+                'missing_angle':    []
             }
         },
 
@@ -152,7 +153,7 @@ if __name__ == '__main__':
         'num_workers': 10,
         'num_worker_rollout': 2,
         'reward_tradeoff_ex': 1.,
-        'reward_tradeoff_in': 0.1,
+        'reward_tradeoff_in': 0.001,
         'num_epoch': 10,
         'lr': 0.0003,
         'gamma': 0.99,
@@ -165,9 +166,7 @@ if __name__ == '__main__':
     }
     
     for seed in [10, 20, 30, 40, 50]:
-        for env_name in ['Walker']:    
-            config['env_config']['env_name'] = env_name
-            config['seed'] = seed
-            main(config, 'ppo_ensemble-r_ex')
+        config['seed'] = seed
+        main(config, 'ppo_ensemble-r_ex')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_diayn/ppo-r_ex-Walker-40/','best')
+    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_diayn/ppo_ensemble-r_ex-Walker-10/','best')

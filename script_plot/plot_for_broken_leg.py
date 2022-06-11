@@ -90,11 +90,11 @@ if __name__ == '__main__':
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_a}-30.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_a}-40.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_a}-50.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env}_broken_{broken_a}-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env}_broken_{broken_a}-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env}_broken_{broken_a}-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env}_broken_{broken_a}-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env}_broken_{broken_a}-50.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env}_broken_{broken_a}-10.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env}_broken_{broken_a}-20.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env}_broken_{broken_a}-30.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env}_broken_{broken_a}-40.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env}_broken_{broken_a}-50.csv',
 
 
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_b}-10.csv',
@@ -102,11 +102,11 @@ if __name__ == '__main__':
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_b}-30.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_b}-40.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_b}-50.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env}_broken_{broken_b}-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env}_broken_{broken_b}-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env}_broken_{broken_b}-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env}_broken_{broken_b}-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env}_broken_{broken_b}-50.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env}_broken_{broken_b}-10.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env}_broken_{broken_b}-20.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env}_broken_{broken_b}-30.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env}_broken_{broken_b}-40.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env}_broken_{broken_b}-50.csv',
         ],
         
         f'{env} - Damage at different joints of the right body'

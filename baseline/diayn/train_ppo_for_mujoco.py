@@ -172,4 +172,4 @@ if __name__ == '__main__':
             config['seed'] = seed
             #main(config, 'ppo-r_ex')
 
-    demo('/home/xukang/Project/state_filtration_for_qd/results_for_diayn/ppo-r_ex-Walker-40/','best')
+    demo('/home/xukang/Project/state_filtration_for_qd/results_for_diayn/ppo-r_ex-Hopper-10/','best')

@@ -92,11 +92,11 @@ if __name__ == '__main__':
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env_name}_dynamics_{disturbed_param}-30.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env_name}_dynamics_{disturbed_param}-40.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env_name}_dynamics_{disturbed_param}-50.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env_name}_dynamics_{disturbed_param}-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env_name}_dynamics_{disturbed_param}-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env_name}_dynamics_{disturbed_param}-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env_name}_dynamics_{disturbed_param}-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env_name}_dynamics_{disturbed_param}-50.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-10.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-20.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-30.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-40.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-50.csv',
         ],
         
         f'{env_name} - dynamics parameter scaled at the foot {disturbed_param}'

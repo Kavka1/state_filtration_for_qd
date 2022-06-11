@@ -5,27 +5,22 @@ import ray
 import pandas as pd
 import yaml
 
-from state_filtration_for_qd.model.latent_policy import Latent_DiagGaussianPolicy
+from state_filtration_for_qd.model.flat_policy import FixStdGaussianPolicy
 from state_filtration_for_qd.env.common import call_env
 from state_filtration_for_qd.env.noise_obs_wrapper import Noise_Obs_Wrapper
 
 
 @ray.remote
 class Worker(object):
-    def __init__(self, model_path: str, model_config: Dict, num_episode: int, z: int) -> None:
-        self.model = Latent_DiagGaussianPolicy(
+    def __init__(self, model_path: str, model_config: Dict, num_episode: int) -> None:
+        self.model = FixStdGaussianPolicy(
             model_config['o_dim'],
             model_config['a_dim'],
-            model_config['z_dim'],
             model_config['policy_hidden_layers'],
-            model_config['policy_logstd_min'],
-            model_config['policy_logstd_max']
+            model_config['action_std'],
+            model_config['policy_activation']
         )
         self.model.load_model(model_path)
-        self.z = z
-        self.z_one_hot = np.zeros([model_config['z_dim'],]).astype(np.float64)
-        self.z_one_hot[z] = 1
-        
         self.num_episode = num_episode
 
     def set_env(self, env_config: Dict, noise_type: str, noise_scale: float, noise_index: List[int])-> None:
@@ -37,9 +32,8 @@ class Worker(object):
             done = False
             obs = self.env.reset()
             while not done:
-                obs_z = np.concatenate([obs, self.z_one_hot], -1)
                 a = self.model.act(
-                    torch.from_numpy(obs_z).float(),
+                    torch.from_numpy(obs).float(),
                     False
                 ).detach().numpy()
                 obs, r, done, info = self.env.step(a)
@@ -54,9 +48,9 @@ def main(path: str, remark: str, noise_index: List[int], csv_path: str) -> None:
     
     z_dim = config['model_config']['z_dim']
     all_workers = []
-    model_path = path + f'model/policy_{remark}'
     for k in range(z_dim):
-        all_workers.append(Worker.remote(model_path, config['model_config'], 20, k))
+        model_path = path + f'model/policy_{k}_{remark}'
+        all_workers.append(Worker.remote(model_path, config['model_config'], 20))
 
     noise_range = [round(j * 0.1 + 0, 2) for j in range(16)]
     score_dict = {'noise scale': noise_range}
@@ -85,7 +79,15 @@ def main(path: str, remark: str, noise_index: List[int], csv_path: str) -> None:
 
 
 if __name__ == '__main__':
-    for env, noise_idx in zip(['Hopper','Walker','Ant'],[[2,3,4,8,9,10],[2,3,4,11,12,13],list(range(1,13))]):
+    for env, noise_idx in zip([
+        #'Hopper',
+        'Walker',
+        #'Ant'
+    ],[
+        #[2,3,4,8,9,10],
+        [2,3,4,11,12,13],
+        #list(range(1,13))
+    ]):
         if env == 'Hopper':
             path_mark = 'missing_leg_1'
             csv_mark = 'leg_1'
@@ -98,8 +100,8 @@ if __name__ == '__main__':
 
         for seed in [10, 20, 30, 40, 50]:
             main(
-                path=f'/home/xukang/Project/state_filtration_for_qd/results_for_diayn/r_ex-10_skill-{env}-{seed}/',
+                path=f'/home/xukang/Project/state_filtration_for_qd/results_for_diayn/ppo_ensemble-r_ex-{env}-{seed}/',
                 remark='best',
                 noise_index=noise_idx,
-                csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env}_{csv_mark}-{seed}.csv'
+                csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/ppo_{env}_{csv_mark}-{seed}.csv'
             )

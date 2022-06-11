@@ -5,26 +5,21 @@ import ray
 import pandas as pd
 import yaml
 
-from state_filtration_for_qd.model.latent_policy import Latent_DiagGaussianPolicy
+from state_filtration_for_qd.model.flat_policy import FixStdGaussianPolicy
 from state_filtration_for_qd.env.common import call_disturb_dynamics_env
 
 
 @ray.remote
 class Worker(object):
-    def __init__(self, model_path: str, model_config: Dict, num_episode: int, z: int) -> None:
-        self.model = Latent_DiagGaussianPolicy(
+    def __init__(self, model_path: str, model_config: Dict, num_episode: int) -> None:
+        self.model = FixStdGaussianPolicy(
             model_config['o_dim'],
             model_config['a_dim'],
-            model_config['z_dim'],
             model_config['policy_hidden_layers'],
-            model_config['policy_logstd_min'],
-            model_config['policy_logstd_max']
+            model_config['action_std'],
+            model_config['policy_activation']
         )
         self.model.load_model(model_path)
-        self.z = z
-        self.z_one_hot = np.zeros([model_config['z_dim'],]).astype(np.float64)
-        self.z_one_hot[z] = 1
-        
         self.num_episode = num_episode
 
     def set_env(self, env_config: Dict)-> None:
@@ -36,9 +31,8 @@ class Worker(object):
             done = False
             obs = self.env.reset()
             while not done:
-                obs_z = np.concatenate([obs, self.z_one_hot], -1)
                 a = self.model.act(
-                    torch.from_numpy(obs_z).float(),
+                    torch.from_numpy(obs).float(),
                     False
                 ).detach().numpy()
                 obs, r, done, info = self.env.step(a)
@@ -53,9 +47,9 @@ def main(path: str, remark: str, env_config: Dict, disturbed_param: List[str], c
     
     z_dim = config['model_config']['z_dim']
     all_workers = []
-    model_path = path + f'model/policy_{remark}'
     for k in range(z_dim):
-        all_workers.append(Worker.remote(model_path, config['model_config'], 20, k))
+        model_path = path + f'model/policy_{k}_{remark}'
+        all_workers.append(Worker.remote(model_path, config['model_config'], 20))
 
     parameter_scale_range = [round(j * 0.1 + 0.5, 2) for j in range(20)]
     score_dict = {'param scale': parameter_scale_range}
@@ -92,11 +86,14 @@ def main(path: str, remark: str, env_config: Dict, disturbed_param: List[str], c
 
 
 if __name__ == '__main__':
-    for env in ['Hopper', 'Walker']:
+    for env in [
+        #'Hopper', 
+        'Walker'
+    ]:
         for disturb_param in [['mass'], ['fric']]:
             for seed in [10, 20, 30, 40, 50]:
                 main(
-                    path=f'/home/xukang/Project/state_filtration_for_qd/results_for_diayn/r_ex-10_skill-{env}-{seed}/',
+                    path=f'/home/xukang/Project/state_filtration_for_qd/results_for_diayn/ppo_ensemble-r_ex-{env}-{seed}/',
                     remark='best',
                     env_config={
                         'env_name': env,
@@ -106,5 +103,5 @@ if __name__ == '__main__':
                         }
                     },
                     disturbed_param= disturb_param,
-                    csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/{env}_dynamics_{disturb_param[0]}-{seed}.csv'
+                    csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env}_dynamics_{disturb_param[0]}-{seed}.csv'
                 )
