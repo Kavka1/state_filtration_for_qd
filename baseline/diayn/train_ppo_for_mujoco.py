@@ -96,6 +96,7 @@ def demo(path: str, remark: str) -> None:
         config['model_config']['z_dim'],
         config['model_config']['policy_hidden_layers'],
         config['model_config']['action_std'],
+        config['model_config']['policy_activation']
     )
     policy.load_model(path + f'model/policy_{remark}')
     
@@ -111,6 +112,7 @@ def demo(path: str, remark: str) -> None:
             obs = env.reset()
             step = 0
             while not done:
+                env.render()
                 obs_z_tensor = torch.from_numpy(np.concatenate([obs, one_hot_z], -1)).float()
                 action = policy.act(obs_z_tensor, False).detach().numpy()
                 next_obs, r, done, info = env.step(action)
@@ -133,7 +135,7 @@ if __name__ == '__main__':
             'value_hidden_layers': [256, 256],
             'disc_hidden_layers': [256, 256],
             'action_std': 0.4,
-            'policy_activation': 'ReLU'
+            'policy_activation': 'Tanh'
         },
         'env_config': {
             'env_name': 'HalfCheetah',
@@ -152,7 +154,7 @@ if __name__ == '__main__':
         'num_workers': 10,
         'num_worker_rollout': 5,
         'reward_tradeoff_ex': 1.,
-        'reward_tradeoff_in': 0.5,
+        'reward_tradeoff_in': 0.1,
         'num_epoch': 30,
         'lr': 0.0003,
         'gamma': 0.99,
@@ -168,6 +170,6 @@ if __name__ == '__main__':
         for env_name in ['Walker']:    
             config['env_config']['env_name'] = env_name
             config['seed'] = seed
-            main(config, 'ppo-r_ex')
+            #main(config, 'ppo-r_ex')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_coord_2_3-10/','best')
+    demo('/home/xukang/Project/state_filtration_for_qd/results_for_diayn/ppo-r_ex-Walker-40/','best')
