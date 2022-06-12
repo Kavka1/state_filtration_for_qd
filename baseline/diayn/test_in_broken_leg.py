@@ -68,13 +68,13 @@ def main(path: str, remark: str, env_config: Dict, csv_path: str) -> None:
 
 
 if __name__ == '__main__':
-    for env in ['Walker']:
+    for env in ['Hopper']:
         for seed in [10, 20, 30, 40, 50]:
             for leg_foot in [[0,1], [1,0]]:
                 if leg_foot == [0,1]:
-                    csv_mark = 'right_leg'
+                    csv_mark = 'leg'
                 else:
-                    csv_mark = 'right_foot'
+                    csv_mark = 'foot'
 
                 main(
                     path=f'/home/xukang/Project/state_filtration_for_qd/results_for_diayn/ppo_ensemble-r_ex-{env}-{seed}/',
@@ -82,7 +82,7 @@ if __name__ == '__main__':
                     env_config={
                         'env_name': env,
                         'broken_leg_info': {
-                            'is_left_leg': False,
+                            #'is_left_leg': False,
                             'leg_jnt_scale': leg_foot[0],
                             'foot_jnt_scale': leg_foot[1]
                         }

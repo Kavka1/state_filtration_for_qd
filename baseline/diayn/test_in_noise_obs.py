@@ -80,12 +80,12 @@ def main(path: str, remark: str, noise_index: List[int], csv_path: str) -> None:
 
 if __name__ == '__main__':
     for env, noise_idx in zip([
-        #'Hopper',
-        'Walker',
+        'Hopper',
+        #'Walker',
         #'Ant'
     ],[
-        #[2,3,4,8,9,10],
-        [2,3,4,11,12,13],
+        [2,3,4,8,9,10],
+        #[2,3,4,11,12,13],
         #list(range(1,13))
     ]):
         if env == 'Hopper':
@@ -103,5 +103,5 @@ if __name__ == '__main__':
                 path=f'/home/xukang/Project/state_filtration_for_qd/results_for_diayn/ppo_ensemble-r_ex-{env}-{seed}/',
                 remark='best',
                 noise_index=noise_idx,
-                csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn/ppo_{env}_{csv_mark}-{seed}.csv'
+                csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/ppo_{env}_{csv_mark}-{seed}.csv'
             )

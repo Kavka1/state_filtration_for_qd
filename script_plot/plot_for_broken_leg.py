@@ -80,9 +80,9 @@ def plot(csv_path: str, title: str) -> None:
 
 
 if __name__ == '__main__':
-    env = 'Walker'
-    broken_a = 'right_leg'
-    broken_b = 'right_foot'
+    env = 'Hopper'
+    broken_a = 'leg'
+    broken_b = 'foot'
     plot(
         [
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_a}-10.csv',
@@ -109,5 +109,5 @@ if __name__ == '__main__':
             f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env}_broken_{broken_b}-50.csv',
         ],
         
-        f'{env} - Damage at different joints of the right body'
+        f'{env} - Damage at different joints of the leg'
     )

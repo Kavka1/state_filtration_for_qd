@@ -87,8 +87,8 @@ def main(path: str, remark: str, env_config: Dict, disturbed_param: List[str], c
 
 if __name__ == '__main__':
     for env in [
-        #'Hopper', 
-        'Walker'
+        'Hopper', 
+        #'Walker'
     ]:
         for disturb_param in [['mass'], ['fric']]:
             for seed in [10, 20, 30, 40, 50]:

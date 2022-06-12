@@ -82,7 +82,7 @@ def plot(csv_path: str, title: str) -> None:
 
 
 if __name__ == '__main__':
-    env_name = 'Walker'
+    env_name = 'Hopper'
     disturbed_param = 'fric'
 
     plot(

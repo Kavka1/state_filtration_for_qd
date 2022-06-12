@@ -112,7 +112,7 @@ def plot(csv_path: str, title: str) -> None:
 
 
 if __name__ == '__main__':
-    mark = 'Walker_leg_1'
+    mark = 'Ant_coord_2_3_4_5'
     plot(
         [
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{mark}-10.csv',
@@ -127,5 +127,5 @@ if __name__ == '__main__':
             f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{mark}-50.csv',
         ],
         
-        'Walker - noise at the leg 1'
+        'Ant - noise at the coord 2 3 4 5'
     )
