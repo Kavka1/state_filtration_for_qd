@@ -18,7 +18,9 @@ class Worker(object):
             model_config['o_dim'],
             model_config['a_dim'],
             model_config['policy_hidden_layers'],
-            model_config['action_std']
+            model_config['action_std'],
+            'Tanh'
+            #model_config['policy_activation']
         )
         self.model.load_model(model_path)
         self.num_episode = num_episode
@@ -46,7 +48,7 @@ def main(path: str, remark: str, env_config: Dict, disturbed_param: List[str], c
     with open(path + 'config.yaml', 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
     
-    num_primitive = config['num_primitive']
+    num_primitive = 1# config['num_primitive']
     all_workers = []
     for k in range(num_primitive):
         model_path = path + f'model/policy_{k}_{remark}'
@@ -59,11 +61,11 @@ def main(path: str, remark: str, env_config: Dict, disturbed_param: List[str], c
     for param_scale in parameter_scale_range:
         if 'mass' in disturbed_param:
             env_config['dynamics_info'].update({
-                'foot_mass_scale':      param_scale,
+                'leg_mass_scale':      param_scale,
             })
         if 'fric' in disturbed_param:
             env_config['dynamics_info'].update({
-                'foot_friction_scale':  param_scale
+                'ankle_friction_scale':  param_scale
             })
 
         remotes = [worker.set_env.remote(env_config) for worker in all_workers]
@@ -86,13 +88,19 @@ def main(path: str, remark: str, env_config: Dict, disturbed_param: List[str], c
 
 
 if __name__ == '__main__':
-    for env in ['Hopper','Walker']:
+    for env in [
+        #'Hopper',
+        #'Walker'
+        'Ant'
+    ]:
         if env == 'Hopper':
             path_mark = 'missing_leg_1'
         elif env == 'Walker':
             path_mark = 'missing_leg_1'
+        elif env == 'Ant':
+            path_mark = 'missing_leg_1_2_3_4'
             
-        for seed in [40, 50]:
+        for seed in [10, 20, 30, 40, 50]:
             for disturb_param in [['mass'],['fric']]:
 
                 main(
@@ -101,10 +109,10 @@ if __name__ == '__main__':
                     env_config={
                         'env_name': env,
                         'dynamics_info': {
-                            'foot_mass_scale': 1,
-                            'foot_friction_scale': 1,
+                            'leg_mass_scale': 1,
+                            'ankle_friction_scale': 1,
                         }
                     },
                     disturbed_param= disturb_param,
-                    csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_dynamics_{disturb_param[0]}-{seed}.csv'
+                    csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env}_dynamics_{disturb_param[0]}-{seed}.csv'
                 )

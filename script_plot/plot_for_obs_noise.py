@@ -24,28 +24,42 @@ def plot(csv_path: str, title: str) -> None:
             chosen_noise_num = 15
             all_noise_scale = df.values[:chosen_noise_num,0]
 
-            if 'ensemble' in path:
+            if '/ensemble/' in path:
                 primitive_scores = df.values[:chosen_noise_num,1:]
                 max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
-                baseline_rewards        =   primitive_scores[:,0]
                 # process the data
                 new_df.append(
                     pd.DataFrame({
                         'noise scale'               : all_noise_scale,
                         'return'                    : max_primitive_rewards,
-                        'alg'                       : ['Ensemble Max'] * len(max_primitive_rewards),
+                        'alg'                       : ['Ensemble Iterative'] * len(max_primitive_rewards),
                         'seed'                      : [seed] * len(max_primitive_rewards)
                     })
                 ) 
+            elif '/ensemble_mix/' in path:
+                primitive_scores = df.values[:chosen_noise_num,1:]
+                max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
+                # process the data
                 new_df.append(
                     pd.DataFrame({
                         'noise scale'               : all_noise_scale,
+                        'return'                    : max_primitive_rewards,
+                        'alg'                       : ['Ensemble Mix'] * len(max_primitive_rewards),
+                        'seed'                      : [seed] * len(max_primitive_rewards)
+                    })
+                ) 
+            elif '/single/' in path:
+                primitive_scores = df.values[:chosen_noise_num,1:]
+                baseline_rewards        =   primitive_scores[:,0]
+                new_df.append(  
+                    pd.DataFrame({
+                        'noise scale'               : all_noise_scale,
                         'return'                    : baseline_rewards,
-                        'alg'                       : ['Single'] * len(max_primitive_rewards),
-                        'seed'                      : [seed]  * len(max_primitive_rewards)
+                        'alg'                       : ['Single'] * len(baseline_rewards),
+                        'seed'                      : [seed]  * len(baseline_rewards)
                     })
                 )
-            elif 'diayn' in path:
+            elif '/diayn_ppo/' in path:
                 primitive_scores = df.values[:chosen_noise_num,1:]
                 max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
                 new_df.append(
@@ -53,6 +67,17 @@ def plot(csv_path: str, title: str) -> None:
                         'noise scale'               : all_noise_scale,
                         'return'                    : max_primitive_rewards,
                         'alg'                       : ['DIAYN'] * len(max_primitive_rewards),
+                        'seed'                      : [seed] * len(max_primitive_rewards)
+                    })
+                ) 
+            elif '/smerl_ppo/' in path:
+                primitive_scores = df.values[:chosen_noise_num,1:]
+                max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
+                new_df.append(
+                    pd.DataFrame({
+                        'noise scale'               : all_noise_scale,
+                        'return'                    : max_primitive_rewards,
+                        'alg'                       : ['SMERL'] * len(max_primitive_rewards),
                         'seed'                      : [seed] * len(max_primitive_rewards)
                     })
                 ) 
@@ -112,7 +137,7 @@ def plot(csv_path: str, title: str) -> None:
 
 
 if __name__ == '__main__':
-    mark = 'Ant_coord_2_3_4_5'
+    mark = 'Hopper_leg_1'
     plot(
         [
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{mark}-10.csv',
@@ -120,12 +145,29 @@ if __name__ == '__main__':
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{mark}-30.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{mark}-40.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{mark}-50.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{mark}-10.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{mark}-20.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{mark}-30.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{mark}-40.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{mark}-50.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{mark}-10.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{mark}-20.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{mark}-30.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{mark}-40.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{mark}-50.csv',
+
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{mark}-10.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{mark}-20.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{mark}-30.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{mark}-40.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{mark}-50.csv',
+
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{mark}-10.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{mark}-20.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{mark}-30.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{mark}-40.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{mark}-50.csv',
         ],
         
-        'Ant - noise at the coord 2 3 4 5'
+        'Hopper - noise at the leg 1'
     )

@@ -18,7 +18,9 @@ class Worker(object):
             model_config['o_dim'],
             model_config['a_dim'],
             model_config['policy_hidden_layers'],
-            model_config['action_std']
+            model_config['action_std'],
+            'Tanh'
+            #model_config['policy_activation'],
         )
         self.model.load_model(model_path)
         self.env = call_broken_leg_env(env_config)
@@ -43,7 +45,7 @@ def main(path: str, remark: str, env_config: Dict, csv_path: str) -> None:
     with open(path + 'config.yaml', 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
     
-    num_primitive = config['num_primitive']
+    num_primitive = 1# config['num_primitive']
     all_workers = []
     for k in range(num_primitive):
         model_path = path + f'model/policy_{k}_{remark}'
@@ -68,18 +70,24 @@ def main(path: str, remark: str, env_config: Dict, csv_path: str) -> None:
 
 
 if __name__ == "__main__":
-    for env in ['Walker']:
+    for env in [
+        #'Hopper',
+        #'Walker'
+        'Ant'
+        ]:
         if env == 'Hopper':
             path_mark = 'missing_leg_1'
         elif env == 'Walker':
             path_mark = 'missing_leg_1'
+        elif env == 'Ant':
+            path_mark = 'missing_leg_1_2_3_4'
             
-        for seed in [40, 50]:
+        for seed in [10, 20, 30, 40, 50]:
             for leg_foot in [[0,1], [1,0]]:
                 if leg_foot == [0,1]:
-                    csv_mark = 'right_leg'
+                    csv_mark = 'hip'#'leg'
                 else:
-                    csv_mark = 'right_foot'
+                    csv_mark = 'ankle'#'foot'
 
                 main(   
                     path= f'/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/{env}-{path_mark}-{seed}/',
@@ -87,10 +95,13 @@ if __name__ == "__main__":
                     env_config={
                         'env_name': env,
                         'broken_leg_info': {
-                            'is_left_leg': False,
-                            'leg_jnt_scale': leg_foot[0],
-                            'foot_jnt_scale': leg_foot[1],
+                            #'is_left_leg': False,
+                            #'leg_jnt_scale': leg_foot[0],
+                            #'foot_jnt_scale': leg_foot[1],
+                            'broken_legs': ['1'],
+                            'hip_jnt_scale': leg_foot[0],
+                            'ankle_jnt_scale': leg_foot[1]
                         }
                     },
-                    csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{csv_mark}-{seed}.csv'
+                    csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env}_broken_{csv_mark}-{seed}.csv'
                 )

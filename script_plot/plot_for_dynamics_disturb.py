@@ -20,7 +20,7 @@ def plot(csv_path: str, title: str) -> None:
             df = pd.read_csv(path)
 
         all_param_scale = df.values[:,0]
-        if 'ensemble' in path:
+        if '/ensemble/' in path:
             primitive_scores = df.values[:,1:]
             max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
             baseline_rewards        =   primitive_scores[:,0]
@@ -29,19 +29,35 @@ def plot(csv_path: str, title: str) -> None:
                 pd.DataFrame({
                     'param scale'               : all_param_scale,
                     'return'                    : max_primitive_rewards,
-                    'alg'                       : ['Ensemble'] * len(max_primitive_rewards),
+                    'alg'                       : ['Ensemble Iterative'] * len(max_primitive_rewards),
                     'seed'                      : [seed] * len(max_primitive_rewards)
                 })
             ) 
+        elif '/ensemble_mix/' in path:
+            primitive_scores = df.values[:,1:]
+            max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
+            baseline_rewards        =   primitive_scores[:,0]
+            # process the data
+            new_df.append(
+                pd.DataFrame({
+                    'param scale'               : all_param_scale,
+                    'return'                    : max_primitive_rewards,
+                    'alg'                       : ['Ensemble Mix'] * len(max_primitive_rewards),
+                    'seed'                      : [seed] * len(max_primitive_rewards)
+                })
+            ) 
+        elif '/single/' in path:
+            primitive_scores = df.values[:,1:]
+            baseline_rewards        =   primitive_scores[:,0]
             new_df.append(
                 pd.DataFrame({
                     'param scale'               : all_param_scale,
                     'return'                    : baseline_rewards,
-                    'alg'                       : ['Single'] * len(max_primitive_rewards),
-                    'seed'                      : [seed]  * len(max_primitive_rewards)
+                    'alg'                       : ['Single'] * len(baseline_rewards),
+                    'seed'                      : [seed]  * len(baseline_rewards)
                 })
             )
-        elif 'diayn' in path:
+        elif '/diayn_ppo/' in path:
             primitive_scores = df.values[:,1:]
             max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
             new_df.append(
@@ -52,11 +68,22 @@ def plot(csv_path: str, title: str) -> None:
                     'seed'                      : [seed] * len(max_primitive_rewards)
                 })
             ) 
+        elif '/smerl_ppo/' in path:
+            primitive_scores = df.values[:,1:]
+            max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
+            new_df.append(
+                pd.DataFrame({
+                    'param scale'               : all_param_scale,
+                    'return'                    : max_primitive_rewards,
+                    'alg'                       : ['SMERL'] * len(max_primitive_rewards),
+                    'seed'                      : [seed] * len(max_primitive_rewards)
+                })
+            ) 
 
     new_df = pd.concat(new_df)
 
     # plot
-    sns.set_style('whitegrid')
+    sns.set_style('white')
     fig, ax = plt.subplots(1, 1, figsize=(6,5))
 
     sns.lineplot(
@@ -83,7 +110,7 @@ def plot(csv_path: str, title: str) -> None:
 
 if __name__ == '__main__':
     env_name = 'Hopper'
-    disturbed_param = 'fric'
+    disturbed_param = 'mass'
 
     plot(
         [
@@ -92,11 +119,26 @@ if __name__ == '__main__':
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env_name}_dynamics_{disturbed_param}-30.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env_name}_dynamics_{disturbed_param}-40.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env_name}_dynamics_{disturbed_param}-50.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{env_name}_dynamics_{disturbed_param}-10.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{env_name}_dynamics_{disturbed_param}-20.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{env_name}_dynamics_{disturbed_param}-30.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{env_name}_dynamics_{disturbed_param}-40.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{env_name}_dynamics_{disturbed_param}-50.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-10.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-20.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-30.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-40.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-50.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env_name}_dynamics_{disturbed_param}-10.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env_name}_dynamics_{disturbed_param}-20.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env_name}_dynamics_{disturbed_param}-30.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env_name}_dynamics_{disturbed_param}-40.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env_name}_dynamics_{disturbed_param}-50.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env_name}_dynamics_{disturbed_param}-10.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env_name}_dynamics_{disturbed_param}-20.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env_name}_dynamics_{disturbed_param}-30.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env_name}_dynamics_{disturbed_param}-40.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env_name}_dynamics_{disturbed_param}-50.csv',
         ],
         
         f'{env_name} - dynamics parameter scaled at the foot {disturbed_param}'

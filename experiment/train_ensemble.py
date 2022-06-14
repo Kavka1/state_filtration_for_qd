@@ -173,25 +173,27 @@ if __name__ == '__main__':
             'action_std': 0.4,
             'idm_logstd_min': -10,
             'idm_logstd_max': 0.5,
-            'policy_activation': 'ReLU'
+            'policy_activation': 'Tanh'
         },
         'env_config': {
-            'env_name': 'Minitaur',
+            'env_name': 'Ant',
             'missing_obs_info': {
-                'missing_angle': ['1', '2', '3', '4'],
+                'missing_joint': [],
+                'missing_coord': [],
+                'missing_leg': ['1', '2', '3', '4'],
             }
         },
 
         'num_primitive': 10,
-        'max_timesteps_per_primitive': 2500000,
+        'max_timesteps_per_primitive': 2000000,
         'save_interval': 40,
         'log_interval': 10,
-        'eval_episode': 5,
+        'eval_episode': 1,
         
         'num_workers': 10,
-        'num_worker_rollout': 5,
-        'reward_tradeoff': 0.001,
-        'num_epoch': 30,
+        'num_worker_rollout': 2,
+        'reward_tradeoff': 0.01,
+        'num_epoch': 10,
         'lr': 0.0003,
         'gamma': 0.99,
         'lamda': 0.95,
@@ -199,12 +201,12 @@ if __name__ == '__main__':
         'batch_size': 256,
         'temperature_coef': 0.1,
         'device': 'cuda',
-        'result_path': '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/'
+        'result_path': '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble_hyper/'
     }
     
     
-    for seed in [40, 50]:
+    for seed in [10, 20, 30, 40, 50]:
         config['seed'] = seed
-        #main(config, '')
+        main(config, '')
 
-    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1-30/','best')
+    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1-30/','best')

@@ -69,8 +69,6 @@ def main(config: Dict, exp_name: str = ''):
         tb.add_scalar('Eval/min_primitive_score', min_primitive_score, total_iteration)
         tb.add_scalar('Eval/mean_primitive_score', mean_primitive_score, total_iteration)
         tb.add_scalar('Eval/total_step', total_step, total_iteration)
-        for j in range(num_primitive):
-            tb.add_scalar(f'Eval/primitive_{j}_score', logger_dict[f'primitive_{j}_score'], total_iteration)
         # Log the information of the training process in tb
         for name, value_seq in list(logger.data.items()):
             tb.add_scalar(f'Train/{name}', value_seq[-1], total_step)
@@ -172,7 +170,7 @@ if __name__ == '__main__':
             'action_std': 0.4,
             'idm_logstd_min': -10,
             'idm_logstd_max': 0.5,
-            'policy_activation': 'ReLU'
+            'policy_activation': 'Tanh'
         },
         'env_config': {
             'env_name': 'Minitaur',
@@ -204,41 +202,58 @@ if __name__ == '__main__':
     }
     
 
-    for env_config in [
-        {
-            'env_name': 'Hopper',
-            'missing_obs_info': {
-                'missing_coord':    [],
-                'missing_joint':    [],
-                'missing_leg':      ['1']
-            }
-        },
-        {
-            'env_name': 'Walker',
-            'missing_obs_info': {
-                'missing_coord':    [],
-                'missing_joint':    [],
-                'missing_leg':      ['1']
-            }
-        },
-        {
-            'env_name': 'Ant',
-            'missing_obs_info': {
-                'missing_coord':    ['1','2','3','4'],
-                'missing_joint':    [],
-                'missing_leg':      []
-            }
-        },
-        {
-            'env_name': 'Minitaur',
-            'missing_obs_info': {
-                'missing_angle':    ['1','2','3','4'],
-            }
-        }
+    for env in [
+        'Hopper',
+        #'Walker',
+        #'Ant',
+        #'Minitaur'
     ]:
+        if env == 'Hopper':
+            env_config = {
+                'env_name': 'Hopper',
+                'missing_obs_info': {
+                    'missing_coord':    [],
+                    'missing_joint':    [],
+                    'missing_leg':      ['1']
+                }
+            }
+            tradeoff = 0.05
+        elif env == 'Walker':
+            env_config = {
+                'env_name': 'Walker',
+                'missing_obs_info': {
+                    'missing_coord':    [],
+                    'missing_joint':    [],
+                    'missing_leg':      ['1']
+                }
+            }
+            tradeoff = 0.05
+        elif env == 'Ant':
+            env_config = {
+                'env_name': 'Ant',
+                'missing_obs_info': {
+                    'missing_coord':    [],
+                    'missing_joint':    [],
+                    'missing_leg':      ['1','2','3','4']
+                }
+            }
+            tradeoff = 0.01
+        elif env == 'Minitaur':
+            env_config = {
+                'env_name': 'Minitaur',
+                'missing_obs_info': {
+                    'missing_angle':    ['1','2','3','4'],
+                }
+            }
+            tradeoff = 0.001
+        else:
+            raise ValueError
+
+
         for seed in [10, 20, 30, 40, 50]:
             config['env_config'] = env_config
+            config['reward_tradeoff'] = tradeoff
             config['seed'] = seed
-            main(config, '')
+            #main(config, '')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1-30/','best')
+    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble_mix/Walker-missing_leg_1-20/','final')

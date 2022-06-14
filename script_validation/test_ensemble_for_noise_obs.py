@@ -19,7 +19,8 @@ class Worker(object):
             model_config['o_dim'],
             model_config['a_dim'],
             model_config['policy_hidden_layers'],
-            model_config['action_std']
+            model_config['action_std'],
+            model_config['policy_activation']
         )
         self.model.load_model(model_path)
         self.num_episode = num_episode
@@ -81,7 +82,15 @@ def main(path: str, remark: str, noise_index: List[int], csv_path: str) -> None:
 
 
 if __name__ == '__main__':
-    for env, noise_idx in zip(['Hopper','Walker','Ant'],[[2,3,4,8,9,10],[2,3,4,11,12,13],list(range(1,13))]):
+    for env, noise_idx in zip([
+        #'Hopper',
+        #'Walker',
+        'Ant'
+    ],[
+        #[2,3,4,8,9,10],
+        #[2,3,4,11,12,13],
+        list(range(1,13))
+    ]):
         if env == 'Hopper':
             path_mark = 'missing_leg_1'
             csv_mark = 'leg_1'
@@ -91,10 +100,10 @@ if __name__ == '__main__':
         else:
             path_mark = 'missing_leg_1_2_3_4'
             csv_mark = 'coord_2_3_4_5'
-        for seed in [40, 50]:
+        for seed in [10, 20, 30, 40, 50]:
             main(
-                path=f'/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/{env}-{path_mark}-{seed}/',
+                path=f'/home/xukang/Project/state_filtration_for_qd/results_for_ensemble_mix/{env}-{path_mark}-{seed}/',
                 remark='best',
                 noise_index=noise_idx,
-                csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_{csv_mark}-{seed}.csv'
+                csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{env}_{csv_mark}-{seed}.csv'
             )
