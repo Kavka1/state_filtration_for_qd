@@ -8,7 +8,7 @@ from state_filtration_for_qd.utils import confirm_path_exist, make_exp_path
 from state_filtration_for_qd.logger import Logger
 from state_filtration_for_qd.env.common import call_env
 from state_filtration_for_qd.model.flat_policy import FixStdGaussianPolicy
-from state_filtration_for_qd.baseline.dvd import DvD_PPO
+from state_filtration_for_qd.baseline.dvd.ensemble_ppo import DvD_PPO
 
 
 def main(config: Dict, exp_name: str = ''):
@@ -76,12 +76,10 @@ def main(config: Dict, exp_name: str = ''):
         # save models periodically
         if total_iteration % config['save_interval'] == 0:
             agent.save_policy(f'{total_iteration}')
-            agent.save_discriminator(f'{total_iteration}')
 
         total_iteration += 1
 
     agent.save_policy('final')
-    agent.save_discriminator('final')
 
 
 def demo(path: str, remark: str) -> None:
@@ -166,8 +164,8 @@ if __name__ == '__main__':
     }
     for env in [
         'Hopper',
-        #'Walker',
-        #'Ant',
+        'Walker',
+        'Ant',
         #'Minitaur'
     ]:
         if env == 'Hopper':
@@ -179,7 +177,7 @@ if __name__ == '__main__':
                     'missing_leg':      []
                 }
             }
-            tradeoff = 0.001
+            tradeoff = 0.1
         elif env == 'Walker':
             env_config = {
                 'env_name': 'Walker',
@@ -189,7 +187,7 @@ if __name__ == '__main__':
                     'missing_leg':      []
                 }
             }
-            ret_default = 0.001
+            ret_default = 0.05
         elif env == 'Ant':
             env_config = {
                 'env_name': 'Ant',
@@ -199,7 +197,7 @@ if __name__ == '__main__':
                     'missing_leg':      []
                 }
             }
-            ret_default = 0.0005
+            ret_default = 0.01
         elif env == 'Minitaur':
             env_config = {
                 'env_name': 'Minitaur',
@@ -207,12 +205,18 @@ if __name__ == '__main__':
                     'missing_angle':    [],
                 }
             }
-            ret_default = 0.0001
+            ret_default = 0.001
         else:
             raise ValueError
 
 
-        for seed in [10, 20, 30, 40, 50]:
+        for seed in [
+            10, 
+            #20, 
+            #30, 
+            #40, 
+            #50
+        ]:
             config['env_config'] = env_config
             config['tradeoff'] = tradeoff
             config['seed'] = seed

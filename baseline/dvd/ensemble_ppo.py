@@ -288,10 +288,3 @@ class DvD_PPO(object):
             path = model_path + f'policy_{k}_{remark}'
             torch.save(self.policies[k].state_dict(), path)
         print(f"------- Policy saved to {model_path} as {remark} ----------")
-    
-    def save_discriminator(self, remark: str) -> None:
-        model_path = self.exp_path + 'model/'
-        confirm_path_exist(model_path)
-        model_path = model_path + f'disc_{remark}'
-        torch.save(self.discriminator.state_dict(), model_path)
-        print(f"------- Discriminator saved to {model_path} ----------")
