@@ -79,6 +79,17 @@ def plot(csv_path: str, title: str) -> None:
                     'seed'                      : [seed] * len(max_primitive_rewards)
                 })
             ) 
+        elif '/dvd/' in path:
+            primitive_scores = df.values[:,1:]
+            max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
+            new_df.append(
+                pd.DataFrame({
+                    'param scale'               : all_param_scale,
+                    'return'                    : max_primitive_rewards,
+                    'alg'                       : ['DvD'] * len(max_primitive_rewards),
+                    'seed'                      : [seed] * len(max_primitive_rewards)
+                })
+            ) 
 
     new_df = pd.concat(new_df)
 
@@ -109,7 +120,7 @@ def plot(csv_path: str, title: str) -> None:
 
 
 if __name__ == '__main__':
-    env_name = 'Hopper'
+    env_name = 'Ant'
     disturbed_param = 'mass'
 
     plot(
@@ -119,16 +130,23 @@ if __name__ == '__main__':
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env_name}_dynamics_{disturbed_param}-30.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env_name}_dynamics_{disturbed_param}-40.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env_name}_dynamics_{disturbed_param}-50.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{env_name}_dynamics_{disturbed_param}-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{env_name}_dynamics_{disturbed_param}-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{env_name}_dynamics_{disturbed_param}-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{env_name}_dynamics_{disturbed_param}-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{env_name}_dynamics_{disturbed_param}-50.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-50.csv',
+            #f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{env_name}_dynamics_{disturbed_param}-10.csv',
+            #f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{env_name}_dynamics_{disturbed_param}-20.csv',
+            #f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{env_name}_dynamics_{disturbed_param}-30.csv',
+            #f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{env_name}_dynamics_{disturbed_param}-40.csv',
+            #f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{env_name}_dynamics_{disturbed_param}-50.csv',
+            #f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-10.csv',
+            #f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-20.csv',
+            #f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-30.csv',
+            #f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-40.csv',
+            #f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{env_name}_dynamics_{disturbed_param}-50.csv',
+            
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{env_name}_dynamics_{disturbed_param}-10.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{env_name}_dynamics_{disturbed_param}-20.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{env_name}_dynamics_{disturbed_param}-30.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{env_name}_dynamics_{disturbed_param}-40.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{env_name}_dynamics_{disturbed_param}-50.csv',
+            
             f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env_name}_dynamics_{disturbed_param}-10.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env_name}_dynamics_{disturbed_param}-20.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env_name}_dynamics_{disturbed_param}-30.csv',
@@ -141,5 +159,5 @@ if __name__ == '__main__':
             f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env_name}_dynamics_{disturbed_param}-50.csv',
         ],
         
-        f'{env_name} - dynamics parameter scaled at the foot {disturbed_param}'
+        f'{env_name} - dynamics parameter scaled at the leg {disturbed_param}'
     )

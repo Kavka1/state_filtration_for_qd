@@ -83,20 +83,20 @@ def main(path: str, remark: str, noise_index: List[int], csv_path: str) -> None:
 
 if __name__ == '__main__':
     for env, noise_idx in zip([
-        'Hopper',
-        'Walker',
+        #'Hopper',
+        #'Walker',
         'Ant'
     ],[
-        [2,3,4,8,9,10],
-        [2,3,4,11,12,13],
-        list(range(1,13))
+        #[2,3,4,8,9,10],
+        #[2,3,4,11,12,13],
+        list(range(1,4))
     ]):
         if env == 'Hopper':
             csv_mark = 'leg_1'
         elif env == 'Walker':
             csv_mark = 'leg_1'
         else:
-            csv_mark = 'coord_2_3_4_5'
+            csv_mark = 'coord_2'
         for seed in [10, 20, 30, 40, 50]:
             main(
                 path=f'/home/xukang/Project/state_filtration_for_qd/results_for_smerl_ppo/{env}-{seed}/',

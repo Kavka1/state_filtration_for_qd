@@ -163,8 +163,8 @@ if __name__ == '__main__':
         'result_path': '/home/xukang/Project/state_filtration_for_qd/results_for_dvd_ppo/'
     }
     for env in [
-        'Hopper',
-        'Walker',
+        #'Hopper',
+        #'Walker',
         'Ant',
         #'Minitaur'
     ]:
@@ -187,7 +187,7 @@ if __name__ == '__main__':
                     'missing_leg':      []
                 }
             }
-            ret_default = 0.05
+            tradeoff = 0.1
         elif env == 'Ant':
             env_config = {
                 'env_name': 'Ant',
@@ -197,7 +197,7 @@ if __name__ == '__main__':
                     'missing_leg':      []
                 }
             }
-            ret_default = 0.01
+            tradeoff = 0.01
         elif env == 'Minitaur':
             env_config = {
                 'env_name': 'Minitaur',
@@ -205,7 +205,7 @@ if __name__ == '__main__':
                     'missing_angle':    [],
                 }
             }
-            ret_default = 0.001
+            tradeoff = 0.005
         else:
             raise ValueError
 
@@ -222,4 +222,4 @@ if __name__ == '__main__':
             config['seed'] = seed
             main(config, '')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_diayn/ppo_ensemble-r_ex-Minitaur-10/','best')
+    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_dvd_ppo/Walker-10/','best')

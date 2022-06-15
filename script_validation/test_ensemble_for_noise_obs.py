@@ -89,7 +89,7 @@ if __name__ == '__main__':
     ],[
         #[2,3,4,8,9,10],
         #[2,3,4,11,12,13],
-        list(range(1,13))
+        list(range(1,4))
     ]):
         if env == 'Hopper':
             path_mark = 'missing_leg_1'
@@ -99,11 +99,11 @@ if __name__ == '__main__':
             csv_mark = 'leg_1'
         else:
             path_mark = 'missing_leg_1_2_3_4'
-            csv_mark = 'coord_2_3_4_5'
+            csv_mark = 'coord_2'
         for seed in [10, 20, 30, 40, 50]:
             main(
-                path=f'/home/xukang/Project/state_filtration_for_qd/results_for_ensemble_mix/{env}-{path_mark}-{seed}/',
+                path=f'/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/{env}-{path_mark}-{seed}/',
                 remark='best',
                 noise_index=noise_idx,
-                csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{env}_{csv_mark}-{seed}.csv'
+                csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_{csv_mark}-{seed}.csv'
             )

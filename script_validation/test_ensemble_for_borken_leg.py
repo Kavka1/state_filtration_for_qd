@@ -19,8 +19,7 @@ class Worker(object):
             model_config['a_dim'],
             model_config['policy_hidden_layers'],
             model_config['action_std'],
-            'Tanh'
-            #model_config['policy_activation'],
+            model_config['policy_activation'],
         )
         self.model.load_model(model_path)
         self.env = call_broken_leg_env(env_config)
@@ -45,7 +44,7 @@ def main(path: str, remark: str, env_config: Dict, csv_path: str) -> None:
     with open(path + 'config.yaml', 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
     
-    num_primitive = 1# config['num_primitive']
+    num_primitive = config['num_primitive']
     all_workers = []
     for k in range(num_primitive):
         model_path = path + f'model/policy_{k}_{remark}'
@@ -103,5 +102,5 @@ if __name__ == "__main__":
                             'ankle_jnt_scale': leg_foot[1]
                         }
                     },
-                    csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env}_broken_{csv_mark}-{seed}.csv'
+                    csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{csv_mark}-{seed}.csv'
                 )

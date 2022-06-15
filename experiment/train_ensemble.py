@@ -176,11 +176,12 @@ if __name__ == '__main__':
             'policy_activation': 'Tanh'
         },
         'env_config': {
-            'env_name': 'Ant',
+            'env_name': 'Minitaur',
             'missing_obs_info': {
-                'missing_joint': [],
-                'missing_coord': [],
-                'missing_leg': ['1', '2', '3', '4'],
+                #'missing_joint': [],
+                #'missing_coord': [],
+                #'missing_leg': ['1', '2', '3', '4'],
+                'missing_angle': ['1', '2', '3', '4']
             }
         },
 
@@ -192,7 +193,7 @@ if __name__ == '__main__':
         
         'num_workers': 10,
         'num_worker_rollout': 2,
-        'reward_tradeoff': 0.01,
+        'reward_tradeoff': 0.001,
         'num_epoch': 10,
         'lr': 0.0003,
         'gamma': 0.99,
@@ -205,8 +206,14 @@ if __name__ == '__main__':
     }
     
     
-    for seed in [10, 20, 30, 40, 50]:
+    for seed in [
+        #10, 
+        #20, 
+        30, 
+        #40, 
+        #50
+    ]:
         config['seed'] = seed
         main(config, '')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1-30/','best')
+    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble_hyper/Minitaur-missing_angle_1_2_3_4-30/','best')
