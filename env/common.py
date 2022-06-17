@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 import numpy as np
 import gym
 
@@ -68,4 +68,10 @@ def call_disturb_dynamics_env(env_config: Dict) -> gym.Env:
         return NAME2DYNAMICS_ENV[name](**args)
     else:
         raise ValueError(f"Invalid dynamics disturbed env name {name}")
-    
+
+
+def call_special_minitaur_env(is_actural_model: bool, obs_noise_std: float) -> Any:
+    return Missing_Info_Minitaur(
+        accurate_motor_model_enabled= is_actural_model,
+        observation_noise_stdev= obs_noise_std
+    )
