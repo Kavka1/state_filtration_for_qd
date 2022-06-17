@@ -37,7 +37,7 @@ class Worker(object):
                 a = self.model.act(
                     torch.from_numpy(obs).float(),
                     False
-                )
+                ).detach().numpy()
                 obs, r, done, info = self.env.step(a)
                 total_reward += r
         return total_reward / self.num_episode
@@ -81,7 +81,7 @@ def test_in_noisy_obs(path: str, remark: str, csv_path: str) -> None:
         model_path = path + f'model/policy_{k}_{remark}'
         all_workers.append(Worker.remote(model_path, config['model_config'], False, 0, 20))
 
-    noise_range = [round(j * 0.1 + 0, 2) for j in range(16)]
+    noise_range = [round(j * 0.1 + 0, 2) for j in range(11)]
     score_dict = {'noise scale': noise_range}
     score_dict.update({f'primitive {k}': [] for k in range(num_primitive)})
 
