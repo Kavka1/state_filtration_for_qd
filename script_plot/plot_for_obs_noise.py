@@ -92,6 +92,17 @@ def plot(csv_path: str, title: str) -> None:
                         'seed'                      : [seed] * len(max_primitive_rewards)
                     })
                 ) 
+            elif '/multi/' in path:
+                primitive_scores = df.values[:chosen_noise_num,1:]
+                max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
+                new_df.append(
+                    pd.DataFrame({
+                        'noise scale'               : all_noise_scale,
+                        'return'                    : max_primitive_rewards,
+                        'alg'                       : ['Multiple'] * len(max_primitive_rewards),
+                        'seed'                      : [seed] * len(max_primitive_rewards)
+                    })
+                ) 
 
         new_df = pd.concat(new_df)
 
@@ -149,6 +160,8 @@ def plot(csv_path: str, title: str) -> None:
 
 if __name__ == '__main__':
     mark = 'Walker_leg_1'
+    title = 'Walker - noise at the leg 1'
+
     plot(
         [
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{mark}-10.csv',
@@ -156,17 +169,6 @@ if __name__ == '__main__':
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{mark}-30.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{mark}-40.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{mark}-50.csv',
-        
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{mark}-10.csv',
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{mark}-20.csv',
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{mark}-30.csv',
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{mark}-40.csv',
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble_mix/{mark}-50.csv',
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{mark}-10.csv',
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{mark}-20.csv',
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{mark}-30.csv',
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{mark}-40.csv',
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/diayn_ppo/{mark}-50.csv',
 
             f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{mark}-10.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{mark}-20.csv',
@@ -180,6 +182,12 @@ if __name__ == '__main__':
             f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{mark}-40.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{mark}-50.csv',
 
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{mark}-10.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{mark}-20.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{mark}-30.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{mark}-40.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{mark}-50.csv',
+
             f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{mark}-10.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{mark}-20.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{mark}-30.csv',
@@ -187,5 +195,5 @@ if __name__ == '__main__':
             f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{mark}-50.csv',
         ],
         
-        'Walker - noise at the leg 1'
+        f'{title}'
     )

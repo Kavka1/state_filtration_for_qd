@@ -165,8 +165,8 @@ if __name__ == '__main__':
     for env in [
         #'Hopper',
         #'Walker',
-        'Ant',
-        #'Minitaur'
+        #'Ant',
+        'Minitaur'
     ]:
         if env == 'Hopper':
             env_config = {
@@ -205,17 +205,17 @@ if __name__ == '__main__':
                     'missing_angle':    [],
                 }
             }
-            tradeoff = 0.005
+            tradeoff = 0.001
         else:
             raise ValueError
 
 
         for seed in [
             10, 
-            #20, 
-            #30, 
-            #40, 
-            #50
+            20, 
+            30, 
+            40, 
+            50
         ]:
             config['env_config'] = env_config
             config['tradeoff'] = tradeoff
