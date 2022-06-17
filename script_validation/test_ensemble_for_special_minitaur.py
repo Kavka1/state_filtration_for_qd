@@ -37,7 +37,7 @@ class Worker(object):
                 a = self.model.act(
                     torch.from_numpy(obs).float(),
                     False
-                )
+                ).detach().numpy()
                 obs, r, done, info = self.env.step(a)
                 total_reward += r
         return total_reward / self.num_episode
@@ -47,7 +47,7 @@ def test_in_actual_model(path: str, remark: str, csv_path: str) -> None:
     with open(path + 'config.yaml', 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
     
-    num_primitive = config['num_primitive']
+    num_primitive = 1# config['num_primitive']
     all_workers = []
     for k in range(num_primitive):
         model_path = path + f'model/policy_{k}_{remark}'
@@ -75,13 +75,13 @@ def test_in_noisy_obs(path: str, remark: str, csv_path: str) -> None:
     with open(path + 'config.yaml', 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
     
-    num_primitive = config['num_primitive']
+    num_primitive =  1 #config['num_primitive']
     all_workers = []
     for k in range(num_primitive):
         model_path = path + f'model/policy_{k}_{remark}'
         all_workers.append(Worker.remote(model_path, config['model_config'], False, 0, 20))
 
-    noise_range = [round(j * 0.1 + 0, 2) for j in range(16)]
+    noise_range = [round(j * 0.1 + 0, 2) for j in range(11)]
     score_dict = {'noise scale': noise_range}
     score_dict.update({f'primitive {k}': [] for k in range(num_primitive)})
 
@@ -111,12 +111,12 @@ def test_in_noisy_obs(path: str, remark: str, csv_path: str) -> None:
 if __name__ == "__main__":
     for seed in [10, 20, 30, 40, 50]:
         test_in_actual_model(   
-            path= f'/home/xukang/Project/state_filtration_for_qd/resutls_for_ensemble/Minitaur-missing_angle_1_2_3_4-{seed}/',
+            path= f'/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Minitaur-missing_angle_1_2_3_4-{seed}/',
             remark='best',
-            csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Minitaur_actual-{seed}.csv'
+            csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/single/Minitaur_actual-{seed}.csv'
         )
         test_in_noisy_obs(   
-            path= f'/home/xukang/Project/state_filtration_for_qd/resutls_for_ensemble/Minitaur-missing_angle_1_2_3_4-{seed}/',
+            path= f'/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Minitaur-missing_angle_1_2_3_4-{seed}/',
             remark='best',
-            csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Minitaur_noise-{seed}.csv'
+            csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/single/Minitaur_noise-{seed}.csv'
         )
