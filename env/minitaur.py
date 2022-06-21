@@ -505,6 +505,10 @@ if __name__ == '__main__':
         while not done:
           a = np.random.randn(*env.action_space.shape)
           a = np.clip(a, a_low, a_high)
+
+          a[0] = 0.
+          a[1] = 0.
+
           obs, r, done, info = env.step(a)
 
           episode_step += 1
