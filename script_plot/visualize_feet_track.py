@@ -51,6 +51,7 @@ def main(path: str, remark: str, chosen_primitive: List[int], episode_length=200
 
         obs = env.reset()
         for step in range(episode_length):
+            env.render()
             obs = torch.from_numpy(obs).float()
             cfrc_ext = copy(env.unwrapped.data.cfrc_ext)
             a = policy.act(obs, False).detach().numpy()
