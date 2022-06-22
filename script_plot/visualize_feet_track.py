@@ -5,20 +5,25 @@ import torch
 import yaml
 import matplotlib.pyplot as plt
 import seaborn as sns
+import copy
+import gym
 
 from state_filtration_for_qd.env.common import call_env
 from state_filtration_for_qd.model.flat_policy import FixStdGaussianPolicy
 
 
-def main(path: str, remark: str, chosen_primitive: List[int]) -> None:
+def check_if_all_zero(array: List[float]) -> bool:
+    for item in array:
+        if item != 0:
+            return False
+    return True
+
+
+def main(path: str, remark: str, chosen_ptimitive: List[int], episode_length=200) -> None:
     with open(path + 'config.yaml', 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
     model_config = config['model_config']
-    env_config   = config['env_config']
-    
-    num_primitive = config['num_primitive']
-    env = call_env(env_config)
-    env.apply_missing_obs = False            # output the clipped observation
+    env = gym.make('Walker2d-v4')
     
     all_Pis  = []
     for k in range(chosen_primitive):
@@ -31,55 +36,51 @@ def main(path: str, remark: str, chosen_primitive: List[int]) -> None:
         policy.load_model(path + f'model/policy_{k}_{remark}')
         all_Pis.append(policy)
 
+    fig, axs = plt.subplots(nrows=len(chosen_primitive), ncols=1, sharex=True, tight_layout=True)
+    for i, ax in enumerate(axs):
+        policy = all_Pis[i]
+        left_foot_contact   = []
+        right_foot_contact  = []
 
-    height_traj_dict = dict()
-    for i, policy in enumerate(all_Pis):
-        traj_seq = []
-        for j in range(num_traj_per_prim):
-            height_traj = []
-            obs = env.reset()
-            done = False
-            while not done:
-                action = policy.act(torch.from_numpy(obs).float(), False).detach().numpy()
-                obs_, r, done, info = env.step(action)
-                height_traj.append(obs[0])      # must guarantee obs[0] is the value at global y-coordinate
-                obs = obs_
+        obs = env.reset()
+        for step in range(episode_length):
+            obs = torch.from_numpy(obs).float()
+            cfrc_ext = copy(env.unwrapped.data.cfrc_ext)
+            a = policy.act(obs, False).detach().numpy()
+            obs_, r, done, info = env.step(a)
+            next_cfrc_ext = copy(env.unwrapped_data.cfrc_ext)
+            
+            # for left leg
+            if not check_if_all_zero(cfrc_ext[7]) and check_if_all_zero(next_cfrc_ext[7]):
+                left_foot_contact.append((step, 0))
+            elif len(left_foot_contact)!=0 and check_if_all_zero(cfrc_ext[7]) and check_if_all_zero(next_cfrc_ext[7]):
+                left_foot_contact[-1][1] += 1
+            
+            # for right leg
+            if not check_if_all_zero(cfrc_ext[4]) and check_if_all_zero(next_cfrc_ext[4]):
+                left_foot_contact.append((step, 0))
+            elif len(right_foot_contact)!=0 and check_if_all_zero(cfrc_ext[4]) and check_if_all_zero(next_cfrc_ext[4]):
+                left_foot_contact[-1][1] += 1
 
-            #if len(height_traj) > min_traj_len:
-            traj_seq.append(height_traj)
-        height_traj_dict.update({f'model_{i}': traj_seq})
+        ax.broken_barh(left_foot_contact, (5, 10), facecolors='tab:blue')
+        ax.broken_barh(right_foot_contact, (20, 10), facecolors='tab:orange')
 
-    all_df = []
-    for key in list(height_traj_dict.keys()):
-        df_per_prim = []
-        for j in range(len(height_traj_dict[key])):
-            traj = height_traj_dict[key][j]
-            clipped_traj = traj
-            df_per_prim.append(pd.DataFrame({
-                'model_traj': [key + f'_traj_{j}'] * len(clipped_traj),
-                'time':       list(range(len(clipped_traj))),
-                'height':       clipped_traj
-            }))
-        df_per_prim = pd.concat(df_per_prim)
-        all_df.append(df_per_prim)
-
-    fig, axs = plt.subplots(nrows=2,ncols=num_primitive//2,figsize=(18,5),tight_layout=True,sharex=True,sharey=True)
-    for i, ax in enumerate(axs.flat):
-        sns.lineplot(
-            data= all_df[i],
-            hue= 'model_traj',
-            x= 'time',
-            y= 'height',
-            ax= ax,
-        )
-        ax.legend().set_title('')
+        ax.set_ylim(5, 30)
+        ax.set_xlim(0, episode_length)
+        ax.set_xlabel('time steps')
+        ax.set_yticks([10, 25], labels=['left foot', 'right foot'])
 
     plt.show()
 
 
 if __name__ == '__main__':
+    chosen_exp_path     = '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1-10/'
+    chosen_mark         = 'best'
+    chosen_primitive    = [0, 5, 6, 7]
+    
     main(
-        '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_leg_1-10/',
-        'best',
-        3,
+        path= chosen_exp_path,
+        remark=chosen_mark,
+        chosen_ptimitive=chosen_primitive,
+        episode_length=200
     )
