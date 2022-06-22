@@ -63,23 +63,22 @@ def main(path: str, remark: str, num_traj_per_prim: int) -> None:
         df_per_prim = pd.concat(df_per_prim)
         all_df.append(df_per_prim)
 
-    fig, axs = plt.subplots(nrows=2,ncols=num_primitive//2,figsize=(18,5),tight_layout=True,sharex=True,sharey=True)
-    for i, ax in enumerate(axs.flat):
-        sns.lineplot(
-            data= all_df[i],
-            hue= 'model_traj',
-            x= 'time',
-            y= 'height',
-            ax= ax,
-        )
-        ax.legend().set_title('')
+    fig, ax = plt.subplots(nrows=1,ncols=1,figsize=(18,5),tight_layout=True)
+    sns.lineplot(
+        data= all_df[i],
+        hue= 'model_traj',
+        x= 'time',
+        y= 'height',
+        ax= ax,
+    )
+    ax.legend().set_title('')
 
     plt.show()
 
 
 if __name__ == '__main__':
     main(
-        '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/HalfCheetah-missing_leg_1-10/',
+        '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1-10/',
         'best',
-        3,
+        1,
     )
