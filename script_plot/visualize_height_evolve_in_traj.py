@@ -51,8 +51,8 @@ def main(path: str, remark: str, num_traj_per_prim: int, chosen_primitive = [0, 
             #if len(height_traj) > min_traj_len:
             traj_seq.append(height_traj)
             reward_seq.append(reward)
-        height_traj_dict.update({f'primitive {i}': traj_seq})
-        reward_dict.update({f'primitive {i}': reward_seq})
+        height_traj_dict.update({f'policy {i+1}': traj_seq})
+        reward_dict.update({f'policy {i+1}': reward_seq})
 
     all_df = []
     for key in list(height_traj_dict.keys()):
@@ -81,7 +81,7 @@ def main(path: str, remark: str, num_traj_per_prim: int, chosen_primitive = [0, 
         all_df.append(df_per_prim)
     all_df = pd.concat(all_df)
 
-    fig, ax = plt.subplots(nrows=1,ncols=1,figsize=(5,5),tight_layout=True)
+    fig, ax = plt.subplots(nrows=1,ncols=1,figsize=(4.5,3),tight_layout=True)
     sns.lineplot(
         data= all_df,
         hue= 'model_traj',
@@ -96,7 +96,7 @@ def main(path: str, remark: str, num_traj_per_prim: int, chosen_primitive = [0, 
     ax.set_ylim([0.9, 1.8])
 
     ax.set_ylabel('Height', fontsize=12)
-    ax.set_xlabel('time step', fontsize=13)
+    ax.set_xlabel('Time step', fontsize=13)
 
     plt.show()
 

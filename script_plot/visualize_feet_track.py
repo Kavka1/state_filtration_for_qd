@@ -43,7 +43,7 @@ def main(path: str, remark: str, chosen_primitive: List[int], episode_length=200
         policy.load_model(path + f'model/policy_{k}_{remark}')
         all_Pis.append(policy)
 
-    fig, axs = plt.subplots(nrows=len(chosen_primitive), ncols=1, sharex=True, tight_layout=True, figsize=(7, 3))
+    fig, axs = plt.subplots(nrows=len(chosen_primitive), ncols=1, sharex=True, tight_layout=True, figsize=(6, 3))
     for i, ax in enumerate(axs):
         policy = all_Pis[i]
         left_foot_contact   = []
@@ -51,7 +51,7 @@ def main(path: str, remark: str, chosen_primitive: List[int], episode_length=200
 
         obs = env.reset()
         for step in range(episode_length):
-            env.render()
+            #env.render()
             obs = torch.from_numpy(obs).float()
             cfrc_ext = copy(env.unwrapped.data.cfrc_ext)
             a = policy.act(obs, False).detach().numpy()
@@ -88,7 +88,7 @@ def main(path: str, remark: str, chosen_primitive: List[int], episode_length=200
         ax.set_xlim(0, episode_length)
         ax.set_yticks([23, 10], labels=['LF', 'RF'], fontsize=12)
 
-    axs[-1].set_xlabel('time step', fontsize=13)
+    axs[-1].set_xlabel('Time step', fontsize=13)
     plt.show()
 
 
