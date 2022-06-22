@@ -16,6 +16,15 @@ def plot(csv_path: str, title: str) -> None:
 
     for path in csv_path:
         seed = path.split('.')[0].split('-')[-1]
+
+        if 'leg_1' in path:
+            broken_pos = 'leg 1'
+        elif 'leg_2' in path:
+            broken_pos = 'leg 2'
+        elif 'leg_3' in path:
+            broken_pos = 'leg 3'
+        elif 'leg_4' in path:
+            broken_pos = 'leg 4'
             
         with open(path, 'r', encoding='utf-8') as f:
             df = pd.read_csv(path)
@@ -27,6 +36,7 @@ def plot(csv_path: str, title: str) -> None:
             # process the data
             new_df.append(
                 pd.DataFrame({
+                    'broken'                    : [broken_pos] * len(max_primitive_rewards),
                     'return'                    : max_primitive_rewards,
                     'alg'                       : ['Ensemble Iterative'] * len(max_primitive_rewards),
                     'seed'                      : [seed] * len(max_primitive_rewards)
@@ -39,6 +49,7 @@ def plot(csv_path: str, title: str) -> None:
             # process the data
             new_df.append(
                 pd.DataFrame({
+                    'broken'                    : [broken_pos] * len(max_primitive_rewards),
                     'return'                    : max_primitive_rewards,
                     'alg'                       : ['Ensemble Mix'] * len(max_primitive_rewards),
                     'seed'                      : [seed] * len(max_primitive_rewards)
@@ -49,6 +60,7 @@ def plot(csv_path: str, title: str) -> None:
             baseline_rewards        =   primitive_scores[:,0]
             new_df.append(
                 pd.DataFrame({
+                    'broken'                    : [broken_pos] * len(baseline_rewards),
                     'return'                    : baseline_rewards,
                     'alg'                       : ['Single'] * len(baseline_rewards),
                     'seed'                      : [seed]  * len(baseline_rewards)
@@ -59,6 +71,7 @@ def plot(csv_path: str, title: str) -> None:
             max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
             new_df.append(
                 pd.DataFrame({
+                    'broken'                    : [broken_pos] * len(max_primitive_rewards),
                     'return'                    : max_primitive_rewards,
                     'alg'                       : ['DIAYN'] * len(max_primitive_rewards),
                     'seed'                      : [seed] * len(max_primitive_rewards)
@@ -69,6 +82,7 @@ def plot(csv_path: str, title: str) -> None:
             max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
             new_df.append(
                 pd.DataFrame({
+                    'broken'                    : [broken_pos] * len(max_primitive_rewards),
                     'return'                    : max_primitive_rewards,
                     'alg'                       : ['SMERL'] * len(max_primitive_rewards),
                     'seed'                      : [seed] * len(max_primitive_rewards)
@@ -79,6 +93,7 @@ def plot(csv_path: str, title: str) -> None:
             max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
             new_df.append(
                 pd.DataFrame({
+                    'broken'                    : [broken_pos] * len(max_primitive_rewards),
                     'return'                    : max_primitive_rewards,
                     'alg'                       : ['DvD'] * len(max_primitive_rewards),
                     'seed'                      : [seed] * len(max_primitive_rewards)
@@ -89,6 +104,7 @@ def plot(csv_path: str, title: str) -> None:
             max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
             new_df.append(
                 pd.DataFrame({
+                    'broken'                    : [broken_pos] * len(max_primitive_rewards),
                     'return'                    : max_primitive_rewards,
                     'alg'                       : ['Multiple'] * len(max_primitive_rewards),
                     'seed'                      : [seed] * len(max_primitive_rewards)
@@ -104,17 +120,16 @@ def plot(csv_path: str, title: str) -> None:
 
     sns.barplot(
         data    =   new_df,
-        #x       =   'broken',
+        x       =   'broken',
         y       =   'return',
-        x     =   'alg',
+        hue     =   'alg',
         #style   =   'alg',
         ax      =   ax
     )
     
     #ax.set_ylim([1000, 4000])
-    #ax.legend().set_title('')
-    ax.legend().remove()
-    ax.set_xlabel('', fontsize=11)
+    ax.legend().set_title('')
+    ax.set_xlabel('Damage Joint', fontsize=11)
     ax.set_ylabel('Return', fontsize=11)
     ax.set_title(title, fontsize=11)
 
@@ -123,38 +138,25 @@ def plot(csv_path: str, title: str) -> None:
 
 
 if __name__ == '__main__':
+    env = 'Minitaur'
+    broken_a = '1'
+    broken_b = '2'
+    broken_c = '3'
+    broken_d = '4'
+
+    all_paths = []
+    for alg in [
+        'ensemble', 
+        'dvd', 
+        'smerl_ppo', 
+        'multi', 
+        'single'
+    ]:
+        for broken in ['1', '2', '3', '4']:
+            for seed in ['10', '20', '30', '40', '50']:
+                all_paths.append(f'/home/xukang/Project/state_filtration_for_qd/statistic/{alg}/Minitaur_damage_leg_{broken}-{seed}.csv')
+
     plot(
-        [
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Minitaur_actual-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Minitaur_actual-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Minitaur_actual-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Minitaur_actual-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Minitaur_actual-50.csv',
-            
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/Minitaur_actual-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/Minitaur_actual-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/Minitaur_actual-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/Minitaur_actual-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/Minitaur_actual-50.csv',
-            
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/Minitaur_actual-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/Minitaur_actual-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/Minitaur_actual-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/Minitaur_actual-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/Minitaur_actual-50.csv',
-
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/Minitaur_actual-10.csv',
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/Minitaur_actual-20.csv',
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/Minitaur_actual-30.csv',
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/Minitaur_actual-40.csv',
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/Minitaur_actual-50.csv',
-
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/Minitaur_actual-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/Minitaur_actual-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/Minitaur_actual-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/Minitaur_actual-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/Minitaur_actual-50.csv',
-        ],
-        
-        f'Minitaur under actual motor model'
+        all_paths,
+        f'{env} - Damage at motors of different legs'
     )

@@ -111,12 +111,12 @@ def test_in_noisy_obs(path: str, remark: str, csv_path: str) -> None:
 if __name__ == "__main__":
     for seed in [10, 20, 30, 40, 50]:
         test_in_actual_model(   
-            path= f'/home/xukang/Project/state_filtration_for_qd/resutls_for_dvd_ppo/Minitaur-{seed}/',
+            path= f'/home/xukang/Project/state_filtration_for_qd/results_for_dvd_ppo/Minitaur-{seed}/',
             remark='best',
             csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/Minitaur_actual-{seed}.csv'
         )
         test_in_noisy_obs(   
-            path= f'/home/xukang/Project/state_filtration_for_qd/resutls_for_dvd_ppo/Minitaur-{seed}/',
+            path= f'/home/xukang/Project/state_filtration_for_qd/results_for_dvd_ppo/Minitaur-{seed}/',
             remark='best',
             csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/Minitaur_noise-{seed}.csv'
         )

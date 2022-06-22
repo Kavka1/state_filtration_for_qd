@@ -506,8 +506,8 @@ if __name__ == '__main__':
           a = np.random.randn(*env.action_space.shape)
           a = np.clip(a, a_low, a_high)
 
-          a[0] = 0.
-          a[1] = 0.
+          a[3] = 0.
+          a[7] = 0.
 
           obs, r, done, info = env.step(a)
 

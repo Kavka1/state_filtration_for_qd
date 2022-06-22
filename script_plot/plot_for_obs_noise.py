@@ -176,11 +176,11 @@ if __name__ == '__main__':
             f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{mark}-40.csv',
             f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{mark}-50.csv',
 
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{mark}-10.csv',
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{mark}-20.csv',
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{mark}-30.csv',
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{mark}-40.csv',
-            #f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{mark}-50.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{mark}-10.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{mark}-20.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{mark}-30.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{mark}-40.csv',
+            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{mark}-50.csv',
 
             #f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{mark}-10.csv',
             #f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{mark}-20.csv',
