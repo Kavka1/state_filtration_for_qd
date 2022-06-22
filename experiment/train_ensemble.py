@@ -214,6 +214,6 @@ if __name__ == '__main__':
         #50
     ]:
         config['seed'] = seed
-        main(config, '')
+        #main(config, '')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble_hyper/Minitaur-missing_angle_1_2_3_4-30/','best')
+    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1-10/','best')
