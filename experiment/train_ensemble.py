@@ -202,18 +202,64 @@ if __name__ == '__main__':
         'batch_size': 256,
         'temperature_coef': 0.1,
         'device': 'cuda',
-        'result_path': '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble_hyper/'
+        'result_path': '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/'
     }
     
     
-    for seed in [
-        #10, 
-        #20, 
-        30, 
-        #40, 
-        #50
+    for env in [
+        'Hopper',
+        'Walker',
+        'Ant',
+        #'Minitaur'
     ]:
-        config['seed'] = seed
-        #main(config, '')
+        if env == 'Hopper':
+            env_config = {
+                'env_name': 'Hopper',
+                'missing_obs_info': {
+                    'missing_coord':    [],
+                    'missing_joint':    [],
+                    'missing_leg':      ['1']
+                }
+            }
+            tradeoff = 0.05
+        elif env == 'Walker':
+            env_config = {
+                'env_name': 'Walker',
+                'missing_obs_info': {
+                    'missing_coord':    [],
+                    'missing_joint':    [],
+                    'missing_leg':      ['1']
+                }
+            }
+            tradeoff = 0.05
+        elif env == 'Ant':
+            env_config = {
+                'env_name': 'Ant',
+                'missing_obs_info': {
+                    'missing_coord':    [],
+                    'missing_joint':    [],
+                    'missing_leg':      ['1','2','3','4']
+                }
+            }
+            tradeoff = 0.01
+        elif env == 'Minitaur':
+            env_config = {
+                'env_name': 'Minitaur',
+                'missing_obs_info': {
+                    'missing_angle':    ['1','2','3','4'],
+                }
+            }
+            tradeoff = 0.001
+        else:
+            raise ValueError
 
-    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1-10/','best')
+
+        for seed in [
+            60, 70, 80
+        ]:
+            config['env_config'] = env_config
+            config['reward_tradeoff'] = tradeoff
+            config['seed'] = seed
+            main(config, '')
+
+    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1-10/','best')
