@@ -83,12 +83,12 @@ def main(path: str, remark: str, noise_index: List[int], csv_path: str) -> None:
 
 if __name__ == '__main__':
     for env, noise_idx in zip([
-        #'Hopper',
-        #'Walker',
+        'Hopper',
+        'Walker',
         'Ant'
     ],[
-        #[2,3,4,8,9,10],
-        #[2,3,4,11,12,13],
+        [2,3,4,8,9,10],
+        [2,3,4,11,12,13],
         list(range(1,4))
     ]):
         if env == 'Hopper':
