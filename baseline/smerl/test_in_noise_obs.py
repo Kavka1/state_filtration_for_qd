@@ -97,7 +97,10 @@ if __name__ == '__main__':
             csv_mark = 'leg_1'
         else:
             csv_mark = 'coord_2'
-        for seed in [10, 20, 30, 40, 50]:
+        for seed in [
+            #10, 20, 30, 40, 50
+            60,70,80
+        ]:
             main(
                 path=f'/home/xukang/Project/state_filtration_for_qd/results_for_smerl_ppo/{env}-{seed}/',
                 remark='best',
