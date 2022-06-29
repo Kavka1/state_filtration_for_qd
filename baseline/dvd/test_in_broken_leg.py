@@ -71,15 +71,18 @@ def main(path: str, remark: str, env_config: Dict, csv_path: str) -> None:
 if __name__ == "__main__":
     for env in [
         #'Hopper',
-        'Walker'
-        #'Ant'
+        #'Walker'
+        'Ant'
         ]:
-        for seed in [10, 20, 30, 40, 50]:
+        for seed in [
+            #10, 20, 30, 40, 50
+            60, 70, 80        
+        ]:
             for leg_foot in [[0,1], [1,0]]:
                 if leg_foot == [0,1]:
-                    csv_mark = 'right_leg'#'hip'#'leg'
+                    csv_mark = 'hip'#'right_leg'#'hip'#'leg'
                 else:
-                    csv_mark = 'right_foot'#'ankle'#'foot'
+                    csv_mark = 'ankle'#'right_foot'#'ankle'#'foot'
 
                 main(   
                     path= f'/home/xukang/Project/state_filtration_for_qd/results_for_dvd_ppo/{env}-{seed}/',
@@ -87,12 +90,12 @@ if __name__ == "__main__":
                     env_config={
                         'env_name': env,
                         'broken_leg_info': {
-                            'is_left_leg': False,
-                            'leg_jnt_scale': leg_foot[0],
-                            'foot_jnt_scale': leg_foot[1],
-                            #'broken_legs': ['1'],
-                            #'hip_jnt_scale': leg_foot[0],
-                            #'ankle_jnt_scale': leg_foot[1]
+                            #'is_left_leg': False,
+                            #'leg_jnt_scale': leg_foot[0],
+                            #'foot_jnt_scale': leg_foot[1],
+                            'broken_legs': ['1'],
+                            'hip_jnt_scale': leg_foot[0],
+                            'ankle_jnt_scale': leg_foot[1]
                         }
                     },
                     csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{env}_broken_{csv_mark}-{seed}.csv'

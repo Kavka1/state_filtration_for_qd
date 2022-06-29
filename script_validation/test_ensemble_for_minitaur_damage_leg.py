@@ -65,7 +65,7 @@ def test_in_damaged_leg(path: str, remark: str, csv_path: str, damage_leg: int) 
     with open(path + 'config.yaml', 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
     
-    num_primitive = 1# config['num_primitive']
+    num_primitive = config['num_primitive']
     all_workers = []
     for k in range(num_primitive):
         model_path = path + f'model/policy_{k}_{remark}'
@@ -91,10 +91,13 @@ def test_in_damaged_leg(path: str, remark: str, csv_path: str, damage_leg: int) 
 
 if __name__ == "__main__":
     for damaged_leg in [1, 2, 3, 4]:
-        for seed in [10, 20, 30, 40, 50]:
+        for seed in [
+            #10, 20, 30, 40, 50
+            60, 70, 80
+        ]:
             test_in_damaged_leg(   
                 path= f'/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Minitaur-missing_angle_1_2_3_4-{seed}/',
                 remark='best',
-                csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/single/Minitaur_damage_leg_{damaged_leg}-{seed}.csv',
+                csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Minitaur_damage_leg_{damaged_leg}-{seed}.csv',
                 damage_leg=damaged_leg,
             )

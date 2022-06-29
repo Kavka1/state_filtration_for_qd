@@ -137,73 +137,22 @@ def plot(csv_path: str, title: str) -> None:
 
 
 if __name__ == '__main__':
-    env = 'Walker'
-    broken_a = 'right_leg'
-    broken_b = 'right_foot'
+    env = 'Hopper'
+    broken_a = 'leg'
+    broken_b = 'foot'
+    
+    all_paths = []
+    for broken in [broken_a, broken_b]:
+        for alg in ['ensemble', 'dvd', 'smerl_ppo', 'multi', 'single']:
+            
+            all_seeds = ['10','20', '30','40','50','60','70','80']
+
+            for seed in all_seeds:
+                all_paths.append(
+                    f'/home/xukang/Project/state_filtration_for_qd/statistic/{alg}/{env}_broken_{broken}-{seed}.csv'
+                )
+
     plot(
-        [
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_a}-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_a}-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_a}-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_a}-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_a}-50.csv',
-            
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{env}_broken_{broken_a}-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{env}_broken_{broken_a}-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{env}_broken_{broken_a}-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{env}_broken_{broken_a}-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{env}_broken_{broken_a}-50.csv',
-            
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env}_broken_{broken_a}-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env}_broken_{broken_a}-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env}_broken_{broken_a}-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env}_broken_{broken_a}-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env}_broken_{broken_a}-50.csv',
-
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{env}_broken_{broken_a}-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{env}_broken_{broken_a}-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{env}_broken_{broken_a}-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{env}_broken_{broken_a}-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{env}_broken_{broken_a}-50.csv',
-
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env}_broken_{broken_a}-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env}_broken_{broken_a}-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env}_broken_{broken_a}-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env}_broken_{broken_a}-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env}_broken_{broken_a}-50.csv',
-
-
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_b}-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_b}-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_b}-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_b}-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{broken_b}-50.csv',
-            
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{env}_broken_{broken_b}-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{env}_broken_{broken_b}-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{env}_broken_{broken_b}-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{env}_broken_{broken_b}-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/dvd/{env}_broken_{broken_b}-50.csv',
-
-            
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env}_broken_{broken_b}-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env}_broken_{broken_b}-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env}_broken_{broken_b}-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env}_broken_{broken_b}-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/smerl_ppo/{env}_broken_{broken_b}-50.csv',
-
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{env}_broken_{broken_b}-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{env}_broken_{broken_b}-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{env}_broken_{broken_b}-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{env}_broken_{broken_b}-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{env}_broken_{broken_b}-50.csv',
-
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env}_broken_{broken_b}-10.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env}_broken_{broken_b}-20.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env}_broken_{broken_b}-30.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env}_broken_{broken_b}-40.csv',
-            f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env}_broken_{broken_b}-50.csv',
-        ],
-        
+        all_paths,
         f'{env} - Damage at different joints of the leg'
     )

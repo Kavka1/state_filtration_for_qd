@@ -90,8 +90,18 @@ def test_in_damaged_leg(path: str, remark: str, csv_path: str, damage_leg: int) 
 
 
 if __name__ == "__main__":
-    for damaged_leg in [1, 2, 3, 4]:
-        for seed in [10, 20, 30, 40, 50]:
+    for damaged_leg in [
+        #1, 
+        #2, 
+        #3, 
+        4
+    ]:
+        for seed in [
+            #10, 20, 30, 40, 50
+            #60, 
+            #70, 
+            80
+        ]:
             test_in_damaged_leg(   
                 path= f'/home/xukang/Project/state_filtration_for_qd/results_for_smerl_ppo/Minitaur-{seed}/',
                 remark='best',

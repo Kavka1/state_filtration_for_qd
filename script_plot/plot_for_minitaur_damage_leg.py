@@ -153,7 +153,7 @@ if __name__ == '__main__':
         'single'
     ]:
         for broken in ['1', '2', '3', '4']:
-            for seed in ['10', '20', '30', '40', '50']:
+            for seed in ['10', '20', '30', '40', '50', '60', '70', '80']:
                 all_paths.append(f'/home/xukang/Project/state_filtration_for_qd/statistic/{alg}/Minitaur_damage_leg_{broken}-{seed}.csv')
 
     plot(

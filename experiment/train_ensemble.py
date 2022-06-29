@@ -207,10 +207,10 @@ if __name__ == '__main__':
     
     
     for env in [
-        'Hopper',
-        'Walker',
-        'Ant',
-        #'Minitaur'
+        #'Hopper',
+        #'Walker',
+        #'Ant',
+        'Minitaur'
     ]:
         if env == 'Hopper':
             env_config = {
@@ -246,7 +246,11 @@ if __name__ == '__main__':
             env_config = {
                 'env_name': 'Minitaur',
                 'missing_obs_info': {
-                    'missing_angle':    ['1','2','3','4'],
+                    'missing_angle':    [
+                        #'1',
+                        '2','3',
+                        #'4'
+                    ],
                 }
             }
             tradeoff = 0.001
@@ -255,7 +259,7 @@ if __name__ == '__main__':
 
 
         for seed in [
-            60, 70, 80
+            10, 20, 30, 40, 50, 60, 70, 80
         ]:
             config['env_config'] = env_config
             config['reward_tradeoff'] = tradeoff

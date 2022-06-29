@@ -60,11 +60,11 @@ def main(path: str, remark: str, env_config: Dict, disturbed_param: List[str], c
     for param_scale in parameter_scale_range:
         if 'mass' in disturbed_param:
             env_config['dynamics_info'].update({
-                'leg_mass_scale':      param_scale,
+                'foot_mass_scale':      param_scale,
             })
         if 'fric' in disturbed_param:
             env_config['dynamics_info'].update({
-                'ankle_friction_scale':  param_scale
+                'foot_friction_scale':  param_scale
             })
 
         remotes = [worker.set_env.remote(env_config) for worker in all_workers]
@@ -88,14 +88,17 @@ def main(path: str, remark: str, env_config: Dict, disturbed_param: List[str], c
 
 if __name__ == '__main__':
     for env in [
-        #'Hopper',
-        #'Walker'
-        'Ant'
+        'Hopper',
+        'Walker'
+        #'Ant'
     ]:
-        for seed in [10, 20, 30, 40, 50]:
+        for seed in [
+            #10, 20, 30, 40, 50
+            60, 70, 80
+        ]:
             for disturb_param in [
                 ['mass'],
-                #['fric']
+                ['fric']
             ]:
 
                 main(
@@ -104,8 +107,8 @@ if __name__ == '__main__':
                     env_config={
                         'env_name': env,
                         'dynamics_info': {
-                            'leg_mass_scale': 1,
-                            'ankle_friction_scale': 1,
+                            'foot_mass_scale': 1,
+                            'foot_friction_scale': 1,
                         }
                     },
                     disturbed_param= disturb_param,

@@ -83,13 +83,13 @@ def main(path: str, remark: str, noise_index: List[int], csv_path: str) -> None:
 
 if __name__ == '__main__':
     for env, noise_idx in zip([
-        #'Hopper',
+        'Hopper',
         'Walker',
-        #'Ant'
+        'Ant'
     ],[
-        #[2,3,4,8,9,10],
+        [2,3,4,8,9,10],
         [2,3,4,11,12,13],
-        #list(range(1,4))
+        list(range(1,4))
     ]):
         if env == 'Hopper':
             csv_mark = 'leg_1'
@@ -97,7 +97,10 @@ if __name__ == '__main__':
             csv_mark = 'leg_1'
         else:
             csv_mark = 'coord_2'
-        for seed in [10, 20, 30, 40, 50]:
+        for seed in [
+            #10, 20, 30, 40, 50
+            60, 70, 80
+        ]:
             main(
                 path=f'/home/xukang/Project/state_filtration_for_qd/results_for_multi_policy/{env}-{seed}/',
                 remark='best',

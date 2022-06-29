@@ -44,7 +44,7 @@ def main(path: str, remark: str, env_config: Dict, csv_path: str) -> None:
     with open(path + 'config.yaml', 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
     
-    num_primitive = config['num_primitive']
+    num_primitive = 1# config['num_primitive']
     all_workers = []
     for k in range(num_primitive):
         model_path = path + f'model/policy_{k}_{remark}'
@@ -81,7 +81,10 @@ if __name__ == "__main__":
         elif env == 'Ant':
             path_mark = 'missing_leg_1_2_3_4'
             
-        for seed in [10, 20, 30, 40, 50]:
+        for seed in [
+            #10, 20, 30, 40, 50
+            60, 70, 80
+        ]:
             for leg_foot in [[0,1], [1,0]]:
                 if leg_foot == [0,1]:
                     csv_mark = 'hip'#'leg'
@@ -102,5 +105,5 @@ if __name__ == "__main__":
                             'ankle_jnt_scale': leg_foot[1]
                         }
                     },
-                    csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_broken_{csv_mark}-{seed}.csv'
+                    csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/single/{env}_broken_{csv_mark}-{seed}.csv'
                 )
