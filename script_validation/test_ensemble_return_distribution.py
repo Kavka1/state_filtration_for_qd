@@ -19,7 +19,7 @@ class Worker(object):
             model_config['a_dim'],
             model_config['policy_hidden_layers'],
             model_config['action_std'],
-            model_config['policy_activation'],
+            'Tanh',
         )
         self.model.load_model(model_path)
         self.env = call_env(env_config)
@@ -34,7 +34,7 @@ class Worker(object):
                 a = self.model.act(
                     torch.from_numpy(obs).float(),
                     False
-                )
+                ).detach().numpy()
                 obs, r, done, info = self.env.step(a)
                 total_reward += r
         return total_reward / self.num_episode
@@ -64,7 +64,7 @@ def main(path_root: str, all_seeds: List[str], remark: str, env_config: Dict, cs
 
         for primitive_idx in range(num_primitive):
             print(f'seed {seed} primitive {primitive_idx}: {all_primitive_scores[primitive_idx]}')
-            return_across_seeds_and_primitive[f'seed {seed}'].append(all_primitive_scores[primitive_idx])
+            return_across_seeds_and_primitive[f'seed {seed}'].append(float(all_primitive_scores[primitive_idx]))
 
     score_df = pd.DataFrame(return_across_seeds_and_primitive)
     score_df.to_csv(csv_path, index=False)
@@ -87,7 +87,9 @@ if __name__ == '__main__':
         'Minitaur': '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Minitaur_return_dist.csv'
     }
 
-    for env in ['Walker', 'Hopper', 'Ant', 'Minitaur']:
+    for env in [
+        #'Walker', 'Hopper', 'Ant', 
+        'Minitaur']:
         if env in ['Walker', 'Hopper', 'Ant']:
             env_config = {
                 'env_name': env,
