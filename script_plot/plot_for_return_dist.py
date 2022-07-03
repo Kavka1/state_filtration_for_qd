@@ -45,7 +45,7 @@ def plot(title: str) -> None:
     new_df = pd.concat(new_df)
 
     # plot
-    sns.set_style('white')
+    sns.set_style('whitegrid')
     fig, ax = plt.subplots(1, 1, figsize=(11,4))
 
     sns.barplot(
