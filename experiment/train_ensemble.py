@@ -247,23 +247,25 @@ if __name__ == '__main__':
                 'env_name': 'Minitaur',
                 'missing_obs_info': {
                     'missing_angle':    [
-                        #'1',
-                        '2','3',
-                        #'4'
+                        '1',
+                        '2',
+                        '3',
+                        '4'
                     ],
                 }
             }
-            tradeoff = 0.001
+            tradeoff = 0.0005
         else:
             raise ValueError
 
 
         for seed in [
-            10, 20, 30, 40, 50, 60, 70, 80
+            #10, 20, 30, 40, 50, 60, 70, 80
+            40, 50, 60
         ]:
             config['env_config'] = env_config
             config['reward_tradeoff'] = tradeoff
             config['seed'] = seed
-            main(config, '')
+            main(config, 'new_tradeoff')
 
     #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1-10/','best')

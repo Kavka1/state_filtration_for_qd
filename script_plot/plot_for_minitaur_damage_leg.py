@@ -145,8 +145,14 @@ if __name__ == '__main__':
     broken_d = '4'
 
     all_paths = []
+
+    for broken in ['1', '2', '3', '4']:
+        for seed in ['10', '20', '40', '50', '60', '70', '80']:
+            all_paths.append(f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Minitaur-missing_angle_2_3-damage_leg_{broken}-{seed}.csv')
+
+
     for alg in [
-        'ensemble', 
+        #'ensemble', 
         'dvd', 
         'smerl_ppo', 
         'multi', 
