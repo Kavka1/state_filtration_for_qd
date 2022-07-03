@@ -58,6 +58,11 @@ def plot(title: str) -> None:
         #linewidth   = 1.,
         #edgecolor = '.5',
         ax      =   ax
+    ).axhline(
+        y=0.5,
+        color='grey',
+        ls='-.',
+        lw=0.8
     )
     
     #ax.set_ylim([1000, 4000])
