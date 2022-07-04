@@ -86,7 +86,7 @@ if __name__ == '__main__':
                 'Walker':   '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1',
                 'Hopper':   '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Hopper-missing_leg_1',
                 'Ant':      '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Ant-missing_leg_1_2_3_4',
-                'Minitaur': '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Minitaur-missing_angle_2_3'
+                'Minitaur': '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/new_trdeoff-Minitaur-missing_angle_1_2_3_4'
             }
             all_csv_paths = {
                 'Walker':   '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Walker_diversity_score.csv',
@@ -109,9 +109,9 @@ if __name__ == '__main__':
             }
 
         for env in [
-            'Walker', 'Hopper', 'Ant', 
-            #'Minitaur'
-            ]:
+            #'Walker', 'Hopper', 'Ant', 
+            'Minitaur'
+        ]:
             if env in ['Walker', 'Hopper', 'Ant']:
                 env_config = {
                     'env_name': env,

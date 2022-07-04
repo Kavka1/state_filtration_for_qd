@@ -67,29 +67,31 @@ def main(path_root: str, all_seeds: List[str], remark: str, env_config: Dict, cs
             return_across_seeds_and_primitive[f'seed {seed}'].append(float(all_primitive_scores[primitive_idx]))
 
     score_df = pd.DataFrame(return_across_seeds_and_primitive)
-    score_df.to_csv(csv_path, index=False)
+    #score_df.to_csv(csv_path, index=False)
 
 
 
 if __name__ == '__main__':
     all_seeds = [f'{int(n+1) * 10}' for n in range(8)]
-    
+    all_seeds = ['50']
+
     all_path_roots = {
         'Walker':   '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1',
         'Hopper':   '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Hopper-missing_leg_1',
         'Ant':      '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Ant-missing_leg_1_2_3_4',
-        'Minitaur': '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Minitaur-missing_angle_2_3'
+        'Minitaur': '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/new_trdeoff-Minitaur-missing_angle_1_2_3_4'
     }
     all_csv_paths = {
         'Walker':   '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Walker_return_dist.csv',
         'Hopper':   '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Hopper_return_dist.csv',
         'Ant':      '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Ant_return_dist.csv',
-        'Minitaur': '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Minitaur_return_dist.csv'
+        'Minitaur': '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/new_trdeoff-Minitaur_return_dist.csv'
     }
 
     for env in [
         #'Walker', 'Hopper', 'Ant', 
-        'Minitaur']:
+        'Minitaur'
+    ]:
         if env in ['Walker', 'Hopper', 'Ant']:
             env_config = {
                 'env_name': env,

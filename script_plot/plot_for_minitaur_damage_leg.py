@@ -148,7 +148,7 @@ if __name__ == '__main__':
 
     for broken in ['1', '2', '3', '4']:
         for seed in ['10', '20', '30', '40', '50', '60', '70', '80']:
-            all_paths.append(f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Minitaur-missing_angle_2_3-damage_leg_{broken}-{seed}.csv')
+            all_paths.append(f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/new_trdeoff-Minitaur-missing_angle_1_2_3_4-damage_leg_{broken}-{seed}.csv')
 
 
     for alg in [

@@ -16,7 +16,7 @@ if __name__ == '__main__':
         'Hopper',
         'Walker',
         'Ant',
-        #'Minitaur'
+        'Minitaur'
     ]
 
     csv_log = {f'{env}': {f'{alg}': [] for alg in all_algs} for env in all_envs}

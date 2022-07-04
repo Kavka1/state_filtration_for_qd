@@ -94,13 +94,13 @@ if __name__ == "__main__":
         1, 2, 3, 4
     ]:
         for seed in [
-            #10, 20, 30, 40, 50
-            30
-            #40, 50, 60, 70, 80
+            #10, 20, 30, 40, 
+            50
+            #60, 70, 80
         ]:
             test_in_damaged_leg(   
-                path= f'/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Minitaur-missing_angle_2_3-{seed}/',
+                path= f'/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/new_trdeoff-Minitaur-missing_angle_1_2_3_4-{seed}/',
                 remark='best',
-                csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Minitaur-missing_angle_2_3-damage_leg_{damaged_leg}-{seed}.csv',
+                csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/new_trdeoff-Minitaur-missing_angle_1_2_3_4-damage_leg_{damaged_leg}-{seed}.csv',
                 damage_leg=damaged_leg,
             )

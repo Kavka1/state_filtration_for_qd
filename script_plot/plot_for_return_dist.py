@@ -24,8 +24,16 @@ num_primitive = 10
 def plot(title: str) -> None:
     new_df = []
 
+    def get_csv_path(env: str) -> str:
+        if env == 'Minitaur':
+            csv_path = f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/new_trdeoff-{env}_return_dist.csv'
+        else:
+            csv_path = f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_return_dist.csv'
+        return csv_path
+
+
     for env in all_envs:
-        csv_path = f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}_return_dist.csv'
+        csv_path = get_csv_path(env)
         df = pd.read_csv(csv_path)
         max_ret = np.max(df.values)
 
