@@ -53,7 +53,7 @@ def collect_csv_path(env: str, all_broken: List[str]) -> List[str]:
     return all_paths
 
 
-def plot(title: str) -> None:
+def plot() -> None:
     sns.set_style('white')
     fig, axs = plt.subplots(nrows=2, ncols=2, tight_layout = True, figsize= (7, 5),)
     for i, ax in enumerate(axs.flat):
