@@ -8,7 +8,7 @@ from cycler import cycler
 
 
 plt.rcParams['axes.prop_cycle']  = cycler(color=[
-    '#4E79A7', '#F28E2B', '#E15759', '#76B7B2','#59A14E',
+    '#4E79A7', '#F28E2B', '#E15759', 'dimgrey','#59A14E',
     '#EDC949','#B07AA2','#FF9DA7','#9C755F','#BAB0AC'])
 
 
@@ -23,7 +23,7 @@ csv2alg = {
 env_and_param = [
     ['Hopper', 'mass'],
     ['Hopper', 'fric'],
-    ['Walker', 'mass']
+    ['Walker', 'mass'],
     ['Walker', 'fric'],
     ['Ant', 'mass'],
     ['Ant', 'fric']
@@ -38,12 +38,23 @@ def collect_csv_path(env: str, param: str) -> List[str]:
             )
     return all_paths
 
-
+def title_fig(env: str, param: str) -> str:
+    if env in ['Hopper', 'Walker']:
+        if param == 'fric':
+            title = f'{env} - foot friction'
+        else:
+            title = f'{env} - foot {param}' 
+    else:
+        if param == 'mass':
+            title = 'Ant - leg mass'
+        else:
+            title = 'Ant - ankle friction'
+    return title
 
 
 def plot() -> None:
-    sns.set_style('white')
-    fig, axes = plt.subplots(nrows=3, ncols=2, tight_layout=True, figsize=(7, 8), sharey=True)
+    sns.set_style('whitegrid')
+    fig, axes = plt.subplots(nrows=3, ncols=2, tight_layout=True, figsize=(9, 9.5), sharey=False, sharex=True)
     for i, ax in enumerate(axes.flat):
 
         env = env_and_param[i][0]
@@ -55,22 +66,32 @@ def plot() -> None:
             seed = path.split('.')[0].split('-')[-1]
             with open(path, 'r', encoding='utf-8') as f:
                 df = pd.read_csv(path)
-            all_param_scale = df.values[:,0]
 
             for csvkey in list(csv2alg.keys()):
                 if csvkey in path:
                     alg_key = csvkey
                     break
             primitive_scores = df.values[:,1:]
-            max_primitive_rewards   =   np.max(primitive_scores, axis=-1)
-            baseline_rewards        =   primitive_scores[:,0]
+            max_primitive_rewards   =   np.max(primitive_scores, axis=-1).tolist()
+            
+            # remove half data
+            all_param_scale = df.values[:,0].tolist()
+            for j in reversed(range(len(max_primitive_rewards))):
+                if j%2 == 0:
+                    temp = copy(max_primitive_rewards[j])
+                    scale_temp = copy(all_param_scale[j])
+
+                    max_primitive_rewards.remove(temp)
+                    all_param_scale.remove(scale_temp)
+
+
             # process the data
             new_df.append(
                 pd.DataFrame({
                     'param scale'               : all_param_scale,
                     'return'                    : max_primitive_rewards,
-                    'alg'                       : [f'{csv2alg[alg_key]}'] * len(max_primitive_rewards),
-                    'seed'                      : [seed] * len(max_primitive_rewards)
+                    'alg'                       : [f'{csv2alg[alg_key]}' for _ in range(len(max_primitive_rewards))],
+                    'seed'                      : [f'{seed}' for _ in range(len(max_primitive_rewards))]
                 })
             ) 
 
@@ -84,18 +105,28 @@ def plot() -> None:
             hue     =   'alg',
             style   =   'alg',
             ax      =   ax,
-            dashes  =   False,
+            dashes  =   True,
             markers =   True,
-            err_style   =   'band'
+            err_style   =   'band',
+            #sizes= (5,5,5,5,5)
+            linewidth = 1
         )
         #ax.set_ylim([1000, 4000])
-        if i == 0:
+        if i == 1:
             ax.legend().set_title('')
         else:
             ax.legend().remove()
-        ax.set_xlabel('Dynamics parameter scale', fontsize=11)
-        ax.set_ylabel('Return', fontsize=11)
-        ax.set_title(f'{env} - disturbed {param}', fontsize=12)
+        ax.set_xlabel('Scale of the parameter', fontsize=12)
+        if i % 2 == 0:
+            ax.set_ylabel('Return', fontsize=12)
+        else:
+            ax.set_ylabel('')
+        ax.set_title(title_fig(env, param), fontsize=12)
+        for _, s in ax.spines.items():
+            s.set_linewidth(1.5)
+
+
+        #sns.despine(fig, ax)
 
     plt.show()
 
