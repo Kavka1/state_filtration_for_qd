@@ -13,7 +13,7 @@ list_of_policy_id = list(range(1, 11))
 
 sns.set_style('whitegrid')
 
-fig, ax = plt.subplots(1, 1, figsize=(16, 4.2))
+fig, ax = plt.subplots(1, 1, figsize=(17, 3.8))
 sns.despine(fig, ax)
 
 sns.pointplot(
@@ -27,7 +27,7 @@ sns.pointplot(
 for _, s in ax.spines.items():
     s.set_linewidth(1.5)
     s.set_color('black')
-ax.set_ylim((0, 4000))
+ax.set_ylim((700, 3600))
 ax.set_xlabel('Policy index', fontsize=12)
 ax.set_ylabel('Return', fontsize=12)
 
