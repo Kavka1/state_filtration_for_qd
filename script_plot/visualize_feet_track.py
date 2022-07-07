@@ -43,7 +43,7 @@ def main(path: str, remark: str, chosen_primitive: List[int], episode_length=200
         policy.load_model(path + f'model/policy_{k}_{remark}')
         all_Pis.append(policy)
 
-    fig, axs = plt.subplots(nrows=len(chosen_primitive), ncols=1, sharex=True, tight_layout=True, figsize=(6, 3))
+    fig, axs = plt.subplots(nrows=len(chosen_primitive), ncols=1, sharex=False, tight_layout=True, figsize=(4, 4.3))
     for i, ax in enumerate(axs):
         policy = all_Pis[i]
         left_foot_contact   = []
@@ -88,7 +88,7 @@ def main(path: str, remark: str, chosen_primitive: List[int], episode_length=200
         ax.set_xlim(0, episode_length)
         ax.set_yticks([23, 10], labels=['LF', 'RF'], fontsize=12)
 
-    axs[-1].set_xlabel('Time step', fontsize=13)
+        ax.set_xlabel('Time step', fontsize=12)
     plt.show()
 
 
@@ -97,6 +97,8 @@ if __name__ == '__main__':
     chosen_mark         = 'best'
     chosen_primitive    = [0, 6, 7, 8]
     
+   
+
     main(
         path= chosen_exp_path,
         remark=chosen_mark,

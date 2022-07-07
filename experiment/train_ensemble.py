@@ -185,7 +185,7 @@ if __name__ == '__main__':
             }
         },
 
-        'num_primitive': 10,
+        'num_primitive': 15,
         'max_timesteps_per_primitive': 2000000,
         'save_interval': 40,
         'log_interval': 10,
@@ -208,9 +208,9 @@ if __name__ == '__main__':
     
     for env in [
         #'Hopper',
-        #'Walker',
+        'Walker',
         #'Ant',
-        'Minitaur'
+        #'Minitaur'
     ]:
         if env == 'Hopper':
             env_config = {
@@ -261,11 +261,12 @@ if __name__ == '__main__':
 
         for seed in [
             #10, 20, 30, 40, 50, 60, 70, 80
-            40, 50, 60
+            #40, 50, 60
+            10
         ]:
             config['env_config'] = env_config
             config['reward_tradeoff'] = tradeoff
             config['seed'] = seed
-            main(config, 'new_tradeoff')
+            #main(config, 'Open-ended-walker-15')
 
-    #demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1-10/','best')
+    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Open-ended-walker-15-Walker-missing_leg_1-10/','best')

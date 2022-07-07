@@ -53,7 +53,7 @@ def title_fig(env: str, param: str) -> str:
 
 
 def plot() -> None:
-    sns.set_style('whitegrid')
+    sns.set_style('white')
     fig, axes = plt.subplots(nrows=3, ncols=2, tight_layout=True, figsize=(9, 9.5), sharey=False, sharex=True)
     for i, ax in enumerate(axes.flat):
 
@@ -123,7 +123,7 @@ def plot() -> None:
             ax.set_ylabel('')
         ax.set_title(title_fig(env, param), fontsize=12)
         for _, s in ax.spines.items():
-            s.set_linewidth(1.5)
+            s.set_linewidth(1.2)
 
 
         #sns.despine(fig, ax)
