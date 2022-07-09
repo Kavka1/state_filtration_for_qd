@@ -16,13 +16,26 @@ def plot(csv_path: str, title: str) -> None:
 
     for path in csv_path:
         seed = path.split('.')[0].split('-')[-1]
+        '''
         if 'Hopper' in path:
             env = 'Hopper'
         elif 'Walker' in path:
             env = 'Walker'
         elif 'Ant' in path:
             env = 'Ant'
-            
+        '''
+
+
+        if 'coord_2' in path:
+            env = 'Ant - coord 2'
+        elif 'coord_3' in path:
+            env = 'Ant - coord 3'
+        elif 'coord_4' in path:
+            env = 'Ant - coord 4'
+        elif 'coord_5' in path:
+            env = 'Ant - coord 5'
+
+
         with open(path, 'r', encoding='utf-8') as f:
             df = pd.read_csv(path)
 
@@ -123,9 +136,12 @@ def plot(csv_path: str, title: str) -> None:
 
 if __name__ == '__main__':
     env_and_deffective_sensot = [
-        ('Hopper', 'leg_1'),
-        ('Walker', 'leg_1'),
-        ('Ant',    'coord_2')
+        #('Hopper', 'leg_1'),
+        #('Walker', 'leg_1'),
+        ('Ant',    'coord_2'),
+        ('Ant',    'coord_3'),
+        ('Ant',    'coord_4'),
+        ('Ant',    'coord_5')
     ]
     
     all_paths = []
