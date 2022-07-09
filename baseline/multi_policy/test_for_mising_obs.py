@@ -48,7 +48,7 @@ def main(path: str, remark: str, obs_index: List[int], csv_path: str) -> None:
     with open(path + 'config.yaml', 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
     
-    num_primitive = config['num_primitive']
+    num_primitive = config['model_config']['z_dim']
     all_workers = []
     for k in range(num_primitive):
         model_path = path + f'model/policy_{k}_{remark}'
@@ -87,18 +87,15 @@ if __name__ == '__main__':
         list(range(1,4))
     ]):
         if env == 'Hopper':
-            path_mark = 'missing_leg_1'
             csv_mark = 'leg_1'
         elif env == 'Walker':
-            path_mark = 'missing_leg_1'
             csv_mark = 'leg_1'
         else:
-            path_mark = 'missing_leg_1_2_3_4'
             csv_mark = 'coord_2'
         for seed in [10, 20, 30, 40, 50, 60, 70, 80]:
             main(
-                path=f'/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/{env}-{path_mark}-{seed}/',
+                path=f'/home/xukang/Project/state_filtration_for_qd/results_for_multi/{env}-{seed}/',
                 remark='best',
                 obs_index=obs_index,
-                csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}-defective_sensor-{csv_mark}-{seed}.csv'
+                csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/multi/{env}-defective_sensor-{csv_mark}-{seed}.csv'
             )
