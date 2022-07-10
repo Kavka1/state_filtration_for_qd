@@ -13,10 +13,11 @@ if __name__ == '__main__':
         'ensemble',
     ]
     all_sensor_failure = [
-        '1',
+        
         '2',
         '3',
-        '4'
+        '4',
+        '5'
     ]
 
     csv_log = {f'coord {sensor}': {f'{alg}': [] for alg in all_algs} for sensor in all_sensor_failure}
@@ -34,8 +35,8 @@ if __name__ == '__main__':
                 #csv_log[sensor][alg].append(np.max(df_values))
             mean, std = np.mean(performance_over_all_seeds), np.std(performance_over_all_seeds)
 
-            print(f'{sensor}-{alg}: mean - {round(mean, 2)} std - {round(mean, 2)}')
-            csv_log[sensor][alg] += [round(mean, 2), round(mean, 2)]
+            print(f'{sensor}-{alg}: mean - {round(mean, 2)} std - {round(std, 2)}')
+            csv_log[f'coord {sensor}'][alg].append((round(mean, 2), round(std, 2)))
 
     csv_log = pd.DataFrame(csv_log)
     csv_log.to_csv('/home/xukang/Project/state_filtration_for_qd/statistic/defective_sensor.csv')
