@@ -114,6 +114,11 @@ def main(path: str, remark: str, num_episode: int) -> None:
 
 if __name__ == '__main__':
     chosen_exp_path     = '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Walker-missing_leg_1-50/'
+    chosen_exp_path     = '/home/xukang/Project/state_filtration_for_qd/results_for_smerl_ppo/Walker-50/'
+    chosen_exp_path     = '/home/xukang/Project/state_filtration_for_qd/results_for_dvd/Walker-50/'
+    chosen_exp_path     = '/home/xukang/Project/state_filtration_for_qd/results_for_multi/Walker-50/'
+    
+
     chosen_mark         = 'best'
     main(
         path= chosen_exp_path,

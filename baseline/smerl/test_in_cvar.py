@@ -93,7 +93,8 @@ if __name__ == '__main__':
     }
 
     for env in [
-        'Walker', 'Hopper', 'Ant', 'Minitaur'
+        #'Walker', 'Hopper', 'Ant', 
+        'Minitaur'
     ]:
         if env in ['Walker', 'Hopper', 'Ant']:
             env_config = {

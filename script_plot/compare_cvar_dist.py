@@ -16,7 +16,7 @@ all_envs = [
     'Hopper',
     'Walker',
     'Ant',
-    #'Minitaur'
+    'Minitaur'
 ]
 all_algs = [
     'DiR',
