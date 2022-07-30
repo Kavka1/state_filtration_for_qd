@@ -36,7 +36,7 @@ num_primitive = 10
 
 
 def plot_ret_quantile() -> None:
-    sns.set_style('white')
+    sns.set_style('whitegrid')
 
     def get_csv_path(env: str, alg: str) -> str:
         if env == 'Minitaur' and alg == 'DiR':
@@ -45,7 +45,7 @@ def plot_ret_quantile() -> None:
             csv_path = f'/home/xukang/Project/state_filtration_for_qd/statistic/{all_alg_csv[alg]}/{env}_return_dist.csv'
         return csv_path
 
-    fig, axs = plt.subplots(nrows=2,ncols=2,tight_layout=True,figsize=(6.5, 4.5), sharex=True)
+    fig, axs = plt.subplots(nrows=2,ncols=2,tight_layout=True,figsize=(6, 5), sharex=False)
     
     for i, ax in enumerate(axs.flat):
         # plot mean ret dist
@@ -97,6 +97,8 @@ def plot_ret_quantile() -> None:
             ax.set_ylabel('Return', fontsize=12)
         ax.set_title(f'{env}', fontsize=12)
         
+        for _, s in ax.spines.items():
+            s.set_linewidth(1.2)
         #for _, s in ax.spines.items():
         #   s.set_linewidth(1.1)
 
