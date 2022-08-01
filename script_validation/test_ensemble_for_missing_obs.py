@@ -77,34 +77,23 @@ def main(path: str, remark: str, obs_index: List[int], csv_path: str) -> None:
 
 
 if __name__ == '__main__':
-    env = 'Ant'
-    path_mark = 'missing_leg_1_2_3_4'
+    env = 'Walker'
+    path_mark = 'missing_leg_1'
     
     for obs_index in [
         #[2,3,4,8,9,10],
         #[2,3,4,11,12,13],
         #list(range(1,4)),
-        list(range(4,7)),
-        list(range(7,10)),
-        list(range(10,13)),
+        #list(range(4,7)),
+        #list(range(7,10)),
+        #list(range(10,13)),
+        [2,3,4],
+        [5,6,7]
     ]:
-        '''
-        if env == 'Hopper':
-            path_mark = 'missing_leg_1'
-            csv_mark = 'leg_1'
-        elif env == 'Walker':
-            path_mark = 'missing_leg_1'
-            csv_mark = 'leg_1'
-        else:
-            path_mark = 'missing_leg_1_2_3_4'
+        if obs_index == [2,3,4]:
             csv_mark = 'coord_2'
-        '''
-        if obs_index == [4,5,6]:
+        elif obs_index == [5,6,7]:
             csv_mark = 'coord_3'
-        elif obs_index == [7,8,9]:
-            csv_mark = 'coord_4'
-        elif obs_index == [10,11,12]:
-            csv_mark = 'coord_5'
 
         for seed in [10, 20, 30, 40, 50, 60, 70, 80]:
             main(
