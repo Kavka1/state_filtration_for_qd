@@ -13,7 +13,7 @@ list_of_policy_id = list(range(1, 11))
 
 sns.set_style('whitegrid')
 
-fig, ax = plt.subplots(1, 1, figsize=(13, 4.5))
+fig, ax = plt.subplots(1, 1, figsize=(17, 4))
 sns.despine(fig, ax)
 
 sns.pointplot(
