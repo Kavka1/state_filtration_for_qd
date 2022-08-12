@@ -39,7 +39,7 @@ def compuate_diversity_determinant(pop_action_batch: List[torch.tensor]) -> floa
 
 
 
-def main(path_root: str, all_seeds: List[str], remark: str, env_config: Dict, csv_path: str) -> None:
+def main(path_root: str, all_seeds: List[str], remark: str, env_config: Dict, csv_path: str, a_dim: List[int] = None) -> None:
     state_batch = state_collection(env_config, 2000)
     state_batch_tensor = torch.from_numpy(state_batch).float().to(torch.device('cuda'))
 
@@ -63,18 +63,25 @@ def main(path_root: str, all_seeds: List[str], remark: str, env_config: Dict, cs
             ).to(torch.device('cuda'))
             model.load_model(model_path)
             action_batch = model(state_batch_tensor).mean
+            if a_dim:
+                action_batch = action_batch.index_select(-1, torch.tensor(a_dim).to('cuda'))
             pop_action_batch.append(action_batch)
 
         diversity_score = compuate_diversity_determinant(pop_action_batch)
         all_diversity_score[f'seed {seed}'].append(diversity_score)
 
     score_df = pd.DataFrame(all_diversity_score)
-    score_df.to_csv(csv_path, index=False)
+    if a_dim:
+        score_df.to_csv(csv_path + f'a_dim_{a_dim}.csv', index=False)
+    else:
+        score_df.to_csv(csv_path + '.csv', index=False)
 
 
 if __name__ == '__main__':
     all_seeds = [f'{int(n+1) * 10}' for n in range(8)]
     
+    a_dim = [0,1,2]
+
     for alg in [
         'ensemble',
         'dvd',
@@ -89,10 +96,10 @@ if __name__ == '__main__':
                 'Minitaur': '/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/new_trdeoff-Minitaur-missing_angle_1_2_3_4'
             }
             all_csv_paths = {
-                'Walker':   '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Walker_diversity_score.csv',
-                'Hopper':   '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Hopper_diversity_score.csv',
-                'Ant':      '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Ant_diversity_score.csv',
-                'Minitaur': '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Minitaur_diversity_score.csv'
+                'Walker':   '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Walker_diversity_score',
+                'Hopper':   '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Hopper_diversity_score',
+                'Ant':      '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Ant_diversity_score',
+                'Minitaur': '/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/Minitaur_diversity_score'
             }
         else:
             all_path_roots = {
@@ -102,15 +109,17 @@ if __name__ == '__main__':
                 'Minitaur': f'/home/xukang/Project/state_filtration_for_qd/results_for_{alg}/Minitaur'
             }
             all_csv_paths = {
-                'Walker':   f'/home/xukang/Project/state_filtration_for_qd/statistic/{alg}/Walker_diversity_score.csv',
-                'Hopper':   f'/home/xukang/Project/state_filtration_for_qd/statistic/{alg}/Hopper_diversity_score.csv',
-                'Ant':      f'/home/xukang/Project/state_filtration_for_qd/statistic/{alg}/Ant_diversity_score.csv',
-                'Minitaur': f'/home/xukang/Project/state_filtration_for_qd/statistic/{alg}/Minitaur_diversity_score.csv'
+                'Walker':   f'/home/xukang/Project/state_filtration_for_qd/statistic/{alg}/Walker_diversity_score',
+                'Hopper':   f'/home/xukang/Project/state_filtration_for_qd/statistic/{alg}/Hopper_diversity_score',
+                'Ant':      f'/home/xukang/Project/state_filtration_for_qd/statistic/{alg}/Ant_diversity_score',
+                'Minitaur': f'/home/xukang/Project/state_filtration_for_qd/statistic/{alg}/Minitaur_diversity_score'
             }
 
         for env in [
-            #'Walker', 'Hopper', 'Ant', 
-            'Minitaur'
+            'Walker', 
+            #'Hopper', 
+            #'Ant', 
+            #'Minitaur'
         ]:
             if env in ['Walker', 'Hopper', 'Ant']:
                 env_config = {
@@ -134,5 +143,6 @@ if __name__ == '__main__':
                 all_seeds,
                 'best',
                 env_config,
-                all_csv_paths[env]
+                all_csv_paths[env],
+                a_dim
             )

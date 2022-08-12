@@ -132,7 +132,7 @@ def plot(csv_path: str, title: str) -> None:
 
 if __name__ == '__main__':
     env_name = 'Hopper'
-    disturbed_param = 'mass'
+    disturbed_param = 'torso_mass'
 
     all_paths = []
     for alg in ['ensemble', 'dvd', 'smerl_ppo', 'multi', 'single']:
@@ -143,5 +143,5 @@ if __name__ == '__main__':
 
     plot(
         all_paths,
-        f'{env_name} - dynamics parameter scaled at the leg {disturbed_param}'
+        f'{env_name} - dynamics parameter scaled at the torso mass'
     )

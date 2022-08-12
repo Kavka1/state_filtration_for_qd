@@ -5,13 +5,14 @@ from gym.envs.mujoco.hopper import HopperEnv
 
 
 class Disturb_Dynamics_Hopper(HopperEnv):
-    def __init__(self, foot_mass_scale: float, foot_friction_scale: float):
+    def __init__(self, foot_mass_scale: float, foot_friction_scale: float, torso_mass_scale: float, ):
         self.episode_length = 1000
         self.episode_step   = 0
         
         super().__init__()
         self.model.body_mass[-1] = self.model.body_mass[-1] * foot_mass_scale                       # foot mass scale
         self.model.geom_friction[-1][0] = self.model.geom_friction[-1][0] * foot_friction_scale     # foot friction scale
+        self.model.body_mass[1] = self.model.body_mass[1] * torso_mass_scale                        # torso mass
 
     def step(self, action: np.array) -> Tuple:
         obs, r, done, info = super().step(action)

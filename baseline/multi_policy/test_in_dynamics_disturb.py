@@ -58,14 +58,19 @@ def main(path: str, remark: str, env_config: Dict, disturbed_param: List[str], c
     score_dict.update({f'primitive {k}': [] for k in range(num_primitive)})
 
     for param_scale in parameter_scale_range:
-        if 'mass' in disturbed_param:
+        if 'foot_mass' in disturbed_param:
             env_config['dynamics_info'].update({
                 'foot_mass_scale':      param_scale,
             })
-        if 'fric' in disturbed_param:
+        if 'foot_fric' in disturbed_param:
             env_config['dynamics_info'].update({
                 'foot_friction_scale':  param_scale
             })
+        if 'torso_mass' in disturbed_param:
+            env_config['dynamics_info'].update({
+                'torso_mass_scale':  param_scale
+            })
+
 
         remotes = [worker.set_env.remote(env_config) for worker in all_workers]
         ray.get(remotes)
@@ -89,26 +94,27 @@ def main(path: str, remark: str, env_config: Dict, disturbed_param: List[str], c
 if __name__ == '__main__':
     for env in [
         'Hopper',
-        'Walker'
+        #'Walker'
         #'Ant'
     ]:
         for seed in [
-            #10, 20, 30, 40, 50
-            60, 70, 80
+            10, 20, 30, 40, 50, 60, 70, 80
         ]:
             for disturb_param in [
-                ['mass'],
-                ['fric']
+                ##['mass'],
+                #['fric']
+                ['torso_mass']
             ]:
 
                 main(
-                    path=f'/home/xukang/Project/state_filtration_for_qd/results_for_multi_policy/{env}-{seed}/',
+                    path=f'/home/xukang/Project/state_filtration_for_qd/results_for_multi/{env}-{seed}/',
                     remark='best',
                     env_config={
                         'env_name': env,
                         'dynamics_info': {
                             'foot_mass_scale': 1,
                             'foot_friction_scale': 1,
+                            'torso_mass_scale': 1
                         }
                     },
                     disturbed_param= disturb_param,

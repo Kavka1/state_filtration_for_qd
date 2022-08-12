@@ -138,6 +138,9 @@ def demo(path: str, remark: str) -> None:
 
                 obs = torch.from_numpy(obs).float()
                 a = policy.act(obs, False).detach().numpy()
+
+                a = np.zeros_like(a)
+
                 obs, r, done, info = env.step(a)
                 episode_r += r
             print(f"Primitive {k} CheckPoint {remark} Episode {_} Episode Reward {episode_r}")
@@ -269,4 +272,4 @@ if __name__ == '__main__':
             config['seed'] = seed
             #main(config, 'Open-ended-walker-15')
 
-    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Open-ended-walker-15-Walker-missing_leg_1-10/','best')
+    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Ant-missing_leg_1_2_3_4-10/','best')        
