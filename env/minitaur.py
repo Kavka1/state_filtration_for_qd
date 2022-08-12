@@ -471,7 +471,7 @@ class Missing_Info_Minitaur(MinitaurBulletEnv):
         motor_angle_1_idx    =   [0,1]
         motor_angle_2_idx    =   [2,3]
         motor_angle_3_idx    =   [4,5]
-        motor_angle_4_idx    =   [6,8]
+        motor_angle_4_idx    =   [6,7]
         if '4' in self.missing_angle:
             obs = np.delete(obs, motor_angle_4_idx)
         if '3' in self.missing_angle:

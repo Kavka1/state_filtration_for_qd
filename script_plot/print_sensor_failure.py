@@ -5,7 +5,7 @@ import numpy as np
 
 
 if __name__ == '__main__':
-    env = 'Ant'
+    env = 'Hopper'
     all_seeds = [f'{int(n+1) * 10}' for n in range(8)]
     all_algs    = [
         'multi',
@@ -14,10 +14,11 @@ if __name__ == '__main__':
         'ensemble',
     ]
     all_sensor_failure = [
-        'coord_2',
-        'coord_3',
-        'coord_4',
-        'coord_5'
+        'vel_2'
+        #'coord_2',
+        #'coord_3',
+        #'coord_4',
+        #'coord_5'
     ]
 
     csv_log = {f'coord {sensor}': {f'{alg}': [] for alg in all_algs} for sensor in all_sensor_failure}

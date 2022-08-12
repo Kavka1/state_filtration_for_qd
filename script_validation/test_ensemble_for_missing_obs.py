@@ -37,7 +37,7 @@ class Worker(object):
                 a = self.model.act(
                     torch.from_numpy(obs).float(),
                     False
-                )
+                ).detach().numpy()
                 obs, r, done, info = self.env.step(a)
                 total_reward += r
         return total_reward / self.num_episode
@@ -77,8 +77,8 @@ def main(path: str, remark: str, obs_index: List[int], csv_path: str) -> None:
 
 
 if __name__ == '__main__':
-    env = 'Walker'
     path_mark = 'missing_leg_1'
+    env = 'Minitaur'
     
     for obs_index in [
         #[2,3,4,8,9,10],
@@ -87,17 +87,29 @@ if __name__ == '__main__':
         #list(range(4,7)),
         #list(range(7,10)),
         #list(range(10,13)),
-        [2,3,4],
-        [5,6,7]
+        #[8,9,10],
+        #[5,6,7]
+        [8,9],
+        [10,11],
+        [12,13],
+        [14,15]
     ]:
-        if obs_index == [2,3,4]:
-            csv_mark = 'coord_2'
-        elif obs_index == [5,6,7]:
-            csv_mark = 'coord_3'
+        if obs_index == [8,9]:
+            csv_mark = 'vel_1'
+        elif obs_index == [10,11]:
+            csv_mark = 'vel_2'
+        elif obs_index == [12,13]:
+            csv_mark = 'vel_3'
+        elif obs_index == [14,15]:
+            csv_mark = 'vel_4'
 
         for seed in [10, 20, 30, 40, 50, 60, 70, 80]:
+            if env == 'Minitaur':
+                path = f'/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/new_trdeoff-Minitaur-missing_angle_1_2_3_4-{seed}/'
+            else:
+                path = f'/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/{env}-{path_mark}-{seed}/'
             main(
-                path=f'/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/{env}-{path_mark}-{seed}/',
+                path=path,
                 remark='best',
                 obs_index=obs_index,
                 csv_path=f'/home/xukang/Project/state_filtration_for_qd/statistic/ensemble/{env}-defective_sensor-{csv_mark}-{seed}.csv'
