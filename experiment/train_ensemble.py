@@ -93,14 +93,14 @@ def main(config: Dict, exp_name: str = ''):
         
 
 
-def demo(path: str, remark: str) -> None:
+def demo(path: str, remark: str, policy_index: int = None) -> None:
     with open(path + 'config.yaml', 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
     
     num_primitive = config['num_primitive']
     all_policy = []
 
-    for k in range(num_primitive):
+    if policy_index:
         policy = FixStdGaussianPolicy(
             config['model_config']['o_dim'],
             config['model_config']['a_dim'],
@@ -108,8 +108,20 @@ def demo(path: str, remark: str) -> None:
             config['model_config']['action_std'],
             'Tanh'
         )
-        policy.load_model(path + f'model/policy_{k}_{remark}')
+        policy.load_model(path + f'model/policy_{policy_index}_{remark}')
         all_policy.append(policy)
+    else:
+        for k in range(num_primitive):
+            policy = FixStdGaussianPolicy(
+                config['model_config']['o_dim'],
+                config['model_config']['a_dim'],
+                config['model_config']['policy_hidden_layers'],
+                config['model_config']['action_std'],
+                'Tanh'
+            )
+            policy.load_model(path + f'model/policy_{k}_{remark}')
+            all_policy.append(policy)
+    
     
     env = call_env(config['env_config'], is_render=True)
     
@@ -139,7 +151,7 @@ def demo(path: str, remark: str) -> None:
                 obs = torch.from_numpy(obs).float()
                 a = policy.act(obs, False).detach().numpy()
 
-                a = np.zeros_like(a)
+                #a = np.zeros_like(a)
 
                 obs, r, done, info = env.step(a)
                 episode_r += r
@@ -272,4 +284,4 @@ if __name__ == '__main__':
             config['seed'] = seed
             #main(config, 'Open-ended-walker-15')
 
-    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/Ant-missing_leg_1_2_3_4-10/','best')        
+    demo('/home/xukang/Project/state_filtration_for_qd/results_for_ensemble/new_trdeoff-Minitaur-missing_angle_1_2_3_4-10/','best', 3)   

@@ -12,7 +12,8 @@ from gym.envs.mujoco import mujoco_env
 class AntEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self):
         mujoco_env.MujocoEnv.__init__(self, 
-        "/home/xukang/Project/state_filtration_for_qd/env/assets/crippled_ant.xml"
+        #"/home/xukang/Project/state_filtration_for_qd/env/assets/crippled_ant.xml"
+        "ant.xml"
         , 5, mujoco_bindings="mujoco_py")
         utils.EzPickle.__init__(self)
 
