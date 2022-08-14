@@ -45,7 +45,7 @@ def plot_ret_quantile() -> None:
             csv_path = f'/home/xukang/Project/state_filtration_for_qd/statistic/{all_alg_csv[alg]}/{env}_return_dist.csv'
         return csv_path
 
-    fig, axs = plt.subplots(nrows=2,ncols=2,tight_layout=True,figsize=(7, 5), sharex=False)
+    fig, axs = plt.subplots(nrows=2,ncols=2,tight_layout=True,figsize=(8, 4), sharex=True)
     
     for i, ax in enumerate(axs.flat):
         # plot mean ret dist
@@ -90,12 +90,12 @@ def plot_ret_quantile() -> None:
         else:
             ax.legend().remove()
     
-        ax.set_xlabel('Percentile', fontsize=12)
+        ax.set_xlabel('Percentile', fontsize=13)
         if i == 1 or i == 3:
-            ax.set_ylabel('', fontsize=12)
+            ax.set_ylabel('', fontsize=13)
         else:
-            ax.set_ylabel('Return', fontsize=12)
-        ax.set_title(f'{env}', fontsize=12)
+            ax.set_ylabel('Return', fontsize=13)
+        ax.set_title(f'{env}', fontsize=13)
         
         for _, s in ax.spines.items():
             s.set_linewidth(1.2)
